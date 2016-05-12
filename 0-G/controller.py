@@ -1,3 +1,6 @@
+# This is a simple test controller that scales and averages values over
+# an interval
+
 import time
 import gevent
 import gevent.monkey
