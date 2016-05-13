@@ -123,7 +123,8 @@ void setDisplay(const bool isIdle, const int sensorValue) {
       for (int y = 0; y < PANEL_ROWS; y++) {
         int displayRow = y+(p*PANEL_ROWS);
         // idle == attract mode ignores the sensor and high watermark values
-        if (isIdle || showRow(displayRow, sensorValue) || (currentHWM > 0 && (displayRow == hwmRow))) {
+        // add || (currentHWM > 0 && (displayRow == hwmRow) to display high watermark
+        if (isIdle || showRow(displayRow, sensorValue)) {
           if (getDot(isIdle, x, displayRow)) {
             val = val | (1 << (y+1) - 1);
           }
