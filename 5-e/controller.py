@@ -5,22 +5,27 @@ gevent.monkey.patch_all()
 import socket
 import serial
 
-s = serial.Serial("/dev/ttyACM2", 9600)
+#r = (0,1,5,9,14,18,23,27,32,36,41,45,50,54,59,63,68,72,77,81,86,90,95,99)
+
+s = serial.Serial("/dev/ttyACM0", 9600)
 def client():
   client_socket = gevent.socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   client_socket.connect(("127.0.0.1", 6000))
   t0 = time.time()
   while True:
     data = client_socket.recv(1024)
-    try:
-        value = int(data)
-    except:
-        print "failed to parse", data
-    else:
-        adj = value / 3
-        print adj
-        s.write("%d\r" % adj)
-        s.flush()
+    t1 = time.time()
+    if t1 - t0 > 0.25:
+      try:
+          value = int(data)
+      except:
+          print "failed to parse", data
+      else:
+          adj = int((value-20)*1.75)
+          print adj
+          s.write("%d\r" % adj)
+          s.flush()
+      t0 = time.time()
 
 client = gevent.spawn(client)
 
