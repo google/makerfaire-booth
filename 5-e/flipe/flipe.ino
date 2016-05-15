@@ -16,7 +16,11 @@
 
 #include <SoftwareSerial.h>
 
-//#define _DEBUG
+#define _DEBUG
+
+// Disable or enable the high watermark feature
+// TODO(raymondb) Implement a serial command to toggle this
+#define DISPLAY_HIGH_WATERMARK false
 
 // This is our physical panel configuration
 #define PANEL_ROWS 7
@@ -123,8 +127,7 @@ void setDisplay(const bool isIdle, const int sensorValue) {
       for (int y = 0; y < PANEL_ROWS; y++) {
         int displayRow = y+(p*PANEL_ROWS);
         // idle == attract mode ignores the sensor and high watermark values
-        // add || (currentHWM > 0 && (displayRow == hwmRow) to display high watermark
-        if (isIdle || showRow(displayRow, sensorValue)) {
+        if (isIdle || showRow(displayRow, sensorValue) || (DISPLAY_HIGH_WATERMARK && currentHWM > 0 && (displayRow == hwmRow))) {
           if (getDot(isIdle, x, displayRow)) {
             val = val | (1 << (y+1) - 1);
           }
