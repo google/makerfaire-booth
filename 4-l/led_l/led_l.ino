@@ -14,6 +14,8 @@
  *  limitations under the License.
  */
 
+#include <Wire.h>
+
 // This sketch needs NeoPixelStripAnimator
 // https://github.com/urtubia/NeoPixelStripAnimator
 #include <Adafruit_NeoPixel.h>
@@ -130,6 +132,7 @@ bool HammerHitAnimation::isDone() {
 void setup() {
   Serial.begin(115200);
   Serial.println("Waiting...");
+  Wire.begin();
   delay(200);
   line_pos = line;
 
@@ -173,6 +176,12 @@ void loop() {
     Serial.println(target);
     moving = true;
     last_target = target;
+
+    // tell the stepper arduino to move
+    Wire.beginTransmission(2);
+    Wire.write(target);
+    Wire.write("\n");
+    Wire.endTransmission();
   }
 
   if (state == STATE_DISPLAYING && millis() - completed_move > DISPLAY_WINDOW_MS && completed_move != -1) {

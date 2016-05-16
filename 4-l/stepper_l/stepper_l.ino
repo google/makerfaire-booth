@@ -14,6 +14,8 @@
  *  limitations under the License.
  */
 
+#include <Wire.h>
+
 // This sketch needs the AccelStepper Library from
 // http://www.airspayce.com/mikem/arduino/AccelStepper/
 #include <MultiStepper.h>
@@ -123,9 +125,29 @@ void goHome() {
 char line[10];
 char *line_pos;
 
+char *getLine() {
+  while (Wire.available()) {
+    char ch = Wire.read();
+    if (ch == '\n') {
+      *line_pos = '\0';
+      line_pos = line;
+      return line;
+    } else if (ch == '\r') {
+      return NULL;  // ignore
+    } else {
+      *line_pos++ = ch;
+      return NULL;
+    }
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Waiting before homing...");
+
+  // join the i2c bus w/ id 2
+  Wire.begin(2);
+
   delay(200);
   stepper_x.setAcceleration(accel);
   stepper_x.setEnablePin(38);
@@ -145,23 +167,6 @@ void setup() {
   line_pos = line;
 }
 
-char *getLine() {
-  while (Serial.available() > 0) {
-    // NOTE: You need to specify a line ending or arduino ide doesn't send CR
-    // or LF.  TODO: Support either, and ignore blank lines.
-    char ch = Serial.read();
-    if (ch == '\n') {
-      *line_pos = '\0';
-      line_pos = line;
-      return line;
-    } else if (ch == '\r') {
-      return NULL;  // ignore
-    } else {
-      *line_pos++ = ch;
-      return NULL;
-    }
-  }
-}
 
 void loop() {
   char *line = getLine();
