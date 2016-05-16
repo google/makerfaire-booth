@@ -21,13 +21,16 @@
 #include <MultiStepper.h>
 #include <AccelStepper.h>
 
-const int endstop_pin = 3;
-const int endstop_invert = 1;
-const float home_speed = 1000;
-const float main_speed = 6500.0 * 2;
-const float accel = 1500.0 * 4;
+const int i2c_master          = 1;
+const int i2c_slave           = 2;
 
-const long int total_steps = 44200;
+const int endstop_pin         = 3;
+const int endstop_invert      = 1;
+const float home_speed        = 1000;
+const float main_speed        = 6500.0 * 2;
+const float accel             = 1500.0 * 4;
+
+const long int total_steps    = 44200;
 const long int touchoff_steps = total_steps / 100;
 
 // TODO: Do this more efficiently with just one object bit twiddling twice
@@ -36,14 +39,13 @@ const long int touchoff_steps = total_steps / 100;
 //#define USE_SECOND_STEPPER
 
 AccelStepper stepper_x(AccelStepper::DRIVER, 54, 55);
-#ifdef USE_SECOND_STEPPER
-AccelStepper stepper_y(AccelStepper::DRIVER, 60, 61);
-#endif
 
 int readEndstop() { return digitalRead(endstop_pin) ^ endstop_invert; }
 
 long int target = 0;
 long int last_target = 0;
+long int recvNumber = -1;
+long int current_pos = -1;
 bool moving;
 
 /* This doesn't totally work for stopping immediately!  Note the run loop. */
@@ -121,23 +123,16 @@ void goHome() {
   moving = false;
 }
 
-// TODO: check and reject long lines.
-char line[10];
-char *line_pos;
 
-char *getLine() {
+// the callback fired when we receive new i2c commands
+ void receiveCallback(int count) {
   while (Wire.available()) {
-    char ch = Wire.read();
-    if (ch == '\n') {
-      *line_pos = '\0';
-      line_pos = line;
-      return line;
-    } else if (ch == '\r') {
-      return NULL;  // ignore
-    } else {
-      *line_pos++ = ch;
-      return NULL;
-    }
+    int receivedValue  = Wire.read();
+    Serial.print("i2c recv: ");
+    Serial.println(receivedValue);
+    if (receivedValue < 0) receivedValue = 0;
+    if (receivedValue > 100) receivedValue = 100;
+    target = receivedValue * total_steps / 100;
   }
 }
 
@@ -145,8 +140,9 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Waiting before homing...");
 
-  // join the i2c bus w/ id 2
-  Wire.begin(2);
+  // join the i2c bus
+  Wire.begin(i2c_slave);
+  Wire.onReceive(receiveCallback);
 
   delay(200);
   stepper_x.setAcceleration(accel);
@@ -164,29 +160,10 @@ void setup() {
   digitalWrite(endstop_pin, HIGH);
 
   goHome();
-  line_pos = line;
 }
 
 
 void loop() {
-  char *line = getLine();
-  if (line != NULL) {
-    Serial.print("Read line: ");
-    Serial.println(line);
-    if (*line == 'x') {
-      Serial.print("Endstop status: ");
-      Serial.println(readEndstop());
-      return;
-    } else if (*line == 'h') {
-      goHome();
-      return;
-    }
-    int num = atoi(line);
-    if (num < 0) num = 0;
-    if (num > 100) num = 100;
-    target = num * total_steps / 100;
-    moving = true;
-  }
   if ((target != last_target) && !stepper_x.isRunning()) {
     Serial.print("Moving to: ");
     Serial.println(target);
@@ -199,10 +176,6 @@ void loop() {
     last_target = target;
   }
   if (moving && !stepper_x.isRunning()) {
-    // If you want to save power between moves, uncomment.
-    /*stepper_x.disableOutputs();
-    stepper_y.disableOutputs();
-    */
     Serial.println("Done moving.");
     moving = false;
   }
