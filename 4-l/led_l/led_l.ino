@@ -21,25 +21,29 @@
 #include <Adafruit_NeoPixel.h>
 #include <NeoPixelStripAnimator.h>
 
+const int i2c_master           = 1;
+const int i2c_slave            = 2;
+
 const int led_pin              = 13;    // pin number for the leds
-const int num_leds             = 60;    // numbetr of LEDs in the strip
+const int num_leds             = 28;    // numbetr of LEDs in the strip
 
 const int STATE_RESETTING      = 0;     // System is resetting, no input accepted.
 const int STATE_IDLE           = 1;     // System is idle, input is accepted to start a window.
 const int STATE_DATA_INPUT     = 2;     // System is receiving data for a bit.
 const int STATE_DISPLAYING     = 3;     // Input received, system is moving to show the output
 const int DATA_INPUT_WINDOW_MS = 1000;  // Number of MS to leave the data input window open.
-const int DISPLAY_WINDOW_MS    = 10000; // Number of MS to display window.
+const int DISPLAY_WINDOW_MS    = 5000;  // Number of MS to display window.
+const int TIME_TO_FLOW         = 25500; // it takes about 25.5 seconds for the water to flow from 0-100%
+int state                      = STATE_RESETTING;
 
 // initialize the LED strip
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(num_leds, led_pin, NEO_GRB + NEO_KHZ800);
 NeoPixelStripAnimator neoPixelStripAnimator(&strip);
 
-int state = STATE_RESETTING;
 long int target = 0;
 long int last_target = 0;
 long last_state_time = -1;
-long completed_move = -1;
+long int move_finish_millis;
 bool moving;
 
 // TODO: check and reject long lines.
@@ -65,13 +69,12 @@ char *getLine() {
   }
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
-// Our animation class
+// Our hit class
 /////////////////////////////////////////////////////////////////////////////
-class HammerHitAnimation : public INeoPixelAnimation {
+class HammerUpAnimation : public INeoPixelAnimation {
   public:
-    HammerHitAnimation(uint32_t color, int pixelInterval, int percentage);
+    HammerUpAnimation(uint32_t color, int pixelInterval, int percentage);
     virtual void loop();
     virtual bool isDone();
     virtual void setup(Adafruit_NeoPixel *strip);
@@ -87,7 +90,7 @@ class HammerHitAnimation : public INeoPixelAnimation {
 
 };
 
-HammerHitAnimation::HammerHitAnimation(uint32_t color, int pixelInterval, int percentage) {
+HammerUpAnimation::HammerUpAnimation(uint32_t color, int pixelInterval, int percentage) {
   _lastTimeCheck = millis();
   _done = false;
   _currentPixel = -1;
@@ -96,7 +99,7 @@ HammerHitAnimation::HammerHitAnimation(uint32_t color, int pixelInterval, int pe
   _color = color;
 }
 
-void HammerHitAnimation::setup(Adafruit_NeoPixel *strip) {
+void HammerUpAnimation::setup(Adafruit_NeoPixel *strip) {
   _strip = strip;
   // set the brightness for all pixels in the strip
   for(int i = 0; i < _strip->numPixels();i++) {
@@ -105,7 +108,7 @@ void HammerHitAnimation::setup(Adafruit_NeoPixel *strip) {
 
 }
 
-void HammerHitAnimation::loop() {
+void HammerUpAnimation::loop() {
   if(_done) return;
   unsigned long now = millis();
 
@@ -124,15 +127,16 @@ void HammerHitAnimation::loop() {
   }
 }
 
-bool HammerHitAnimation::isDone() {
+bool HammerUpAnimation::isDone() {
   return _done;
 }
 /////////////////////////////////////////////////////////////////////////////
 
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Waiting...");
-  Wire.begin();
+  Wire.begin(i2c_master);
   delay(200);
   line_pos = line;
 
@@ -170,27 +174,21 @@ void loop() {
   }
 
   if ((state == STATE_DISPLAYING || state == STATE_RESETTING) && (target != last_target)) {
-    completed_move = -1;
-
     Serial.print("Moving to: ");
     Serial.println(target);
     moving = true;
     last_target = target;
-
-    // tell the stepper arduino to move
-    Wire.beginTransmission(2);
-    Wire.write(target);
-    Wire.write("\n");
-    Wire.endTransmission();
+    move_finish_millis = millis() + (TIME_TO_FLOW / 100 * target) + DISPLAY_WINDOW_MS;
   }
 
-  if (state == STATE_DISPLAYING && millis() - completed_move > DISPLAY_WINDOW_MS && completed_move != -1) {
+  if (state == STATE_DISPLAYING && millis() > move_finish_millis) {
+    move_finish_millis = millis() + (TIME_TO_FLOW / 100 * target);
     setState(STATE_RESETTING);
   }
 
-  if (moving) {
+  //if (moving && millis() > (TIME_TO_FLOW / 100 * target)) {
+  if (moving && millis() > move_finish_millis) {
     Serial.println("Done moving.");
-    completed_move = millis();
     moving = false;
     if (state == STATE_RESETTING) {
       setState(STATE_IDLE);
@@ -217,28 +215,45 @@ void setState(int newState) {
     } else if (state == STATE_DISPLAYING) {
       startMovingLedAnimation();
     } else if (state == STATE_RESETTING) {
+      last_target = target;
       target = 0;
       startResettingLedAnimation();
     }
   }
 }
 
+
+// tell the other arduino to move via i2c commands
+void tellStepper(int percent) {
+  Serial.print("i2c send: ");
+  Serial.println(target);
+  Wire.beginTransmission(i2c_slave);
+  Wire.write(target);
+  Wire.endTransmission();
+}
+
 void startIdleLedAnimation() {
-  Serial.println("start animation");
+  Serial.println("Idle animation");
   neoPixelStripAnimator.startAnimation(new NightRiderAnimation(Adafruit_NeoPixel::Color(0,255,0), 20));
 }
 
 void startDataInputLedAnimation() {
-  Serial.println("input animation");
+  Serial.println("Input animation");
   neoPixelStripAnimator.clear();
 }
 
 void startMovingLedAnimation() {
-  Serial.println("moving animation");
-  neoPixelStripAnimator.startAnimation(new HammerHitAnimation(Adafruit_NeoPixel::Color(0,255,0), 100, 50));
+  Serial.print("Counting up to ");
+  Serial.println(target);
+  tellStepper(target);
+  neoPixelStripAnimator.startAnimation(new HammerUpAnimation(Adafruit_NeoPixel::Color(0,255,0), 25, target));
 }
 
 void startResettingLedAnimation() {
+  Serial.print("Counting backwards from ");
+  Serial.println(last_target);
+  tellStepper(target);
   neoPixelStripAnimator.clear();
+  neoPixelStripAnimator.startAnimation(new ColorWipeAnimation(Adafruit_NeoPixel::Color(255,0,0), 100));
 }
 
