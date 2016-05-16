@@ -24,15 +24,18 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, LEDPIN, NEO_GRB + NEO_KH
 int red = 255;
 int blue = 255;
 int green = 255;
-int brightness = 30;
+int brightness = 255;
+int val = 20;
 String accum;
 
 void draw() {
   bool pixel = 0;
-  strip.setBrightness(brightness);
  
   for (uint64_t i = 0; i < NUM_PIXELS; i++) {
-      strip.setPixelColor(i, strip.Color(red, green, blue));
+      if (i < val)
+        strip.setPixelColor(i, strip.Color(red, green, blue));
+      else
+        strip.setPixelColor(i, strip.Color(0, 0, 0));
   }
   strip.show();
 }
@@ -43,6 +46,7 @@ void setup() {
 
   accum.reserve(200);
   strip.begin();
+  strip.setBrightness(brightness);
   draw();
 }
 
@@ -52,15 +56,11 @@ void loop() {
     if (ret == -1) break;
     char c = char(ret);
     if (c == '\r') {
-      if (accum[0] == 'V') {
-        Serial.println("ArduinoNeoPixelShutter");
-      } else {
-        int val = accum.substring(1).toInt();
-        if (val < 0) val = 0;
-        if (val > 99) val = 99;
-        brightness = val * 2;
-      }
-      accum = "";
+        int tmp = accum.substring(1).toInt();
+        if (tmp < 0) tmp = 0;
+        if (tmp > 99) tmp = 99;
+        val = tmp / 2.5;
+        accum = "";
     } else {
       accum += char(ret);
     }
