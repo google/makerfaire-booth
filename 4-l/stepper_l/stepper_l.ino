@@ -22,10 +22,10 @@
 const int endstop_pin = 3;
 const int endstop_invert = 1;
 const float home_speed = 1000;
-const float main_speed = 6000.0 * 2;
-const float accel = 1000.0 * 4;
+const float main_speed = 6500.0 * 2;
+const float accel = 1500.0 * 4;
 
-const long int total_steps = 9900 * 2;
+const long int total_steps = 44200;
 const long int touchoff_steps = total_steps / 100;
 
 // TODO: Do this more efficiently with just one object bit twiddling twice
