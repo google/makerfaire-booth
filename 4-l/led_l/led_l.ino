@@ -63,6 +63,70 @@ char *getLine() {
   }
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+// Our animation class
+/////////////////////////////////////////////////////////////////////////////
+class HammerHitAnimation : public INeoPixelAnimation {
+  public:
+    HammerHitAnimation(uint32_t color, int pixelInterval, int percentage);
+    virtual void loop();
+    virtual bool isDone();
+    virtual void setup(Adafruit_NeoPixel *strip);
+
+  private:
+    unsigned long _lastTimeCheck;
+    unsigned long _pixelInterval;
+    unsigned long _percentage;
+    Adafruit_NeoPixel *_strip;
+    bool _done;
+    unsigned int _currentPixel;
+    uint32_t _color;
+
+};
+
+HammerHitAnimation::HammerHitAnimation(uint32_t color, int pixelInterval, int percentage) {
+  _lastTimeCheck = millis();
+  _done = false;
+  _currentPixel = -1;
+  _pixelInterval = pixelInterval;
+  _percentage = percentage;
+  _color = color;
+}
+
+void HammerHitAnimation::setup(Adafruit_NeoPixel *strip) {
+  _strip = strip;
+  // set the brightness for all pixels in the strip
+  for(int i = 0; i < _strip->numPixels();i++) {
+    _strip->setBrightness(255);
+  }
+
+}
+
+void HammerHitAnimation::loop() {
+  if(_done) return;
+  unsigned long now = millis();
+
+  // the number pixels for this run
+  unsigned long _num_pixels = (unsigned long)(_strip->numPixels() * (_percentage / 100.0));
+
+  if((now - _lastTimeCheck) > _pixelInterval) {
+    _currentPixel++;
+    if(_currentPixel >= _num_pixels) {
+      _done = true;
+      return;
+    }
+    _strip->setPixelColor(_currentPixel, _color);
+    _strip->show();
+    _lastTimeCheck = now;
+  }
+}
+
+bool HammerHitAnimation::isDone() {
+  return _done;
+}
+/////////////////////////////////////////////////////////////////////////////
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Waiting...");
@@ -162,7 +226,7 @@ void startDataInputLedAnimation() {
 
 void startMovingLedAnimation() {
   Serial.println("moving animation");
-  neoPixelStripAnimator.startAnimation(new ColorWipeAnimation(Adafruit_NeoPixel::Color(0,255,0), 100));
+  neoPixelStripAnimator.startAnimation(new HammerHitAnimation(Adafruit_NeoPixel::Color(0,255,0), 100, 50));
 }
 
 void startResettingLedAnimation() {
