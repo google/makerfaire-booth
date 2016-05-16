@@ -28,21 +28,6 @@ const float accel = 1000.0 * 4;
 const long int total_steps = 9900 * 2;
 const long int touchoff_steps = total_steps / 100;
 
-// System is resetting, no input accepted.
-const int STATE_RESETTING = 0;
-// System is idle, input is accepted to start a window.
-const int STATE_IDLE = 1;
-// System is receiving data for a bit.
-const int STATE_DATA_INPUT = 2;
-// Input received, system is moving to show the output
-const int STATE_DISPLAYING = 3;
-
-// Number of MS to leave the data input window open.
-const int DATA_INPUT_WINDOW_MS = 1000;
-
-// Number of MS to display window.
-const int DISPLAY_WINDOW_MS = 3000;
-
 // TODO: Do this more efficiently with just one object bit twiddling twice
 // instead of doing the math twice; this affects max step rate *significantly*
 // if enabled.
@@ -55,11 +40,8 @@ AccelStepper stepper_y(AccelStepper::DRIVER, 60, 61);
 
 int readEndstop() { return digitalRead(endstop_pin) ^ endstop_invert; }
 
-int state = STATE_RESETTING;
-
 long int target = 0;
 long int last_target = 0;
-long last_state_time = -1;
 bool moving;
 
 /* This doesn't totally work for stopping immediately!  Note the run loop. */
@@ -79,7 +61,6 @@ void stop() {
 }
 
 void goHome() {
-  setState(STATE_RESETTING);
   Serial.println("Starting home.");
   stop();
   stepper_x.setMaxSpeed(home_speed);
@@ -136,7 +117,6 @@ void goHome() {
 #endif
   Serial.println("Homed.");
   moving = false;
-  setState(STATE_IDLE);
 }
 
 // TODO: check and reject long lines.
@@ -184,7 +164,6 @@ char *getLine() {
 }
 
 void loop() {
-  int potential_target = 0;
   char *line = getLine();
   if (line != NULL) {
     Serial.print("Read line: ");
@@ -197,31 +176,15 @@ void loop() {
       goHome();
       return;
     }
-
     int num = atoi(line);
     if (num < 0) num = 0;
     if (num > 100) num = 100;
-    potential_target = num * total_steps / 100;
-    if (state == STATE_IDLE) {
-      target = potential_target;
-      setState(STATE_DATA_INPUT);
-    }
+    target = num * total_steps / 100;
+    moving = true;
   }
-
-  if (state == STATE_DATA_INPUT) {
-    if (potential_target > target) {
-      target = potential_target;
-    }
-    if (millis() - last_state_time > DATA_INPUT_WINDOW_MS) {
-      setState(STATE_DISPLAYING);
-    }
-  }
-  
-  if ((state == STATE_DISPLAYING || state == STATE_RESETTING)
-      && (target != last_target) && !stepper_x.isRunning()) {
+  if ((target != last_target) && !stepper_x.isRunning()) {
     Serial.print("Moving to: ");
     Serial.println(target);
-    moving = true;
     stepper_x.moveTo(target);
     stepper_x.enableOutputs();
 #ifdef USE_SECOND_STEPPER
@@ -230,11 +193,6 @@ void loop() {
 #endif
     last_target = target;
   }
-
-  if (state == STATE_DISPLAYING && millis() - last_state_time > DISPLAY_WINDOW_MS) {
-    setState(STATE_RESETTING);
-  }
-  
   if (moving && !stepper_x.isRunning()) {
     // If you want to save power between moves, uncomment.
     /*stepper_x.disableOutputs();
@@ -242,9 +200,6 @@ void loop() {
     */
     Serial.println("Done moving.");
     moving = false;
-    if (state == STATE_RESETTING) {
-      setState(STATE_IDLE);
-    }
   }
 
   stepper_x.run();
@@ -257,38 +212,3 @@ void loop() {
     while (1) delay(100);
   }
 }
-
-void setState(int newState) {
-  int oldState = state;
-  if (state != newState) {
-    state = newState;
-    last_state_time = millis();
-    Serial.print("New state: ");
-    Serial.println(state);
-    // Now process based on new state.
-    if (state == STATE_IDLE) {
-      startIdleLedAnimation();
-    } else if (state == STATE_DATA_INPUT) {
-      Serial.println("Data input window open");
-      startDataInputLedAnimation();
-    } else if (state == STATE_DISPLAYING) {
-      startMovingLedAnimation();
-    } else if (state == STATE_RESETTING) {
-      target = 0;
-      startResettingLedAnimation();
-    }
-  }
-}
-
-void startIdleLedAnimation() {
-}
-
-void startDataInputLedAnimation() {
-}
-
-void startMovingLedAnimation() {
-}
-
-void startResettingLedAnimation() {
-}
-
