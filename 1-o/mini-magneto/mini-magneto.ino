@@ -13,80 +13,104 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+ 
+#include "TimerOne.h"
 
-// This sketch needs the AccelStepper Library from
-// http://www.airspayce.com/mikem/arduino/AccelStepper/
-#include <MultiStepper.h>
-#include <AccelStepper.h>
+#define PULSE_PIN 9
+#define DIR_PIN 4
+#define ENABLE_PIN 7
 
-const float home_speed        = 1000;
-const float main_speed        = 1000.0 * 4;
-const float accel             = 500;
-const float full_rotation     = 200 * 4;
+#define DIR_CW LOW
+#define DIR_CCW HIGH
 
-AccelStepper stepper_x(AccelStepper::DRIVER, 9, 4);
+#define LOW_SPEED 8000
+#define HIGH_SPEED 3600
 
+int currentDir = DIR_CW;
+int currentSpeed = 0;
+unsigned long time;
 
-long int current_degree = 0;
-long int target = 0;
-long int last_target = 0;
-long int recvNumber = -1;
-long int current_pos = -1;
-bool moving;
+void disengage()
+{
+  digitalWrite(ENABLE_PIN, LOW);
+  Serial.println("Motor disengaged");
+}
 
-/* This doesn't totally work for stopping immediately!  Note the run loop. */
-void stop() {
-  if (stepper_x.isRunning()) {
-    stepper_x.stop();
-    while (stepper_x.isRunning()) {
-      stepper_x.run();
-    }
+void engage()
+{
+  digitalWrite(ENABLE_PIN, HIGH);
+  Serial.println("Motor engaged");
+}
+
+void setDirection(int dir)
+{
+  Serial.print("Set direction to ");
+  Serial.println(dir == DIR_CW ? "CW" : "CCW");
+  digitalWrite(DIR_PIN, dir);
+  currentDir = dir;
+}
+
+void setSpeed(int speed)
+{
+  Timer1.setPeriod(speed);
+  if (speed == 0) {
+    disengage();
+  }
+  else {
+    engage();
+  }
+  Serial.print("Set speed to ");
+  Serial.println(speed);
+  currentSpeed = speed;
+}
+
+void setSpeedPercent(int pct)
+{
+  if (pct == 0) {
+    setSpeed(0);
+  }
+  else {
+    setSpeed(map(pct, 1, 100, LOW_SPEED, HIGH_SPEED));
   }
 }
 
-void setup() {
-  Serial.begin(115200);
-  stepper_x.setAcceleration(accel);
-  stepper_x.setEnablePin(7);
-  stepper_x.setPinsInverted(false, false, false);
-  stepper_x.setMinPulseWidth(0);
-  Serial.println("Woot!");
-  moving = false;
+
+void setup()
+{
+  pinMode(DIR_PIN, OUTPUT);
+  pinMode(ENABLE_PIN, OUTPUT);
+  
+  engage();
+
+  Serial.begin(9600);
+  while (! Serial);
+
+  Timer1.initialize(7000);
+  Timer1.pwm(9, 512);
+  Serial.println("woot.");
 }
 
 
-void loop() {
-  if (Serial.available()) {
-      String str = Serial.readStringUntil('\n');
-      str.trim();
-      if (str.length() > 0 && isDigit(str.charAt(0))) {
-	int targetDegrees = str.toInt();
-	if (targetDegrees >= 0 && targetDegrees <= 360) {
-	  Serial.print("Target angle ");
-	  Serial.println(targetDegrees);
-    current_degree += (360.0 / targetDegrees);
-	  target = (full_rotation / 360.) * targetDegrees;
-	}
-	else {
-	  Serial.println("Did not read expected 0-360");
-	}
-
+void loop()
+{
+  if (Serial.available())
+  {
+    String str = Serial.readStringUntil('\n');
+    str.trim();
+    if (str.length() > 0) {
+      int speedPct = str.toInt();
+      if (speedPct > -100 && speedPct < 100) {
+        Serial.print("Speed command ");
+	if (speedPct < 0) 
+	  setDirection(DIR_CCW);
+	else if (speedPct > 0)
+	  setDirection(DIR_CW);
+        Serial.println(abs(speedPct));
+        setSpeedPercent(abs(speedPct));
+      }
+      else {
+        Serial.println("Did not read expected 0-100");
       }
     }
-  if ((target != last_target) && !stepper_x.isRunning()) {
-    Serial.print("Moving to: ");
-    Serial.println(current_degree);
-    Serial.print("Number of Steps: ");
-    Serial.println(target);
-    moving = true;
-    stepper_x.moveTo(target);
-    last_target = target;
   }
-  if (moving && !stepper_x.isRunning()) {
-    Serial.println("Done moving.");
-    moving = false;
-  }
-
-  stepper_x.run();
-  stepper_x.enableOutputs();
 }
