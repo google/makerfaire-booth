@@ -1,0 +1,46 @@
+// vim:ts=4:sw=4:et
+{
+    "border": "none",
+    "current_border_width": 0,
+    "floating": "auto_off",
+    "geometry": {
+       "height": 720,
+       "width": 405,
+       "x": 437,
+       "y": 152
+    },
+    "name": "Vysor",
+    "percent": 0.45,
+    "swallows": [
+       {
+         "class": "^google\\-chrome$",
+         "title": "^Vysor$"
+       // "transient_for": "^$",
+       // "window_role": "^app$"
+       }
+    ],
+    "type": "con"
+}
+
+{
+    "border": "none",
+    "current_border_width": 0,
+    "floating": "auto_off",
+    "geometry": {
+       "height": 1024,
+       "width": 704,
+       "x": 288,
+       "y": 0
+    },
+    "name": "Panel_o1.mp4 - mpv",
+    "percent": 0.55,
+    "swallows": [
+       {
+         "class": "^mpv$",
+       // "instance": "^gl$",
+         "title": "^Panel_.*\\.mp4\\ \\-\\ mpv$"
+       }
+    ],
+    "type": "con"
+}
+
