@@ -14,6 +14,11 @@
  *  limitations under the License.
  */
 
+// Configure fan pins:
+
+const int INFLATE_FAN = 5;
+const int DEFLATE_FAN = 6;
+
 // Puts input into a window. If the majority of window values
 // are between LOW and HIGH, then inflate. Otherwise, deflate.
 
@@ -116,12 +121,18 @@ void setState(int newState) {
 
     if (state == STATE_INFLATING) {
       // Start input motor
+      digitalWrite(INFLATE_FAN, HIGH);
+      digitalWrite(DEFLATE_FAN, LOW);
       
     } else if (state == STATE_DEFLATING) {
       // Start deflate motor
+      digitalWrite(INFLATE_FAN, LOW);
+      digitalWrite(DEFLATE_FAN, HIGH);
       
     } else if (state == STATE_IDLE) {
       // Go idle
+      digitalWrite(INFLATE_FAN, LOW);
+      digitalWrite(DEFLATE_FAN, LOW);
       
     }
   }
