@@ -25,7 +25,7 @@ const int DEFLATE_FAN = 6;
 const int WINDOW_SIZE = 10;
 
 const int MIN_WINDOW_ADD_DELAY_MS = 200;
-const int DEFLATE_TIME_MS = 1000;
+const int DEFLATE_TIME_MS = 5000;
 
 const int STATE_IDLE = 0;
 const int STATE_INFLATING = 1;
@@ -44,7 +44,7 @@ unsigned long last_state_time = 0;
 char line[10];
 char *line_pos;
 
-int state = STATE_IDLE;
+int state = -1;
 
 char *getLine() {
   while (Serial.available() > 0) {
@@ -69,6 +69,12 @@ void setup() {
   for (int i = 0; i < WINDOW_SIZE; i++) {
     values[i] = THRESHOLD_LOW;
   }
+  pinMode(INFLATE_FAN, OUTPUT);
+  pinMode(DEFLATE_FAN, OUTPUT);
+  digitalWrite(INFLATE_FAN, LOW);
+  digitalWrite(DEFLATE_FAN, LOW);
+
+  setState(STATE_IDLE);
 }
 
 void loop() {
@@ -76,19 +82,16 @@ void loop() {
   char *line = getLine();
   if (line != NULL) {
     int num = atoi(line);
-
-    if (millis() - last_value_at > MIN_WINDOW_ADD_DELAY_MS) {
-      // Add window values and process them.  
-      values[value_index++] = num;
-      if (value_index >= WINDOW_SIZE) {
-        value_index = 0;
-      }
-      last_value_at = millis();
+    
+    // Add window values and process them.  
+    values[value_index++] = num;
+    if (value_index >= WINDOW_SIZE) {
+      value_index = 0;
     }
 
     if (shouldInflate()) {
       setState(STATE_INFLATING);
-    } else if (STATE == STATE_INFLATING) {
+    } else if (state == STATE_INFLATING) {
       setState(STATE_DEFLATING);
     }
   }
@@ -103,11 +106,16 @@ void loop() {
 
 bool shouldInflate() {
   int countMid = 0;
+  Serial.print("[");
   for (int i = 0; i < WINDOW_SIZE; i++) {
+    Serial.print(values[i]);
     if (values[i] > THRESHOLD_LOW && values[i] < THRESHOLD_HIGH) {
       countMid++;
     }
   }
+  Serial.print("] ");
+  Serial.print(countMid);
+  Serial.println("");
   return countMid > (WINDOW_SIZE - 2);
 }
 
@@ -132,8 +140,7 @@ void setState(int newState) {
     } else if (state == STATE_IDLE) {
       // Go idle
       digitalWrite(INFLATE_FAN, LOW);
-      digitalWrite(DEFLATE_FAN, LOW);
-      
+      analogWrite(DEFLATE_FAN, 67);      
     }
   }
 }
