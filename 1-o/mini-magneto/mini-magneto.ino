@@ -21,12 +21,13 @@
 
 const float home_speed        = 1000;
 const float main_speed        = 1000.0 * 4;
-const float accel             = 1500;
+const float accel             = 500;
 const float full_rotation     = 200 * 4;
 
 AccelStepper stepper_x(AccelStepper::DRIVER, 9, 4);
 
 
+long int current_degree = 0;
 long int target = 0;
 long int last_target = 0;
 long int recvNumber = -1;
@@ -59,25 +60,26 @@ void loop() {
       String str = Serial.readStringUntil('\n');
       str.trim();
       if (str.length() > 0 && isDigit(str.charAt(0))) {
-	int speedPct = str.toInt();
-	if (speedPct >= 0 && speedPct <= 100) {
+	int targetDegrees = str.toInt();
+	if (targetDegrees >= 0 && targetDegrees <= 360) {
 	  Serial.print("Target angle ");
-	  Serial.println(speedPct);
-	  target = full_rotation / speedPct;
+	  Serial.println(targetDegrees);
+    current_degree += (360.0 / targetDegrees);
+	  target = (full_rotation / 360.) * targetDegrees;
 	}
 	else {
-	  Serial.println("Did not read expected 0-100");
+	  Serial.println("Did not read expected 0-360");
 	}
 
       }
     }
   if ((target != last_target) && !stepper_x.isRunning()) {
     Serial.print("Moving to: ");
-    target = full_rotation;
+    Serial.println(current_degree);
+    Serial.print("Number of Steps: ");
     Serial.println(target);
     moving = true;
     stepper_x.moveTo(target);
-    stepper_x.enableOutputs();
     last_target = target;
   }
   if (moving && !stepper_x.isRunning()) {
@@ -86,4 +88,5 @@ void loop() {
   }
 
   stepper_x.run();
+  stepper_x.enableOutputs();
 }
