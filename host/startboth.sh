@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Copyright 2016 Google
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +13,13 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-# Starts WhistlePunk on the connected Android device, using adb:
-# startproxy.sh [sensorId[,sensorId2...]]
+# Starts WhistleProxy _and_ WhistlePunk on the connected Android device, using adb:
+# startboth.sh sensorId
 #
-# On launch, immediately will begin proxying the given sensorId(s)
+# On launch, it will proxy the given sensorId, and bring up the WhistlePunk UI showing that id.
 #
-# Defaults to AccZ if no sensorIds provided
+# Defaults to AccZ if no sensorId provided
 
-package=com.google.android.apps.forscience.whistlepunk
-sensorIds=${1:-AccZ}
-adb shell am start -n $package/$package.MainActivity --es sensorIds $sensorIds
+sensorId=${1:-AccZ}
+. startproxy.sh $sensorId
+. startpunk.sh $sensorId
