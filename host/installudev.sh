@@ -15,4 +15,4 @@
 #   limitations under the License.
 
 # Installs udev rules.
-sudo cp /home/makerfaire/makerfaire-2016/host/udev*.rules /etc/udev/rules.d/
+sudo cp /home/makerfaire/makerfaire-2016/host/*.rules /etc/udev/rules.d/
