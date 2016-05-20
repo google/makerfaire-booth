@@ -44,10 +44,10 @@ void setup() {
 
 
 
-color r = color(255, 0, 0);
-color y = color(127, 127, 0);
-color g = color(0, 255, 0);
-color b = color(0, 0, 255);
+color red = color(255, 0, 0);
+color yellow = color(127, 127, 0);
+color green = color(0, 255, 0);
+color blue = color(0, 0, 255);
 color black = color(0, 0, 0);
 color white = color(255, 255, 255);
 
@@ -58,6 +58,8 @@ boolean victory = false;
 long victoryStart = 0;
 int fadeTime = 30000;
 int value = 0;
+int victoryMax = 1000;
+int victoryThreshold = 250;
 
 void stateMachine() {
   if (active) {
@@ -80,7 +82,7 @@ void stateMachine() {
         victory = false;
         victoryStart = 0;
       }
-    } else if (value > 250) {
+    } else if (value > victoryThreshold) {
       // If we're active, reading non-zero, and user is above threshold, enter victory cycle
       victory = true;
       victoryStart = millis();
@@ -120,6 +122,7 @@ void draw() {
   float progress = (millis() - idleStart)/(float)fadeTime;
   int fadeValue = (int) (progress * 255);
 
+  clear_strips();
   if (active) {
     if (victory) {
       draw_victory_loop();
@@ -141,32 +144,41 @@ void draw() {
   text("Victory: " + victory + " ", 0, 108);
   text("Fading: " + fading + " ", 0, 144);
   if (fading)
-    text("Fade value: " + fadeValue, 0, 180);
+    text("Fade value: " + progress, 0, 180);
+}
+
+void clear_strips() {
+  List<Strip> strips = registry.getStrips();
+  for (Strip strip : strips) {
+    for (int i=0; i<strip.getLength(); i++)
+      strip.setPixel(#000000, i);
+  }
+}
+
+void setup_registry() {
+  registry.startPushing();
+  registry.setAutoThrottle(true);
+  registry.setAntiLog(true);
 }
 
 void draw_dek() {
   int scaleValue = (int)(value / 3.0);
 
   if (testObserver.hasStrips) {
-    registry.startPushing();
-    //registry.setAutoThrottle(true);
-    registry.setAntiLog(true);
+    setup_registry();
     List<Strip> strips = registry.getStrips();
 
     if (strips.size() > 0) {
       for (Strip strip : strips) {
         for (int stripx = 0; stripx < scaleValue; stripx++) {
           if (stripx < 28) 
-            strip.setPixel(b, stripx);
+            strip.setPixel(blue, stripx);
           else if (stripx < 56)
-            strip.setPixel(g, stripx);
+            strip.setPixel(green, stripx);
           else if (stripx < 84)
-            strip.setPixel(y, stripx);
+            strip.setPixel(yellow, stripx);
           else
-            strip.setPixel(r, stripx);
-        }
-        for (int stripx = scaleValue; stripx < 240; stripx++) {
-          strip.setPixel(black, stripx);
+            strip.setPixel(red, stripx);
         }
       }
     }
@@ -177,9 +189,7 @@ int victory_loop = 0;
 
 void draw_victory_loop() {
   if (testObserver.hasStrips) {
-    registry.startPushing();
-    registry.setAutoThrottle(true);
-    registry.setAntiLog(true);
+    setup_registry();
     List<Strip> strips = registry.getStrips();
     println("Victoryloop: " + victory_loop);
 
@@ -188,19 +198,19 @@ void draw_victory_loop() {
         for (int stripx = 0; stripx < strip.getLength(); stripx++) {
           int cycle_pos = (stripx + victory_loop) % strip.getLength(); 
           if (cycle_pos < 28) 
-            strip.setPixel(b, stripx);
+            strip.setPixel(blue, stripx);
           else if (cycle_pos < 56)
-            strip.setPixel(g, stripx);
+            strip.setPixel(green, stripx);
           else if (cycle_pos < 84)
-            strip.setPixel(y, stripx);
+            strip.setPixel(yellow, stripx);
           else
-            strip.setPixel(r, stripx);
+            strip.setPixel(red, stripx);
         }
       }
     }
   }
   victory_loop++;
-  if (victory_loop > 1000) victory_loop=0;
+  if (victory_loop > victoryMax) victory_loop=0;
 }
 
 void draw_white(int value) {
