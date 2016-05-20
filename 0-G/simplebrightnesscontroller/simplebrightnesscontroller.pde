@@ -59,13 +59,15 @@ long victoryStart = 0;
 int fadeTime = 30000;
 int value = 0;
 int victoryMax = 1000;
-int victoryThreshold = 250;
+int victoryThreshold = 240;
+float progress;
+int numLeds = 104;
 
 void stateMachine() {
   if (active) {
     if (value == 0) {
       if (fading) {
-        if (millis() - idleStart > fadeTime) {
+        if (progress > 1.) {
           // If we're active, reading zero, and already fading and the fade timer has exceeded, enter inactive state
           active = false;
           victory = false;
@@ -116,30 +118,27 @@ void draw() {
     if (inString != null) {
       value = Integer.parseInt(trim(inString));
 
-      stateMachine();
     }
   }  
-  float progress = (millis() - idleStart)/(float)fadeTime;
+  stateMachine();
+
+  progress = (millis() - idleStart)/(float)fadeTime;
   int fadeValue = (int) (progress * 255);
 
   clear_strips();
   if (active) {
     if (victory) {
-        text("Victory!", 0, 220);
-
+      text("Victory!", 0, 220);
       draw_victory_loop();
     } else if (fading) {
-              text("Fading!", 0, 220);
-
+      text("Fading!", 0, 220);
       draw_fade(fadeValue);
     } else {
-              text("dek!", 0, 220);
-
+      text("dek!", 0, 220);
       draw_dek();
     }
   } else {
-                  text("colorcycle!", 0, 220);
-
+    text("colorcycle!", 0, 220);
     draw_colourcycle();
   }
 
@@ -152,7 +151,7 @@ void draw() {
   text("Victory: " + victory + " ", 0, 108);
   text("Fading: " + fading + " ", 0, 144);
   if (fading)
-    text("Fade value: " + fadeValue + " " + progress, 0, 180);
+    text("Fade value: " + fadeValue + " " + nf(progress, 2, 2) + " " + idleStart, 0, 180);
 }
 
 void clear_strips() {
@@ -170,7 +169,7 @@ void setup_registry() {
 }
 
 void draw_dek() {
-  int scaleValue = (int)(value / 3.0);
+  float scaleValue = numLeds / (float)victoryThreshold;
 
   if (testObserver.hasStrips) {
     setup_registry();
@@ -178,14 +177,14 @@ void draw_dek() {
 
     if (strips.size() > 0) {
       for (Strip strip : strips) {
-        for (int stripx = 0; stripx < scaleValue; stripx++) {
-          if (stripx < 28) 
+        for (int stripx = 0; stripx < scaleValue*value; stripx++) {
+          if (stripx < (victoryThreshold*scaleValue*0.25)) 
             strip.setPixel(blue, stripx);
-          else if (stripx < 56)
+          else if (stripx < (victoryThreshold*scaleValue*0.5))
             strip.setPixel(green, stripx);
-          else if (stripx < 84)
+          else if (stripx < (victoryThreshold*scaleValue*0.75))
             strip.setPixel(yellow, stripx);
-          else
+          else if (stripx < (victoryThreshold*scaleValue*1.0))
             strip.setPixel(red, stripx);
         }
       }
@@ -196,20 +195,21 @@ void draw_dek() {
 int victory_loop = 0;
 
 void draw_victory_loop() {
+    float scaleValue = numLeds / (float)victoryThreshold;
+
   if (testObserver.hasStrips) {
     setup_registry();
     List<Strip> strips = registry.getStrips();
-    println("Victoryloop: " + victory_loop);
 
     if (strips.size() > 0) {
       for (Strip strip : strips) {
         for (int stripx = 0; stripx < strip.getLength(); stripx++) {
           int cycle_pos = (stripx + victory_loop) % strip.getLength(); 
-          if (cycle_pos < 28) 
+          if (cycle_pos < (victoryThreshold * scaleValue * 0.25))
             strip.setPixel(blue, stripx);
-          else if (cycle_pos < 56)
+          else if (cycle_pos < (victoryThreshold *scaleValue * 0.5))
             strip.setPixel(green, stripx);
-          else if (cycle_pos < 84)
+          else if (cycle_pos < (victoryThreshold * scaleValue * 0.75))
             strip.setPixel(yellow, stripx);
           else
             strip.setPixel(red, stripx);
@@ -226,10 +226,11 @@ void draw_fade(int value) {
     setup_registry();
     List<Strip> strips = registry.getStrips();
 
-    color fade = color(0, 0, value);
+    color fade = color(value,0,0); //<>//
+    println("fade to " + value);
     if (strips.size() > 0) {
       for (Strip strip : strips) {
-        for (int stripx = 0; stripx < strip.getLength(); stripx++) {  
+        for (int stripx = 0; stripx < numLeds; stripx++) {  
           strip.setPixel(fade, stripx);
         }
       }
