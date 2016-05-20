@@ -73,7 +73,7 @@ void stateMachine() {
           fading = false;
           idleStart = 0;
         } else {
-          // If we're active, reading zero, and already fading and the fade timer has exceeded, just keep fading
+          // If we're active, reading zero, and already fading and the fade timer has not exceeded, just keep fading
         }
       } else {
         // If we're active, reading zero, and not already fading, start fading
@@ -125,13 +125,21 @@ void draw() {
   clear_strips();
   if (active) {
     if (victory) {
+        text("Victory!", 0, 220);
+
       draw_victory_loop();
     } else if (fading) {
-      draw_white(fadeValue);
+              text("Fading!", 0, 220);
+
+      draw_fade(fadeValue);
     } else {
+              text("dek!", 0, 220);
+
       draw_dek();
     }
   } else {
+                  text("colorcycle!", 0, 220);
+
     draw_colourcycle();
   }
 
@@ -144,7 +152,7 @@ void draw() {
   text("Victory: " + victory + " ", 0, 108);
   text("Fading: " + fading + " ", 0, 144);
   if (fading)
-    text("Fade value: " + progress, 0, 180);
+    text("Fade value: " + fadeValue + " " + progress, 0, 180);
 }
 
 void clear_strips() {
@@ -213,14 +221,12 @@ void draw_victory_loop() {
   if (victory_loop > victoryMax) victory_loop=0;
 }
 
-void draw_white(int value) {
+void draw_fade(int value) {
   if (testObserver.hasStrips) {
-    registry.startPushing();
-    registry.setAutoThrottle(true);
-    registry.setAntiLog(true);
+    setup_registry();
     List<Strip> strips = registry.getStrips();
 
-    color fade = color(value, value, value);
+    color fade = color(0, 0, value);
     if (strips.size() > 0) {
       for (Strip strip : strips) {
         for (int stripx = 0; stripx < strip.getLength(); stripx++) {  
