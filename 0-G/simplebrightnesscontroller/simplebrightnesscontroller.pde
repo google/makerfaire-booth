@@ -125,7 +125,6 @@ void draw() {
   progress = (millis() - idleStart)/(float)fadeTime;
   int fadeValue = (int) (progress * 255);
 
-  clear_strips();
   if (active) {
     if (victory) {
       text("Victory!", 0, 220);
@@ -169,6 +168,7 @@ void setup_registry() {
 }
 
 void draw_dek() {
+  clear_strips();
   float scaleValue = numLeds / (float)victoryThreshold;
 
   if (testObserver.hasStrips) {
@@ -227,7 +227,6 @@ void draw_fade(int value) {
     List<Strip> strips = registry.getStrips();
 
     color fade = color(value,0,0); //<>//
-    println("fade to " + value);
     if (strips.size() > 0) {
       for (Strip strip : strips) {
         for (int stripx = 0; stripx < numLeds; stripx++) {  
