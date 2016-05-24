@@ -26,7 +26,7 @@ def client():
   while True:
     data = client_socket.recv(1024)
     t1 = time.time()
-    if t1 - t0 > 0.2:
+    if t1 - t0 > 0.1:
       try:
           value = int(data)
       except:
