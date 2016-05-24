@@ -19,7 +19,7 @@ def client():
       except:
           print "failed to parse", data
       else:
-          adj = value / 100
+          adj = value / 50
           if (adj > 99): adj=99
           print adj
           s.write("%d\n" % adj)
