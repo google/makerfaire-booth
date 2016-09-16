@@ -14,6 +14,10 @@
  *  limitations under the License.
  */
 
+/* Set regulator to ~55 PSI.
+   Pin 6 is a MOSFET on https://www.sparkfun.com/products/10618
+ */
+
 #define VALVE_PIN 6
 #define LED_PIN 13
 #define MIN_HEIGHT_DELAY 30
