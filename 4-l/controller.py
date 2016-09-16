@@ -39,6 +39,15 @@ def setState(newState):
       s.write("g\r\n")
       s.flush()        
 
+def handle_data(data):
+  print(data)
+
+def read_from_port():
+  print("Starting to read")
+  while True:
+    reading = s.readline()
+    handle_data(reading)
+
 def client():
   global state
   global lastStateTime  
@@ -83,6 +92,7 @@ def client():
 setState(STATE_IDLE)
 
 client = gevent.spawn(client)
+readthread = gevent.spawn(read_from_port)
 
-gevent.joinall([client])
+gevent.joinall([client, readthread])
 
