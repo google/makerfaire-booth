@@ -69,9 +69,9 @@ void loop() {
     Serial.print("Read line: ");
     Serial.println(line);
 
-    if (line == "r") {
+    if (strcmp(line, "r") == 0) {
       setState(STATE_REST);
-    } else if (line == "g") {
+    } else if (strcmp(line, "g") == 0) {
       setState(STATE_INPUT);
     } else if (state != STATE_REST) {
       setState(STATE_LAUNCH);
@@ -99,7 +99,7 @@ void loop() {
 
 void setState(int newState) {
   state = newState;
-  Serial.print("new state");
+  Serial.print("new state ");
   Serial.println(state);
   // Set LEDs here.
 }
