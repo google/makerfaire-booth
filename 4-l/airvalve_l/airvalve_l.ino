@@ -23,9 +23,15 @@
 #define MIN_HEIGHT_DELAY 30
 #define MAX_HEIGHT_DELAY 130
 
+#define STATE_REST 0
+#define STATE_INPUT 1
+#define STATE_LAUNCH 2
+
 // TODO: check and reject long lines.
 char line[10];
 char *line_pos;
+
+int state;
 
 // read a line of input from the serial interface
 char *getLine() {
@@ -53,6 +59,7 @@ void setup() {
   line_pos = line;
   pinMode(VALVE_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
+  setState(STATE_INPUT);
 }
 
 
@@ -62,22 +69,38 @@ void loop() {
     Serial.print("Read line: ");
     Serial.println(line);
 
-    int num = atoi(line);
-    if (num < 0) num = 0;
-    if (num > 100) num = 100;
+    if (line == "r") {
+      setState(STATE_REST);
+    } else if (line == "g") {
+      setState(STATE_INPUT);
+    } else if (state != STATE_REST) {
+      setState(STATE_LAUNCH);
+      int num = atoi(line);
+      if (num < 0) num = 0;
+      if (num > 100) num = 100;
 
-    int d = map(num, 0, 100, MIN_HEIGHT_DELAY, MAX_HEIGHT_DELAY);
-    Serial.print("Launch ");
-    Serial.print(num);
-    Serial.print(" for ");
-    Serial.print(d);
-    Serial.println("ms");
-
-    digitalWrite(VALVE_PIN, HIGH);
-    digitalWrite(LED_PIN, HIGH);
-    delay(d);
-    digitalWrite(VALVE_PIN, LOW);
-    digitalWrite(LED_PIN, LOW);
-    delay(200); // let the ball fall!
+      int d = map(num, 0, 100, MIN_HEIGHT_DELAY, MAX_HEIGHT_DELAY);
+      Serial.print("Launch ");
+      Serial.print(num);
+      Serial.print(" for ");
+      Serial.print(d);
+      Serial.println("ms");
+  
+      digitalWrite(VALVE_PIN, HIGH);
+      digitalWrite(LED_PIN, HIGH);
+      delay(d);
+      digitalWrite(VALVE_PIN, LOW);
+      digitalWrite(LED_PIN, LOW);
+      delay(200); // let the ball fall!
+      setState(STATE_REST);
+    }
   }
 }
+
+void setState(int newState) {
+  state = newState;
+  Serial.print("new state");
+  Serial.println(state);
+  // Set LEDs here.
+}
+
