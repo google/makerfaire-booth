@@ -140,7 +140,7 @@ void setState(int newState) {
     } else if (state == STATE_IDLE) {
       // Go idle
       digitalWrite(INFLATE_FAN, LOW);
-      analogWrite(DEFLATE_FAN, 67);      
+      digitalWrite(DEFLATE_FAN, LOW);      
     }
   }
 }
