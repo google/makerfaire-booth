@@ -34,8 +34,8 @@ In addition to the other parts, you'll need;
 * 8x M4 washer (fits #6, optional)
 * 5x M5x40 (91292A194)
 * 5x M5 nylock (90576A104)
-* 5x 24mm of ID=5mm spacer (printed is ok, or use a 20mm from openbuilds with an extra nut)
-
+* 5x 24mm of ID=5mm spacer (a printed version is in this directory; we used a
+  20mm aluminum spacer plus an extra nut)
 
 Tool-wise, you'll need a way to cut and deburr the metal rods, and an arbor
 press.  A 1-ton press barely works, I suggest a 2-ton or better.
