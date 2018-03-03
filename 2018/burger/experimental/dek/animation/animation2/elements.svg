@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg baseProfile="full" height="100%" version="1.1" viewBox="0,0,200,50" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs />
+  <path d="M 25, 0 h 150 a 10 10 180 0,1 0 50 h -150 a 10 10 180 1,1 0 -50" fill="#d3af37" id="crown" stroke="none" />
+  <path d="M 25, 0 h 150 a 10 10 180 0,1 0 50 h -150 a 10 10 180 1,1 0 -50" fill="#00ff00" id="lettuce" stroke="none" />
+  <path d="M 25, 0 h 150 a 10 10 180 0,1 0 50 h -150 a 10 10 180 1,1 0 -50" fill="#ff0000" id="tomato" stroke="none" />
+  <path d="M 25, 0 h 150 a 10 10 180 0,1 0 50 h -150 a 10 10 180 1,1 0 -50" fill="#ffff00" id="cheese" stroke="none" />
+  <path d="M 25, 0 h 150 a 10 10 180 0,1 0 50 h -150 a 10 10 180 1,1 0 -50" fill="#b32134" id="patty" stroke="none" />
+  <path d="M 25, 0 h 150 a 10 10 180 0,1 0 50 h -150 a 10 10 180 1,1 0 -50" fill="#d3af37" id="heel" stroke="none" />
+</svg>

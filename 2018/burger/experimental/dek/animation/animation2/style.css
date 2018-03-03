@@ -1,0 +1,10 @@
+body {
+  background: #fff;
+}
+.wrapper {
+  margin: 5px;
+}
+
+#battery {
+  width: 512;
+}
