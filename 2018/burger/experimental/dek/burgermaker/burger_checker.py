@@ -4,6 +4,9 @@ def check_burger(burger, debug=False):
   if len(burger) < 3:
     if debug: print "Burger is too short"
     return False
+  if len(burger) > 8:
+    if debug: print "Burger is too short"
+    return False
   if burger[0] != BurgerElement.crown:
     if debug: print "Burger does not have crown top"
     return False
@@ -33,9 +36,9 @@ def check_burger(burger, debug=False):
     for i in range(last_cheese_index+1, len(burger)):
       if burger[i] == BurgerElement.patty:
         break
-      else:
-        if debug: print "Must have at patty under last cheese."
-        return False
+    else:
+      if debug: print "Must have at patty under last cheese."
+      return False
 
 
   return True
