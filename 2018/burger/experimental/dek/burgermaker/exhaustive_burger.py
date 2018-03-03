@@ -13,7 +13,7 @@ class ExhaustiveBurger():
     self.i = 0
 
   def next_burger(self):
-    if self.i > len(self.all_burgers):
+    if self.i == len(self.all_burgers):
       raise StopIteration
     burger = self.all_burgers[self.i]
     self.i += 1
