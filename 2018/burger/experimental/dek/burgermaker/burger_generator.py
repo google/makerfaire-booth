@@ -30,5 +30,6 @@ if __name__ == '__main__':
           print "Found new good burger", i, burger
           i += 1
 
-          # dwg = svg_burger(burger)
-          # dwg.saveas('output/%s.svg' % str(hash(burger)))
+          dwg = svg_burger(burger)
+          name = ','.join([layer.name for layer in burger])
+          dwg.saveas('output/%s.svg' % name)
