@@ -1,4 +1,6 @@
 import random
+import sys
+sys.path.insert(0, "../burgerdata")
 from burger_data import BurgerElement
 burger_element_keys = BurgerElement.__members__.keys()
 

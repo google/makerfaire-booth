@@ -1,4 +1,6 @@
 import numpy as np
+import sys
+sys.path.insert(0, "../burgerdata")
 from burger_data import BurgerElement
 from burger_checker import check_burger
 

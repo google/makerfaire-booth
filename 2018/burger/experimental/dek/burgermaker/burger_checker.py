@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, "../burgerdata")
 from burger_data import BurgerElement
 
 def check_burger(burger, debug=False):

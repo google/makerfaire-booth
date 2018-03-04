@@ -1,4 +1,6 @@
 import svgwrite
+import sys
+sys.path.insert(0, "../burgerdata")
 from burger_data import BurgerElement
 
 colors = {

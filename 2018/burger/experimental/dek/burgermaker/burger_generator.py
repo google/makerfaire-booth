@@ -2,13 +2,11 @@ import pickle
 import itertools
 import uuid
 import numpy
-import burger_data
 from svg_burger import svg_burger
 from burger_checker import check_burger
 from exhaustive_burger import ExhaustiveBurger
 from random_burger import RandomBurger
 from markov_burger import MarkovBurger
-from burger_data import BurgerElement
 
 if __name__ == '__main__':
   all_burgers = set()
@@ -39,5 +37,28 @@ if __name__ == '__main__':
 
 
   except StopIteration:
-    pickle.dump(good_burgers, open("good_burgers.pkl", "w"))
-    pickle.dump(bad_burgers, open("bad_burgers.pkl", "w"))
+    all_burgers_labelled = set()
+    for burger in good_burgers:
+      labelled_burger = [layer.name for layer in burger]
+      if len(labelled_burger) < 8:
+        pad = ["empty"] * (8-len(labelled_burger))
+        pad.extend(labelled_burger)
+        labelled_burger = pad
+      labelled_burger.append("True")
+      print labelled_burger
+      all_burgers_labelled.add(tuple(labelled_burger))
+    for burger in bad_burgers:
+      labelled_burger = [layer.name for layer in burger]
+      if len(labelled_burger) < 8:
+        pad = ["empty"] * (8-len(labelled_burger))
+        pad.extend(labelled_burger)
+        labelled_burger = pad
+      labelled_burger.append("False")
+      all_burgers_labelled.add(tuple(labelled_burger))
+      
+
+    o = open("burgers.csv", "w")
+    for burger in all_burgers_labelled:
+      o.write(','.join(burger))
+      o.write("\n")
+    o.close()
