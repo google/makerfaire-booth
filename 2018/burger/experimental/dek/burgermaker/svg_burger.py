@@ -15,14 +15,14 @@ def svg_burger(layers):
   dwg = svgwrite.Drawing(height='10cm', width='10cm')
   dwg.viewbox(0, 0, 128, 256)
 
-  y = (256 - len(layers)*32)/2
-  outer = dwg.g(transform="translate(0,%d)" % y)
+  y = 256 - len(layers)*32
+  outer = dwg.g(id="burger", transform="translate(0,%d)" % y)
   dwg.add(outer)
 
   y = 0
   for layer in layers:
 
-    g = dwg.g(id=layer, transform="translate(0,%d)" % y)
+    g = dwg.g(id=layer.name, transform="translate(0,%d)" % y)
 
     p = dwg.path(d="M 16, 0",
                  fill=colors[layer],
