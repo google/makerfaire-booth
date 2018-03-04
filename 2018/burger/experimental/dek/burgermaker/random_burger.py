@@ -1,3 +1,4 @@
+import numpy as np
 import random
 import sys
 sys.path.insert(0, "../burgerdata")
@@ -14,9 +15,9 @@ class RandomBurger:
   def next_burger(self):
     if self.iterations > self.max_iterations:
       raise StopIteration
-    state = BurgerElement.crown
+    state = BurgerElement[np.random.choice(BurgerElement.__members__.keys())]
     burger = [ state ]
-    while state != BurgerElement.heel:
+    while len(burger) < 8:
       c = random.choice(burger_element_keys)
       state = BurgerElement[c]
       burger.append(state)

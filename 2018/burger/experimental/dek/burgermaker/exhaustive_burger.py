@@ -7,10 +7,9 @@ class ExhaustiveBurger():
   def __init__(self):
     members = BurgerElement.__members__
     self.all_burgers = []
-    for i in range(3, 9):
-      burgers = itertools.product(members.values(), repeat=i)
-      for burger in burgers:
-        self.all_burgers.append(burger)
+    burgers = itertools.product(members.values(), repeat=8)
+    for burger in burgers:
+      self.all_burgers.append(burger)
 
     self.i = 0
 

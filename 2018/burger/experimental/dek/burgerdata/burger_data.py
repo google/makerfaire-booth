@@ -3,9 +3,10 @@ from enum import Enum, unique
 
 @unique
 class BurgerElement(Enum):
-  crown = 0
-  lettuce = 1
-  tomato = 2
-  cheese = 3
-  patty = 4
-  heel = 5
+  empty = 0
+  crown = 1
+  lettuce = 2
+  tomato = 3
+  cheese = 4
+  patty = 5
+  heel = 6
