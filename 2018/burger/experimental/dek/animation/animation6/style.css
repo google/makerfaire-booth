@@ -1,0 +1,22 @@
+body {
+    background: #fff;
+}
+
+.layer {
+    height:50px;
+    width:200px;
+    position:absolute;
+    top:0;
+    left:0;
+    margin:0;
+    padding:0;
+    opacity:0;
+}
+
+#wrapper {
+    height:370px;
+    width:250px;
+    border:5px solid black;
+    transform: translate(0vh,50vh);
+    position:static;
+}
