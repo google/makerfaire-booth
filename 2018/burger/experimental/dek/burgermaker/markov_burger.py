@@ -22,11 +22,18 @@ burger_matrix = np.array([
   #        e
 
 class MarkovBurger():
+  def __init__(self, max_iterations):
+    self.max_iterations = max_iterations
+    self.iterations = 0
+
   def next_burger(self):
+    if self.iterations > self.max_iterations:
+      raise StopIteration
     state = BurgerElement.crown
     burger = [state]
     while state != BurgerElement.heel:
       row = burger_matrix[state.value]
       state = BurgerElement(np.random.choice( len(row), p=row))
       burger.append(state)
-    return burger
+    self.iterations += 1
+    return tuple(burger)
