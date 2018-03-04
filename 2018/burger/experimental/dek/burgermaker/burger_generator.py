@@ -31,5 +31,5 @@ if __name__ == '__main__':
           i += 1
 
           dwg = svg_burger(burger)
-          name = ','.join([layer.name for layer in burger])
+          name = ''.join([str(layer.value) for layer in burger])
           dwg.saveas('output/%s.svg' % name)
