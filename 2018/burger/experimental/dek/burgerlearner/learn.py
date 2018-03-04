@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
 import argparse
 import shutil
 import sys
@@ -17,7 +18,7 @@ _CSV_COLUMN_DEFAULTS = [[''], [''], [''], [''], [''], [''], [''], [''], ['']]
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
-    '--model_dir', type=str, default='/tmp/census_model',
+    '--model_dir', type=str, default='output',
     help='Base directory for the model.')
 
 parser.add_argument(
@@ -25,14 +26,14 @@ parser.add_argument(
     help="Valid model types: {'wide', 'deep', 'wide_deep'}.")
 
 parser.add_argument(
-    '--train_epochs', type=int, default=40, help='Number of training epochs.')
+    '--train_epochs', type=int, default=1, help='Number of training epochs.')
 
 parser.add_argument(
-    '--epochs_per_eval', type=int, default=2,
+    '--epochs_per_eval', type=int, default=1,
     help='The number of training epochs to run between evaluations.')
 
 parser.add_argument(
-    '--batch_size', type=int, default=40, help='Number of examples per batch.')
+    '--batch_size', type=int, default=256, help='Number of examples per batch.')
 
 parser.add_argument(
     '--train_data', type=str, default='xaa',
@@ -62,7 +63,6 @@ def input_fn(data_file, num_epochs, shuffle, batch_size):
 
   if shuffle:
     dataset = dataset.shuffle(buffer_size=100000000)
-
   dataset = dataset.map(parse_csv, num_parallel_calls=5)
 
   # We call repeat after shuffling, rather than before, to prevent separate
@@ -116,7 +116,6 @@ def build_model_columns():
 def build_estimator(model_dir, model_type):
   """Build an estimator appropriate for the given model type."""
   wide_columns = build_model_columns()
-  hidden_units = [100, 75, 50, 25]
 
   # Create a tf.estimator.RunConfig to ensure the model is run on CPU, which
   # trains faster than GPU for this model.
@@ -140,7 +139,8 @@ def main(unused_argv):
   # Train and evaluate the model every `FLAGS.epochs_per_eval` epochs.
   for n in range(FLAGS.train_epochs // FLAGS.epochs_per_eval):
     model.train(input_fn=lambda: input_fn(
-        FLAGS.train_data, FLAGS.epochs_per_eval, True, FLAGS.batch_size))
+        FLAGS.train_data, FLAGS.epochs_per_eval, True, FLAGS.batch_size),
+                steps = 1000)
 
     results = model.evaluate(input_fn=lambda: input_fn(
         FLAGS.test_data, 1, False, FLAGS.batch_size))
@@ -151,6 +151,25 @@ def main(unused_argv):
 
     for key in sorted(results):
       print('%s: %s' % (key, results[key]))
+
+    new_samples = {
+      'layer1': np.array([ 'cheese', 'cheese' ], dtype=str),
+      'layer2': np.array([ 'cheese', 'cheese' ], dtype=str),
+      'layer3': np.array([ 'cheese', 'cheese' ], dtype=str),
+      'layer4': np.array([ 'cheese', 'cheese' ], dtype=str),
+      'layer5': np.array([ 'cheese', 'cheese' ], dtype=str),
+      'layer6': np.array([ 'cheese', 'crown' ], dtype=str),
+      'layer7': np.array([ 'cheese', 'patty' ], dtype=str),
+      'layer8': np.array([ 'cheese', 'heel' ], dtype=str),
+      }
+      
+    predict_input_fn = tf.estimator.inputs.numpy_input_fn(
+        x=new_samples,
+        num_epochs=1,
+        shuffle=False)
+
+    predictions = list(model.predict(input_fn=predict_input_fn))
+    print(predictions)
 
 
 if __name__ == '__main__':
