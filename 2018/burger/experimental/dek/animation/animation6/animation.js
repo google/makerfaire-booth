@@ -15,7 +15,7 @@ function create_animation0() {
     return new KeyframeEffect(element, keyframes, timings);
 }
 
-function create_animation1(element_name, delay, initialY, conveyorY, finalY) {
+function create_animation1(element_name, data) {
     var element = document.getElementById(element_name);
 
     var timings = {
@@ -24,16 +24,16 @@ function create_animation1(element_name, delay, initialY, conveyorY, finalY) {
 	easing: "linear",
 	direction: "normal",
 	fill: "forwards",
-	delay: delay,
+	delay: data.delay,
     }
     var keyframes = [
-	{ transform: 'translateY(' + initialY + 'vh)', opacity: 1},
-	{ transform: 'translateY(' + conveyorY + 'vh)', opacity: 1},
+	{ transform: 'translateY(' + data.initialY + 'vh)', opacity: 1},
+	{ transform: 'translateY(' + data.conveyorY + 'vh)', opacity: 1},
     ];
     return new KeyframeEffect(element, keyframes, timings);
 }
 
-function create_animation3(element_name, delay, initialY, conveyorY, finalY) {
+function create_animation3(element_name, data) {
     var element = document.getElementById(element_name);
 
     var timings = {
@@ -44,8 +44,8 @@ function create_animation3(element_name, delay, initialY, conveyorY, finalY) {
 	fill: "forwards",
     }
     var keyframes = [
-	{ transform: 'translateY(' + conveyorY + 'vh)', opacity: 1},
-	{ transform: 'translateY(' + finalY + 'vh)', opacity: 1},
+	{ transform: 'translateY(' + data.conveyorY + 'vh)', opacity: 1},
+	{ transform: 'translateY(' + data.finalY + 'vh)', opacity: 1},
     ];
     return new KeyframeEffect(element, keyframes, timings);
 }
@@ -53,7 +53,7 @@ function create_animation3(element_name, delay, initialY, conveyorY, finalY) {
 function create_group(animation, f) {
     var kEffects = [];
     for (let a of animation) {
-	var kf = f(a[0], a[1], a[2], a[3], a[4]);
+	var kf = f(a[0], a[1]);
 	kEffects.push(kf);
     }
     var group = new GroupEffect(kEffects);
@@ -79,12 +79,12 @@ function create_animation2() {
 
 $(window).ready(function() {
     var animation = [
-	["crown", 0, -40, 16, 70],
-	["lettuce", 1000, -45, 13, 67],
-	["tomato", 2000, -50, 10, 64],
-	["cheese", 3000, -55, 7, 61],
-	["patty", 4000, -60, 4, 58],
-	["heel", 5000, -65, 1, 55],
+	["crown", {delay: 0, initialY: -40, conveyorY: 16, finalY: 70}],
+	["lettuce", {delay:1000, initialY:-45, conveyorY: 13, finalY: 67}],
+	["tomato", {delay:2000, initialY:-50, conveyorY: 10, finalY: 64}],
+	["cheese", {delay:3000, initialY:-55, conveyorY: 7, finalY: 61}],
+	["patty", {delay:4000, initialY: -60, conveyorY: 4, finalY: 58}],
+	["heel", {delay:5000, initialY: -65, conveyorY: 1, finalY: 55}],
     ];
     var group0 = create_animation0();
     var group1 = create_group(animation, create_animation1);
