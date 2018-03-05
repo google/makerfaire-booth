@@ -5,7 +5,7 @@ body {
     overflow: hidden
 }
 
-.layer {
+#layer1, #layer2, #layer3, #layer4, #layer5, #layer6 {
     height:50px;
     width:200px;
     position:absolute;
@@ -14,6 +14,27 @@ body {
     margin:0;
     padding:0;
     opacity:0;
+    transform:translate(0px,0px);
+}
+
+.crown {
+    fill: #d3af37;
+}
+
+.lettuce {
+    fill: #00ff00;
+}
+.tomato {
+    fill: #ff0000;
+}
+.cheese {
+    fill: #ffff00;
+}
+.patty {
+    fill: #b32134;
+}
+.heel {
+    fill: #d3af37;
 }
 
 #wrapper {
