@@ -74,18 +74,18 @@ function create_group(animation, f) {
 }
 
 $(window).load(function() {
-    // var wrapper = document.getElementById("wrapper");
-    // document.body.appendChild(wrapper);
-    // var elements = [ 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel' ]
-    // for (i = 0; i < elements.length; i++) {
-    // 	var svg = document.createElementNS(document.documentElement.namespaceURI, "svg");
-    // 	svg.setAttribute('id', 'layer' + (i+1).toString());
-    // 	svg.setAttribute('class', elements[i]);
-    // 	var use = document.createElement('use');
-    // 	use.setAttribute('href', 'element.svg#path')
-    // 	svg.appendChild(use);
-    // 	wrapper.appendChild(svg);
-    // }
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var wrapper = document.getElementById("wrapper");
+    var elements = [ 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel' ]
+    for (i = 0; i < elements.length; i++) {
+    	var svg = document.createElementNS(svgNS, "svg");
+    	svg.setAttributeNS(null, 'id', 'layer' + (i+1).toString());
+    	svg.setAttributeNS(null, 'class', elements[i]);
+    	var use = document.createElementNS(svgNS, 'use');
+    	use.setAttributeNS(null, 'href', 'element.svg#shape')
+    	svg.appendChild(use);
+    	wrapper.appendChild(svg);
+    }
 
     var wrapper = document.getElementById("wrapper");
     var animation = [
