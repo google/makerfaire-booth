@@ -4,6 +4,7 @@ sys.path.insert(0, "../burgerdata")
 from burger_data import BurgerElement
 
 colors = {
+    BurgerElement.empty: 'none',
     BurgerElement.crown: '#d3af37',
     BurgerElement.lettuce: '#00ff00',
     BurgerElement.tomato: '#ff0000',
@@ -42,13 +43,13 @@ def svg_burger(layers):
 
   return dwg
 
-# svg_burger([
-#     BurgerElement.crown,
-#     BurgerElement.lettuce,
-#     BurgerElement.tomato,
-#     BurgerElement.cheese,
-#     BurgerElement.patty,
-#     BurgerElement.cheese,
-#     BurgerElement.patty,
-#     BurgerElement.heel
-# ]).saveas("test.svg")
+svg_burger([
+    BurgerElement.empty,
+    BurgerElement.empty,
+    BurgerElement.empty,
+    BurgerElement.lettuce,
+    BurgerElement.tomato,
+    BurgerElement.cheese,
+    BurgerElement.patty,
+    BurgerElement.heel
+]).saveas("test.svg")
