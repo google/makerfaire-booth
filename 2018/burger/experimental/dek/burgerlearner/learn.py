@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
 import argparse
 import shutil
 import sys
@@ -17,7 +18,7 @@ _CSV_COLUMN_DEFAULTS = [[''], [''], [''], [''], [''], [''], [''], [''], ['']]
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
-    '--model_dir', type=str, default='/tmp/census_model',
+    '--model_dir', type=str, default='output',
     help='Base directory for the model.')
 
 parser.add_argument(
@@ -25,14 +26,14 @@ parser.add_argument(
     help="Valid model types: {'wide', 'deep', 'wide_deep'}.")
 
 parser.add_argument(
-    '--train_epochs', type=int, default=40, help='Number of training epochs.')
+    '--train_epochs', type=int, default=1, help='Number of training epochs.')
 
 parser.add_argument(
-    '--epochs_per_eval', type=int, default=2,
+    '--epochs_per_eval', type=int, default=1,
     help='The number of training epochs to run between evaluations.')
 
 parser.add_argument(
-    '--batch_size', type=int, default=40, help='Number of examples per batch.')
+    '--batch_size', type=int, default=256, help='Number of examples per batch.')
 
 parser.add_argument(
     '--train_data', type=str, default='xaa',
@@ -77,36 +78,36 @@ def input_fn(data_file, num_epochs, shuffle, batch_size):
 def build_model_columns():
   layer1 = tf.feature_column.categorical_column_with_vocabulary_list(
       'layer1', [
-          'empty', 'crown', 'cheese', 'lettuce', 'tomato', 'patty', 'heel'])
+          'empty', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel'])
   layer2 = tf.feature_column.categorical_column_with_vocabulary_list(
       'layer2', [
-          'empty', 'crown', 'cheese', 'lettuce', 'tomato', 'patty', 'heel'])
+          'empty', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel'])
   layer3 = tf.feature_column.categorical_column_with_vocabulary_list(
       'layer3', [
-          'empty', 'crown', 'cheese', 'lettuce', 'tomato', 'patty', 'heel'])
+          'empty', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel'])
   layer4 = tf.feature_column.categorical_column_with_vocabulary_list(
       'layer4', [
-          'empty', 'crown', 'cheese', 'lettuce', 'tomato', 'patty', 'heel'])
+          'empty', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel'])
   layer5 = tf.feature_column.categorical_column_with_vocabulary_list(
       'layer5', [
-          'empty', 'crown', 'cheese', 'lettuce', 'tomato', 'patty', 'heel'])
+          'empty', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel'])
   layer6 = tf.feature_column.categorical_column_with_vocabulary_list(
       'layer6', [
-          'empty', 'crown', 'cheese', 'lettuce', 'tomato', 'patty', 'heel'])
+          'empty', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel'])
   layer7 = tf.feature_column.categorical_column_with_vocabulary_list(
       'layer7', [
-          'empty', 'crown', 'cheese', 'lettuce', 'tomato', 'patty', 'heel'])
+          'empty', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel'])
   layer8 = tf.feature_column.categorical_column_with_vocabulary_list(
       'layer8', [
-          'empty', 'crown', 'cheese', 'lettuce', 'tomato', 'patty', 'heel'])
+          'empty', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel'])
 
   base_columns = [
       layer1, layer2, layer3, layer4, layer5, layer6, layer7, layer8
   ]
 
   crossed_columns = [
-      tf.feature_column.crossed_column(
-          ['layer6', 'layer7', 'layer8'], hash_bucket_size=1000),
+      # tf.feature_column.crossed_column(
+      #     ['layer6', 'layer7', 'layer8'], hash_bucket_size=1000),
   ]
 
   wide_columns = base_columns + crossed_columns
@@ -132,6 +133,7 @@ def build_estimator(model_dir, model_type):
     raise RuntimeError
 
 
+
 def main(unused_argv):
   # Clean up the model directory if present
   shutil.rmtree(FLAGS.model_dir, ignore_errors=True)
@@ -151,6 +153,20 @@ def main(unused_argv):
 
     for key in sorted(results):
       print('%s: %s' % (key, results[key]))
+
+    new_samples = np.array(
+        [[0, 0, 0, 0, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 5, 6]
+         ], dtype=np.int)
+
+    predict_input_fn = tf.estimator.inputs.numpy_input_fn(
+        x={"x": new_samples},
+        num_epochs=1,
+        shuffle=False)
+
+    import pdb; pdb.set_trace()
+    predictions = list(model.predict(input_fn=predict_input_fn))
+    print(predictions)
 
 
 if __name__ == '__main__':
