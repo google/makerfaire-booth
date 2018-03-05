@@ -9,6 +9,7 @@ from random_burger import RandomBurger
 
 if __name__ == '__main__':
   all_burgers = set()
+  all_burgers_labelled = dict()
   good_burgers = set()
   bad_burgers = set()
 
@@ -18,36 +19,9 @@ if __name__ == '__main__':
   try:
     while True:
       burger = b.next_burger()
-      if burger not in all_burgers:
-        all_burgers.add(burger)
-
-        if burger not in good_burgers:
-          if check_burger(burger, debug=False):
-            good_burgers.add(burger)
-            print "Found new good burger", i, burger
-            i += 1
-
-            # dwg = svg_burger(burger)
-            # name = ''.join([str(layer.value) for layer in burger])
-            # dwg.saveas('output/%s.svg' % name)
-          else:
-            bad_burgers.add(burger)
-
+      all_burgers_labelled[burger] = check_burger(burger, debug=False)
 
   except StopIteration:
-    all_burgers_labelled = set()
-    for burger in good_burgers:
-      labelled_burger = [layer.name for layer in burger]
-      labelled_burger.append("True")
-      all_burgers_labelled.add(tuple(labelled_burger))
-    for burger in bad_burgers:
-      labelled_burger = [layer.name for layer in burger]
-      labelled_burger.append("False")
-      all_burgers_labelled.add(tuple(labelled_burger))
-      
-
-    o = open("burgers.csv", "w")
-    for burger in all_burgers_labelled:
-      o.write(','.join(burger))
-      o.write("\n")
+    o = open("burgers.pkl", "w")
+    pickle.dump(all_burgers_labelled, o)
     o.close()
