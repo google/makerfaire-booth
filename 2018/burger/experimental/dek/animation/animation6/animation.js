@@ -73,26 +73,20 @@ function create_group(animation, f) {
     return group;
 }
 
-// $(window).load(function() {
-//     // var wrapper = document.createElement("div");
-//     var wrapper = document.getElementById("wrapper");
-//     wrapper.setAttribute('id', 'wrapper');
-//     document.body.appendChild(wrapper);
-//     var elements = [ 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel' ]
-//     for (i = 0; i < elements.length; i++) {
-//     	var svg = document.createElementNS(document.documentElement.namespaceURI, "svg");
-//     	svg.setAttribute('id', 'layerX' + (i+1).toString());
-//     	// can we define class crown, cheese, etc, and dynamically
-//     	// create each layer from a template SVG?
-//     	svg.setAttribute('class', elements[i]);
-//     	var use = document.createElement('use');
-//     	use.setAttribute('href', 'elements.svg#' + elements[i]);
-//     	svg.appendChild(use);
-//     	wrapper.appendChild(svg);
-//     }
-// });
+$(window).load(function() {
+    // var wrapper = document.getElementById("wrapper");
+    // document.body.appendChild(wrapper);
+    // var elements = [ 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel' ]
+    // for (i = 0; i < elements.length; i++) {
+    // 	var svg = document.createElementNS(document.documentElement.namespaceURI, "svg");
+    // 	svg.setAttribute('id', 'layer' + (i+1).toString());
+    // 	svg.setAttribute('class', elements[i]);
+    // 	var use = document.createElement('use');
+    // 	use.setAttribute('href', 'element.svg#path')
+    // 	svg.appendChild(use);
+    // 	wrapper.appendChild(svg);
+    // }
 
-$(window).ready(function() {
     var wrapper = document.getElementById("wrapper");
     var animation = [
     	["layer1", {delay: 0, initialY: -40, conveyorY: 16, finalY: 70}],
