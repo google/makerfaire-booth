@@ -7,8 +7,8 @@ function create_animation0(wrapper) {
 	fill: "forwards",
     }
     var keyframes = [
-	{ transform: 'translateX(90vh) translateY(50vh)'},
-	{ transform: 'translateX(0vh) translateY(50vh'},
+	{ transform: 'translateX(90vh) translateY(500px)'},
+	{ transform: 'translateX(0vh) translateY(500px)'},
     ];
     return new KeyframeEffect(wrapper, keyframes, timings);
 }
@@ -25,8 +25,8 @@ function create_animation1(element_name, data) {
 	delay: data.delay,
     }
     var keyframes = [
-	{ transform: 'translateY(' + data.initialY + 'vh)', opacity: 1},
-	{ transform: 'translateY(' + data.conveyorY + 'vh)', opacity: 1},
+	{ transform: 'translateY(' + data.initialY + ')', opacity: 1},
+	{ transform: 'translateY(' + data.conveyorY + ')', opacity: 1},
     ];
     return new KeyframeEffect(element, keyframes, timings);
 }
@@ -40,8 +40,8 @@ function create_animation2(wrapper) {
 	fill: "forwards",
     }
     var keyframes = [
-	{ transform: 'translateX(0vh) translateY(50vh)'},
-	{ transform: 'translateX(90vh) translateY(50vh'},
+	{ transform: 'translateX(0vh) translateY(500px)'},
+	{ transform: 'translateX(90vh) translateY(500px)'},
     ];
     return new KeyframeEffect(wrapper, keyframes, timings);
 }
@@ -57,8 +57,8 @@ function create_animation3(element_name, data) {
 	fill: "forwards",
     }
     var keyframes = [
-	{ transform: 'translateY(' + data.conveyorY + 'vh)', opacity: 1},
-	{ transform: 'translateY(' + data.finalY + 'vh)', opacity: 1},
+	{ transform: 'translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateY(' + data.finalY + ')', opacity: 1},
     ];
     return new KeyframeEffect(element, keyframes, timings);
 }
@@ -73,28 +73,35 @@ function create_group(animation, f) {
     return group;
 }
 
-$(window).load(function() {
+function create_burger(layers) {
     var svgNS = 'http://www.w3.org/2000/svg';
-    var wrapper = document.getElementById("wrapper");
-    var elements = [ 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel' ]
-    for (i = 0; i < elements.length; i++) {
+    var wrapper = document.createElement("div");
+    wrapper.setAttribute('id', "wrapper");
+    for (i = 0; i < layers.length; i++) {
     	var svg = document.createElementNS(svgNS, "svg");
     	svg.setAttributeNS(null, 'id', 'layer' + (i+1).toString());
-    	svg.setAttributeNS(null, 'class', elements[i]);
+    	svg.setAttributeNS(null, 'class', layers[i]);
     	var use = document.createElementNS(svgNS, 'use');
     	use.setAttributeNS(null, 'href', 'element.svg#shape')
     	svg.appendChild(use);
     	wrapper.appendChild(svg);
     }
+    return wrapper;
+}
 
-    var wrapper = document.getElementById("wrapper");
+$(window).load(function() {
+    var layers = [ 'crown', 'crown', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel' ];
+    var wrapper = create_burger(layers);
+    document.body.appendChild(wrapper);
     var animation = [
-    	["layer1", {delay: 0, initialY: -40, conveyorY: 16, finalY: 70}],
-    	["layer2", {delay:1000, initialY:-45, conveyorY: 13, finalY: 67}],
-    	["layer3", {delay:2000, initialY:-50, conveyorY: 10, finalY: 64}],
-    	["layer4", {delay:3000, initialY:-55, conveyorY: 7, finalY: 61}],
-    	["layer5", {delay:4000, initialY: -60, conveyorY: 4, finalY: 58}],
-    	["layer6", {delay:5000, initialY: -65, conveyorY: 1, finalY: 55}],
+    	["layer8", {delay: 0, initialY: '-300px', conveyorY: '420px', finalY: '1000px'}],
+    	["layer7", {delay:1000, initialY: '-350px', conveyorY: '370px', finalY: '950px'}],
+    	["layer6", {delay:2000, initialY: '-400px', conveyorY: '320px', finalY: '900px'}],
+    	["layer5", {delay:3000, initialY: '-450px', conveyorY: '270px', finalY: '850px'}],
+    	["layer4", {delay:4000, initialY: '-500px', conveyorY: '220px', finalY: '800px'}],
+    	["layer3", {delay:5000, initialY: '-550px', conveyorY: '170px', finalY: '750px'}],
+    	["layer2", {delay:6000, initialY: '-600px', conveyorY: '120px', finalY: '700px'}],
+    	["layer1", {delay:7000, initialY: '-650px', conveyorY: '70px', finalY: '650px'}],
     ];
     var group0 = create_animation0(wrapper);
     var group1 = create_group(animation, create_animation1);
@@ -107,11 +114,11 @@ $(window).load(function() {
     	group2,
     	group3,
     ]);
+    
     var player = new Animation(sequence, document.timeline);
     player.play();
-    
     player.onfinish = function() {
-    	player.play();
-    };
+	wrapper.remove();
+    }
 });
 
