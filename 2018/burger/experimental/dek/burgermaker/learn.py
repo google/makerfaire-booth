@@ -4,6 +4,7 @@ import itertools
 import pickle
 import random
 from sklearn import svm
+from sklearn.preprocessing import OneHotEncoder
 import csv
 
 import sys
@@ -25,56 +26,60 @@ from burger_checker import check_burger
 # pickle.dump(y, o)
 # o.close()
 
-o = open("dataset.pkl")
-X = pickle.load(o)
-y = pickle.load(o)
-o.close()
-
-new_X = []
-new_y = []
-for i in range(len(X)):
-  if y[i] == True:
-    new_X.append(X[i])
-    new_y.append(True)
-  else:
-    if random.random() < 1/100.:
-      new_X.append(X[i])
-      new_y.append(False)
-
-o = open("mini_dataset.pkl", "w")
-pickle.dump(new_X, o)
-pickle.dump(new_y, o)
-o.close()
-
-# o = open("mini_dataset.pkl")
+# o = open("dataset.pkl")
 # X = pickle.load(o)
 # y = pickle.load(o)
 # o.close()
 
+# new_X = []
+# new_y = []
+# for i in range(len(X)):
+#   if y[i] == True:
+#     new_X.append(X[i])
+#     new_y.append(True)
+#   else:
+#     if random.random() < 1/100.:
+#       new_X.append(X[i])
+#       new_y.append(False)
 
-# print "# of y:", len(y)
-# print "# true:", len([item for item in y if item is True])
+# o = open("mini_dataset.pkl", "w")
+# pickle.dump(new_X, o)
+# pickle.dump(new_y, o)
+# o.close()
 
-# print "data loaded"
-# X = numpy.array(X)
-# y = numpy.array(y)
+o = open("mini_dataset.pkl")
+X = pickle.load(o)
+y = pickle.load(o)
+o.close()
 
-# clf = svm.SVC()
-# clf.fit(X, y)
+enc = OneHotEncoder()
+tX = enc.fit_transform(X)
+
+print "# of y:", len(y)
+print "# true:", len([item for item in y if item is True])
+
+print "data loaded"
+X = numpy.array(X)
+y = numpy.array(y)
+
+clf = svm.SVC()
+clf.fit(tX, y)
 
 # test_cases = itertools.product( [BurgerElement.empty, BurgerElement.crown, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.cheese, BurgerElement.patty, BurgerElement.heel], repeat=8)
-
+test_cases2 = itertools.product( [BurgerElement.empty.value, BurgerElement.crown.value, BurgerElement.lettuce.value, BurgerElement.tomato.value, BurgerElement.cheese.value, BurgerElement.patty.value, BurgerElement.heel.value], repeat=8)
+l = list(test_cases2)
+tl = enc.transform(l)
+prediction = clf.predict(tl)
 # tp = 0
 # tn = 0
 # fp = 0
 # fn = 0
-# for test in test_cases:
-#   v = [layer.value for layer in test]
-#   t = numpy.array(v).reshape(1, -1)
-#   # TODO: run prediction on BurgerElement values
-#   # TODO: run check_burger on BurgerElements
-#   prediction = clf.predict(t)[0]
+# for i, test in enumerate(test_cases):
+  # v = [item.value for item in test]
+  # t = numpy.array(test_cases2[i]).reshape(1, -1)
+#   prediction = clf.predict(enc.transform(t))[0]
 #   label = check_burger(test)
+#   print t, prediction, label
 #   if prediction == True:
 #     if prediction == label:
 #       tp += 1
