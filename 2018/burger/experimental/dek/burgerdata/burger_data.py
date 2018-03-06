@@ -1,4 +1,3 @@
-from PIL import Image
 from enum import Enum, unique
 
 @unique
