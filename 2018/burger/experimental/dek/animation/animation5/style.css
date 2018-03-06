@@ -1,0 +1,17 @@
+body {
+  background: #000;
+}
+
+.wrapper {
+  position:relative;
+}
+
+.burger {
+  position:fixed;
+  height:256px;
+  width:128px;
+  top:0;
+  left:0;
+  margin:0;
+  padding:0;
+}

@@ -1,27 +1,27 @@
+import pickle
+import itertools
 import uuid
 import numpy
-import random
-import burger_data
-from burger_data import BurgerElement, burger_asset
-from render_burger import render_burger
+from svg_burger import svg_burger
 from burger_checker import check_burger
-
-lengths = numpy.random.normal(6, 3, 1000000).astype(numpy.int)
-
-burger_element_keys = BurgerElement.__members__.keys()
-
-# Generate a random, possibly valid burger
-def generate_random_burger(length):
-  burger = []
-  for i in range(length):
-    c = random.choice(burger_element_keys)
-    burger.append(BurgerElement[c])
-  return burger
+from exhaustive_burger import ExhaustiveBurger
+from random_burger import RandomBurger
 
 if __name__ == '__main__':
-  for length in lengths:
-    burger = generate_random_burger(length)
-    if check_burger(burger):
-      print burger
-      # icon = render_burger(burger)
-      # icon.save('output/%s.png' % uuid.uuid4().hex
+  all_burgers = set()
+  all_burgers_labelled = dict()
+  good_burgers = set()
+  bad_burgers = set()
+
+  # b = RandomBurger(5000000)
+  b = ExhaustiveBurger()
+  i = 0
+  try:
+    while True:
+      burger = b.next_burger()
+      all_burgers_labelled[burger] = check_burger(burger, debug=False)
+
+  except StopIteration:
+    o = open("burgers.pkl", "w")
+    pickle.dump(all_burgers_labelled, o)
+    o.close()
