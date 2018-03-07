@@ -1,27 +1,22 @@
+import csv
 import pickle
-import itertools
 import uuid
 import numpy
-from svg_burger import svg_burger
 from burger_checker import check_burger
 from exhaustive_burger import ExhaustiveBurger
 from random_burger import RandomBurger
 
 if __name__ == '__main__':
-  all_burgers = set()
-  all_burgers_labelled = dict()
-  good_burgers = set()
-  bad_burgers = set()
-
   # b = RandomBurger(5000000)
   b = ExhaustiveBurger()
   i = 0
-  try:
-    while True:
-      burger = b.next_burger()
-      all_burgers_labelled[burger] = check_burger(burger, debug=False)
-
-  except StopIteration:
-    o = open("burgers.pkl", "w")
-    pickle.dump(all_burgers_labelled, o)
-    o.close()
+  with open('burgers.csv', 'wb') as csvfile:
+    csvfile.write("layer1,layer2,layer3,layer4,layer5,layer6,layer7,layer8,label\n")
+    writer = csv.writer(csvfile, delimiter=',')
+    try:
+      while True:
+        burger = b.next_burger()
+        is_burger = check_burger(burger, debug=False)
+        writer.writerow([layer.value for layer in burger] + [str(is_burger)])
+    except StopIteration:
+      pass
