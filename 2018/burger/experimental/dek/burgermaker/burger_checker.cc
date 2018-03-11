@@ -17,36 +17,6 @@ enum BurgerElements {
   HEEL,
 };
   
-class BurgerElementCounts {
-private:
-  map<int, int> counts;
-public:
-  BurgerElementCounts(string burger) {
-    for(auto &it : burger) {
-      int i = it-48;
-      counts[i]++;
-    }
-  }
-  MSGPACK_DEFINE(counts);
-};
-
-class BurgerFeatures {
-private:
-  BurgerElementCounts counts;
-  bool non_empty_sequential_duplicates;
-public:
-  BurgerFeatures(string burger): counts(BurgerElementCounts(burger)), non_empty_sequential_duplicates(false) {
-    char prev = '\0';
-    for(auto &it : burger) {
-      if (it != '0' && it == prev) {
-	non_empty_sequential_duplicates = true;
-	break;
-      }
-    }
-  }
-  MSGPACK_DEFINE(counts, non_empty_sequential_duplicates);
-};
-
 bool check_burger(string burger, bool debug = false) {
   if (burger.length() != 8) {
     if (debug) cout << "Burger is wrong size" << endl;
@@ -115,13 +85,14 @@ int main() {
   ifstream file("burgers.txt");
   string row_index;
   string burger;
-  map<string, BurgerFeatures> burger_features_map;
   cout << boolalpha;
   while(file.good()) {
     getline(file, burger, '\n') ;
-    burger_features_map.insert(make_pair(burger, BurgerFeatures(burger)));
+    if (!file.good()) break;
+    cout << burger << " " << check_burger(burger) << endl;
   }
 
-  std::ofstream ofs("./burger_features.dat");
-  msgpack::pack(ofs, burger_features_map);
+  // burger = "10000156";
+  // cout << burger << endl;
+  // check_burger(burger, true);
 }

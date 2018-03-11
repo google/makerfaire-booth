@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <iostream>
 #include <vector>
 std::vector<std::vector<int> > cart_product (const std::vector<std::vector<int> >& v) {
@@ -19,7 +21,8 @@ int main(void) {
   
   const std::vector<std::vector<int> > v2(8, v);
   auto result = cart_product(v2);
+  sort(result.begin(), result.end());
   for(int i = 0; i < result.size(); ++i) {
-    std::cout << result[i][0] << "," << result[i][1] << "," << result[i][2] << "," << result[i][3] << "," << result[i][4] << "," << result[i][5] << "," << result[i][6] << "," << result[i][7] << std::endl;
+    std::cout << result[i][0] << result[i][1] << result[i][2] << result[i][3] << result[i][4] << result[i][5] << result[i][6] << result[i][7] << std::endl;
   }
 }

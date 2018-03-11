@@ -47,3 +47,4 @@ from burger_data import BurgerElement
 #     # df['heel_suffix'] = heel_suffix
 
 r= msgpack.unpackb(open("burger_features.dat").read())
+print r['00000000']

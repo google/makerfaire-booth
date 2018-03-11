@@ -1,6 +1,7 @@
 import sys
 sys.path.insert(0, "../burgerdata")
 from burger_data import BurgerElement
+from burger_index import burger_to_index
 
 def check_burger(burger, debug=False):
   if len(burger) != 8:
@@ -59,17 +60,18 @@ def check_burger(burger, debug=False):
 
 if __name__ == '__main__':
   test_burgers = [
-    [BurgerElement.crown, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.cheese, BurgerElement.patty, BurgerElement.cheese, BurgerElement.patty, BurgerElement.heel],
-    [BurgerElement.crown, BurgerElement.empty, BurgerElement.tomato, BurgerElement.cheese, BurgerElement.patty, BurgerElement.cheese, BurgerElement.patty, BurgerElement.heel],
-    [BurgerElement.tomato, BurgerElement.crown, BurgerElement.tomato, BurgerElement.cheese, BurgerElement.patty, BurgerElement.cheese, BurgerElement.patty, BurgerElement.heel],
-    [BurgerElement.crown, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.cheese, BurgerElement.patty, BurgerElement.cheese, BurgerElement.patty, BurgerElement.tomato],
-    [BurgerElement.crown, BurgerElement.tomato, BurgerElement.tomato, BurgerElement.cheese, BurgerElement.patty, BurgerElement.cheese, BurgerElement.patty, BurgerElement.heel],
-    [BurgerElement.crown, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.heel],
-    [BurgerElement.crown, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.patty, BurgerElement.cheese, BurgerElement.heel],
-    [BurgerElement.heel, BurgerElement.patty, BurgerElement.heel, BurgerElement.patty, BurgerElement.heel, BurgerElement.patty, BurgerElement.crown, BurgerElement.heel]
+    [BurgerElement.crown, BurgerElement.empty, BurgerElement.empty, BurgerElement.empty, BurgerElement.empty, BurgerElement.crown, BurgerElement.patty, BurgerElement.heel],
+    # [BurgerElement.crown, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.cheese, BurgerElement.patty, BurgerElement.cheese, BurgerElement.patty, BurgerElement.heel],
+    # [BurgerElement.crown, BurgerElement.empty, BurgerElement.tomato, BurgerElement.cheese, BurgerElement.patty, BurgerElement.cheese, BurgerElement.patty, BurgerElement.heel],
+    # [BurgerElement.tomato, BurgerElement.crown, BurgerElement.tomato, BurgerElement.cheese, BurgerElement.patty, BurgerElement.cheese, BurgerElement.patty, BurgerElement.heel],
+    # [BurgerElement.crown, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.cheese, BurgerElement.patty, BurgerElement.cheese, BurgerElement.patty, BurgerElement.tomato],
+    # [BurgerElement.crown, BurgerElement.tomato, BurgerElement.tomato, BurgerElement.cheese, BurgerElement.patty, BurgerElement.cheese, BurgerElement.patty, BurgerElement.heel],
+    # [BurgerElement.crown, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.heel],
+    # [BurgerElement.crown, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.lettuce, BurgerElement.tomato, BurgerElement.patty, BurgerElement.cheese, BurgerElement.heel],
+    # [BurgerElement.heel, BurgerElement.patty, BurgerElement.heel, BurgerElement.patty, BurgerElement.heel, BurgerElement.patty, BurgerElement.crown, BurgerElement.heel]
   ]
 
   for test_burger in test_burgers:
-    print test_burger
+    print burger_to_index(test_burger)
     print check_burger(test_burger, debug=True)
 
