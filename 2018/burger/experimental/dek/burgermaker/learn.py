@@ -25,7 +25,7 @@ data = pandas.read_csv("burgers.csv")
 y = data['label']
 pos = data[data.label == True]
 neg = data[data.label == False]
-neg_sampled = data.sample(len(pos)*1500)
+neg_sampled = data.sample(len(pos)*500)
 dataset = pos.append(neg_sampled)
 X = dataset.drop(['label'], axis=1)
 y = dataset['label']
@@ -36,8 +36,7 @@ enc = OneHotEncoder()
 tX_train = enc.fit_transform(X_train)
 
 clf = MLPClassifier(solver='lbfgs', alpha=1e-5,
-                    hidden_layer_sizes=(5, 2), random_state=1)
-
+                    hidden_layer_sizes=(8, 2), random_state=1)
 
 clf.fit(tX_train, y_train.as_matrix().astype(int))
 
@@ -51,3 +50,20 @@ print "FP:", cf[0][1]
 print "TN:", cf[0][0]
 print "FN:", cf[1][0]
 
+
+X = data.drop(['label'], axis=1)
+y = data['label']
+tX = enc.fit_transform(X)
+prediction = clf.predict(tX)
+print accuracy_score(y, prediction)
+cf = confusion_matrix(y, prediction)
+
+print "TP:", cf[1][1]
+print "FP:", cf[0][1]
+print "TN:", cf[0][0]
+print "FN:", cf[1][0]
+
+data['prediction'] = prediction.astype(bool)
+
+data.to_csv("predictions.csv")
+    
