@@ -216,10 +216,13 @@ values = [member.value for member in BurgerElement.__members__.values()]
 burgers_it = itertools.product(values, repeat=8)
 burgers = list(burgers_it)
 index = [burger_to_index(burger) for burger in burgers]
-df = pandas.DataFrame(data=burgers, index=index)
+df = pandas.DataFrame(data=burgers,
+                      columns = ['layer0', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', 'layer6', 'layer7'],
+                      index=index)
+
 labels = [label_burger(burger) for burger in burgers]
-df['label'] = labels
-df.to_csv('data.csv', index_label='index')
+df['output'] = labels
+df.to_csv('data.csv', index_label='id')
 # count = dict([(burger, count(burger)) for burger in burgers])
 # crown_getter = operator.itemgetter(BurgerElement.crown.value)
 # heel_getter = operator.itemgetter(BurgerElement.heel.value)
