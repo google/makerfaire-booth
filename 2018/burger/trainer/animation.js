@@ -89,7 +89,7 @@ function create_burger(layers) {
     return wrapper;
 }
 
-$(window).load(function() {
+function start_animation() {
     var layers = [ 'crown', 'crown', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel' ];
     var wrapper = create_burger(layers);
     document.body.appendChild(wrapper);
@@ -119,6 +119,11 @@ $(window).load(function() {
     player.play();
     player.onfinish = function() {
 	wrapper.remove();
+	start_animation();
     }
+}
+
+$(window).load(function() {
+    start_animation();
 });
 
