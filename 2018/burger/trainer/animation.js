@@ -13,6 +13,7 @@ function create_animation1(element_name, data) {
 	fill: "forwards",
 	delay: data.delay,
     }
+
     var keyframes = [
 	{ transform: 'translateX(' + (width/2 - 128) + 'px) translateY(' + data.initialY + ')', opacity: 1},
 	{ transform: 'translateX(' + (width/2 - 128) + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
@@ -33,9 +34,10 @@ function create_animation2(element_name, data) {
 	direction: "normal",
 	fill: "forwards",
     }
+   
     var keyframes = [
 	{ transform: 'translateX(' + (width/2 - 128) + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
-	{ transform: 'translateX(0px) translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + data.dest + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
     ];
     return new KeyframeEffect(element, keyframes, timings);
 }
@@ -54,8 +56,8 @@ function create_animation3(element_name, data) {
 	fill: "forwards",
     }
     var keyframes = [
-	{ transform: 'translateX(0px) translateY(' + data.conveyorY + ')', opacity: 1},
-	{ transform: 'translateX(0px) translateY(' + data.finalY + ')', opacity: 1},
+	{ transform: 'translateX(' + data.dest + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + data.dest + 'px) translateY(' + data.finalY + ')', opacity: 1},
     ];
     return new KeyframeEffect(element, keyframes, timings);
 }
@@ -120,12 +122,18 @@ function start_animation() {
     var baseConveyorY = 420;
     var baseFinalY = 1000;
     var animation = [];
+    if (Math.random() > 0.5) {
+	var dest = 0;
+    } else {
+	var dest = width-256;
+    }
     for (i = 0; i < 8; i++) {
 	animation.push(["layer" + (7-i+1), {
 	    delay: i*1000,
 	    initialY: (baseInitialY - i * 50) + 'px',
 	    conveyorY: (baseConveyorY - i * 50) + 'px',
-	    finalY: (baseFinalY - i * 50) + 'px'
+	    finalY: (baseFinalY - i * 50) + 'px',
+	    dest: dest
 	}]);
     }
     var group1 = create_group(animation, create_animation1);
