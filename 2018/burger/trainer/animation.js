@@ -34,10 +34,11 @@ function create_animation2(element_name, data) {
 	direction: "normal",
 	fill: "forwards",
     }
-   
+
+    var dest = data.dest == 'left' ? 0 : width-256;
     var keyframes = [
 	{ transform: 'translateX(' + (width/2 - 128) + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
-	{ transform: 'translateX(' + data.dest + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + dest + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
     ];
     return new KeyframeEffect(element, keyframes, timings);
 }
@@ -55,9 +56,10 @@ function create_animation3(element_name, data) {
 	direction: "normal",
 	fill: "forwards",
     }
+    var dest = data.dest == 'left' ? 0 : width-256;
     var keyframes = [
-	{ transform: 'translateX(' + data.dest + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
-	{ transform: 'translateX(' + data.dest + 'px) translateY(' + data.finalY + ')', opacity: 1},
+	{ transform: 'translateX(' + dest + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + dest + 'px) translateY(' + data.finalY + ')', opacity: 1},
     ];
     return new KeyframeEffect(element, keyframes, timings);
 }
@@ -122,10 +124,10 @@ function start_animation() {
     var baseConveyorY = 420;
     var baseFinalY = 1000;
     var animation = [];
-    if (Math.random() > 0.5) {
-	var dest = 0;
+    if (Math.random() < 0.5) {
+	var dest = 'left';
     } else {
-	var dest = width-256;
+	var dest = 'right';
     }
     for (i = 0; i < 8; i++) {
 	animation.push(["layer" + (7-i+1), {
@@ -138,20 +140,50 @@ function start_animation() {
     }
     var group1 = create_group(animation, create_animation1);
     var group2 = create_group(animation, create_animation2);
-    var group3 = create_group(animation, create_animation3);
 
     var sequence = new SequenceEffect([
     	group1,
     	group2,
-    	group3,
     ]);
     
     var player = new Animation(sequence, document.timeline);
+    player.onfinish = wait_for_keypress(animation, dest);
     player.play();
-    player.onfinish = function() {
+}
+
+function after_keypress(animation, keydownHandler) {
+    var group3 = create_group(animation, create_animation3);
+    var player2 = new Animation(group3, document.timeline);
+    document.removeEventListener('keydown', keydownHandler);
+    player2.onfinish = function() {
 	wrapper.remove();
 	start_animation();
     }
+    player2.play();
+}
+
+function wait_for_keypress(animation, dest) {
+    var yesCode, noCode;
+    if (dest == 'left') {
+	yesCode = "Z".charCodeAt(0);
+	noCode = "X".charCodeAt(0);
+    } else if (dest == 'right') {
+	yesCode = "N".charCodeAt(0);
+	noCode = "M".charCodeAt(0);
+    } else {
+	console.log("Unexpected dest:" + dest);
+	return;
+    }
+    console.log("Expecting " + yesCode + " for yes");
+    console.log("Expecting " + noCode + " for no");
+    function keydownHandler(e) {
+	console.log(e);
+	console.log("Got " + e.keyCode);
+	if (e.keyCode == yesCode || e.keyCode == noCode) {
+	    after_keypress(animation, this.keydownHandler);
+	}
+    }
+    document.addEventListener('keydown', keydownHandler, false);
 }
 
 $(window).ready(function() {

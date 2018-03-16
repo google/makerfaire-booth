@@ -46,8 +46,5 @@ html, body {
 }
 
 #wrapper {
-    width:240px;
-    height:240px;
-    border:5px solid black;
-    position:static;
+    position:fixed;
 }
