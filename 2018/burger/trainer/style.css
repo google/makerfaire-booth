@@ -1,8 +1,13 @@
-body {
-    background: #fff;
+html, body {
     margin: 0;
+    padding: 0;
+    width: 100%;
     height: 100%;
     overflow: hidden
+}
+
+#chute {
+    position:fixed; top:0; left:0; height:100%; width:100%;
 }
 
 #layer1, #layer2, #layer3, #layer4, #layer5, #layer6, #layer7, #layer8 {
@@ -41,8 +46,8 @@ body {
 }
 
 #wrapper {
-    height:420px;
-    width:250px;
+    width:240px;
+    height:240px;
     border:5px solid black;
     position:static;
 }

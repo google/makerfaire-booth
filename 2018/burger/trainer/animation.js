@@ -1,20 +1,8 @@
-function create_animation0(wrapper) {
-    var timings = {
-	duration: 1000,
-	iterations: 1,
-	easing: "linear",
-	direction: "normal",
-	fill: "forwards",
-    }
-    var keyframes = [
-	{ transform: 'translateX(90vh) translateY(500px)'},
-	{ transform: 'translateX(0vh) translateY(500px)'},
-    ];
-    return new KeyframeEffect(wrapper, keyframes, timings);
-}
 
 function create_animation1(element_name, data) {
     var element = document.getElementById(element_name);
+    width = chute.getBoundingClientRect().width;
+    height = chute.getBoundingClientRect().height;
 
     var timings = {
 	duration: 1000,
@@ -25,43 +13,43 @@ function create_animation1(element_name, data) {
 	delay: data.delay,
     }
     var keyframes = [
-	{ transform: 'translateY(' + data.initialY + ')', opacity: 1},
-	{ transform: 'translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + (width/2 - 128) + 'px) translateY(' + data.initialY + ')', opacity: 1},
+	{ transform: 'translateX(' + (width/2 - 128) + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
     ];
     return new KeyframeEffect(element, keyframes, timings);
 }
 
-function create_animation2(wrapper) {
-    var timings = {
-	duration: 1000,
-	iterations: 1,
-	easing: "linear",
-	direction: "normal",
-	fill: "forwards",
-    }
-    var keyframes = [
-	{ transform: 'translateX(0vh) translateY(500px)'},
-	{ transform: 'translateX(90vh) translateY(500px)'},
-    ];
-    return new KeyframeEffect(wrapper, keyframes, timings);
-}
+// function create_animation2(wrapper) {
+//     var timings = {
+// 	duration: 1000,
+// 	iterations: 1,
+// 	easing: "linear",
+// 	direction: "normal",
+// 	fill: "forwards",
+//     }
+//     var keyframes = [
+// 	{ transform: 'translateX(0vh) translateY(500px)'},
+// 	{ transform: 'translateX(90vh) translateY(500px)'},
+//     ];
+//     return new KeyframeEffect(wrapper, keyframes, timings);
+// }
 
-function create_animation3(element_name, data) {
-    var element = document.getElementById(element_name);
+// function create_animation3(element_name, data) {
+//     var element = document.getElementById(element_name);
 
-    var timings = {
-	duration: 1000,
-	iterations: 1,
-	easing: "linear",
-	direction: "normal",
-	fill: "forwards",
-    }
-    var keyframes = [
-	{ transform: 'translateY(' + data.conveyorY + ')', opacity: 1},
-	{ transform: 'translateY(' + data.finalY + ')', opacity: 1},
-    ];
-    return new KeyframeEffect(element, keyframes, timings);
-}
+//     var timings = {
+// 	duration: 1000,
+// 	iterations: 1,
+// 	easing: "linear",
+// 	direction: "normal",
+// 	fill: "forwards",
+//     }
+//     var keyframes = [
+// 	{ transform: 'translateY(' + data.conveyorY + ')', opacity: 1},
+// 	{ transform: 'translateY(' + data.finalY + ')', opacity: 1},
+//     ];
+//     return new KeyframeEffect(element, keyframes, timings);
+// }
 
 function create_group(animation, f) {
     var kEffects = [];
@@ -89,30 +77,60 @@ function create_burger(layers) {
     return wrapper;
 }
 
+function create_chute() {
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var chute = document.createElementNS(svgNS, "svg");
+    chute.setAttributeNS(null, 'id', 'chute');
+    var chuteline1 = document.createElementNS(svgNS, 'line');
+    chuteline1.setAttributeNS(null, 'id', 'chuteline1');
+    chuteline1.setAttributeNS(null, 'style', 'stroke:rgb(255,0,0);stroke-width:2');
+    chute.appendChild(chuteline1);
+    var chuteline2 = document.createElementNS(svgNS, 'line');
+    chuteline2.setAttributeNS(null, 'id', 'chuteline2');
+    chuteline2.setAttributeNS(null, 'style', 'stroke:rgb(255,0,0);stroke-width:2');
+    chute.appendChild(chuteline2);
+
+    document.body.appendChild(chute);
+
+    
+    var width = chute.getBoundingClientRect().width;
+    var height = chute.getBoundingClientRect().height;
+    chuteline1.setAttributeNS(null, 'x1', width/2 - 128);
+    chuteline1.setAttributeNS(null, 'y1', 0);
+    chuteline1.setAttributeNS(null, 'x2', width/2 - 128);
+    chuteline1.setAttributeNS(null, 'y2', height);
+    chuteline2.setAttributeNS(null, 'x1', width/2 + 128);
+    chuteline2.setAttributeNS(null, 'y1', 0);
+    chuteline2.setAttributeNS(null, 'x2', width/2 + 128);
+    chuteline2.setAttributeNS(null, 'y2', height);
+
+}
+
 function start_animation() {
     var layers = [ 'crown', 'crown', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel' ];
     var wrapper = create_burger(layers);
     document.body.appendChild(wrapper);
-    var animation = [
-    	["layer8", {delay: 0, initialY: '-300px', conveyorY: '420px', finalY: '1000px'}],
-    	["layer7", {delay:1000, initialY: '-350px', conveyorY: '370px', finalY: '950px'}],
-    	["layer6", {delay:2000, initialY: '-400px', conveyorY: '320px', finalY: '900px'}],
-    	["layer5", {delay:3000, initialY: '-450px', conveyorY: '270px', finalY: '850px'}],
-    	["layer4", {delay:4000, initialY: '-500px', conveyorY: '220px', finalY: '800px'}],
-    	["layer3", {delay:5000, initialY: '-550px', conveyorY: '170px', finalY: '750px'}],
-    	["layer2", {delay:6000, initialY: '-600px', conveyorY: '120px', finalY: '700px'}],
-    	["layer1", {delay:7000, initialY: '-650px', conveyorY: '70px', finalY: '650px'}],
-    ];
-    var group0 = create_animation0(wrapper);
+    // TODO: compute conveyorY as f(baseConveyor + layer_idx * layer_height)
+    var baseInitialY = -300;
+    var baseConveyorY = 420;
+    var baseFinalY = 1000;
+    var animation = [];
+    for (i = 0; i < 8; i++) {
+	animation.push(["layer" + (7-i+1), {
+	    delay: i*1000,
+	    initialY: (baseInitialY - i * 50) + 'px',
+	    conveyorY: (baseConveyorY - i * 50) + 'px',
+	    finalY: (baseFinalY - i * 50) + 'px'
+	}]);
+    }
     var group1 = create_group(animation, create_animation1);
-    var group2 = create_animation2(wrapper);
-    var group3 = create_group(animation, create_animation3);
+    // var group2 = create_animation2(wrapper);
+    // var group3 = create_group(animation, create_animation3);
 
     var sequence = new SequenceEffect([
-    	group0,
     	group1,
-    	group2,
-    	group3,
+    	// group2,
+    	// group3,
     ]);
     
     var player = new Animation(sequence, document.timeline);
@@ -123,7 +141,10 @@ function start_animation() {
     }
 }
 
-$(window).load(function() {
+$(window).ready(function() {
+    console.log("ready");
+    create_chute();
+    var layers = [ 'crown', 'crown', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel' ];
     start_animation();
 });
 
