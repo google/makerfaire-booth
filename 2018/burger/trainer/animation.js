@@ -152,14 +152,14 @@ function start_animation() {
 }
 
 function after_keypress(animation, keydownHandler) {
-    var group3 = create_group(animation, create_animation3);
-    var player2 = new Animation(group3, document.timeline);
+    var group = create_group(animation, create_animation3);
+    var player = new Animation(group, document.timeline);
     document.removeEventListener('keydown', keydownHandler);
-    player2.onfinish = function() {
+    player.onfinish = function() {
 	wrapper.remove();
 	start_animation();
     }
-    player2.play();
+    player.play();
 }
 
 function wait_for_keypress(animation, dest) {
@@ -174,11 +174,7 @@ function wait_for_keypress(animation, dest) {
 	console.log("Unexpected dest:" + dest);
 	return;
     }
-    console.log("Expecting " + yesCode + " for yes");
-    console.log("Expecting " + noCode + " for no");
     function keydownHandler(e) {
-	console.log(e);
-	console.log("Got " + e.keyCode);
 	if (e.keyCode == yesCode || e.keyCode == noCode) {
 	    after_keypress(animation, this.keydownHandler);
 	}
@@ -187,7 +183,6 @@ function wait_for_keypress(animation, dest) {
 }
 
 $(window).ready(function() {
-    console.log("ready");
     create_chute();
     var layers = [ 'crown', 'crown', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel' ];
     start_animation();
