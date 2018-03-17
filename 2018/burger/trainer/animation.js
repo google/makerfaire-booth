@@ -116,6 +116,9 @@ function create_chute() {
     chuteline2.setAttributeNS(null, 'y2', height);
 }
 
+var leftBurger = null;
+var rightBurger = null;
+
 function start_animation() {
     var layers = [ 'crown', 'crown', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel' ];
     var wrapper = create_burger(layers);
@@ -124,10 +127,21 @@ function start_animation() {
     var baseConveyorY = 420;
     var baseFinalY = 1000;
     var animation = [];
-    if (Math.random() < 0.5) {
-	var dest = 'left';
+    var dest;
+    // use leftBurger and rightBurger to determine if we need to make a random choice;
+    if (leftBurger == null && rightBurger == null) {
+	if (Math.random() < 0.5) {
+	    dest = 'left';
+	} else {
+	    dest = 'right';
+	}
+    } else if (leftBurger == null) {
+	dest = 'left'; 
+    } else if (rightBurger == null) {
+	dest = 'right';
     } else {
-	var dest = 'right';
+	console.log("Can't start animation yet.");
+	return;
     }
     for (i = 0; i < 8; i++) {
 	animation.push(["layer" + (7-i+1), {
@@ -147,27 +161,34 @@ function start_animation() {
     ]);
     
     var player = new Animation(sequence, document.timeline);
-    player.onfinish = wait_for_keypress(animation, dest);
+    player.onfinish = wait_for_keypress(animation, dest, wrapper);
     player.play();
 }
 
-function after_keypress(animation, keydownHandler) {
+function after_keypress(animation, keydownHandler, dest, wrapper) {
     var group = create_group(animation, create_animation3);
     var player = new Animation(group, document.timeline);
     document.removeEventListener('keydown', keydownHandler);
     player.onfinish = function() {
+	if (dest == 'left') {
+	    leftBurger = null;
+	} else if (dest == 'right') {
+	    rightBurger = null;
+	}
 	wrapper.remove();
-	start_animation();
     }
     player.play();
 }
 
-function wait_for_keypress(animation, dest) {
+function wait_for_keypress(animation, dest, wrapper) {
+    start_animation();
     var yesCode, noCode;
     if (dest == 'left') {
+	leftBurger = wrapper;
 	yesCode = "Z".charCodeAt(0);
 	noCode = "X".charCodeAt(0);
     } else if (dest == 'right') {
+	rightBurger = wrapper;
 	yesCode = "N".charCodeAt(0);
 	noCode = "M".charCodeAt(0);
     } else {
@@ -176,7 +197,7 @@ function wait_for_keypress(animation, dest) {
     }
     function keydownHandler(e) {
 	if (e.keyCode == yesCode || e.keyCode == noCode) {
-	    after_keypress(animation, this.keydownHandler);
+	    after_keypress(animation, this.keydownHandler, dest, wrapper);
 	}
     }
     document.addEventListener('keydown', keydownHandler, false);
