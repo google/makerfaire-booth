@@ -45,6 +45,6 @@ html, body {
     fill: #d3af37;
 }
 
-#wrapper {
+.wrapper {
     position:fixed;
 }
