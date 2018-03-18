@@ -189,7 +189,7 @@ function convey_burger(wrapper) {
     player.play();
 }
 
-function after_keypress(keydownHandler, wrapper) {
+function after_keypress(wrapper) {
     console.log("after keypress for", wrapper);
     var dest = wrapper.getAttribute('id');
     console.log("dest is", dest);
@@ -218,8 +218,8 @@ function wait_for_keypress(wrapper) {
 	var noCode = "X".charCodeAt(0);
 	console.log("keydownHandlerLeft waiting for", yesCode, noCode, "got", e.keyCode);
 	if (e.keyCode == yesCode || e.keyCode == noCode) {
-	    document.removeEventListener('keydown', this);
-	    after_keypress(this.keydownHandler, wrapper);
+	    document.removeEventListener('keydown', keydownHandlerLeft, false);
+	    after_keypress(wrapper);
 	}
     }
     function keydownHandlerRight(e) {
@@ -227,14 +227,14 @@ function wait_for_keypress(wrapper) {
 	var noCode = "N".charCodeAt(0);
 	console.log("keydownHandlerRight waiting for", yesCode, noCode, "got", e.keyCode);
 	if (e.keyCode == yesCode || e.keyCode == noCode) {
-	    document.removeEventListener('keydown', this);
-	    after_keypress(this.keydownHandler, wrapper);
+	    document.removeEventListener('keydown', keydownHandlerRight, false);
+	    after_keypress(wrapper);
 	}
     }
     if (dest == 'left')
-	document.addEventListener('keydown', keydownHandlerLeft);
+	document.addEventListener('keydown', keydownHandlerLeft, false);
     else if (dest == 'right')
-	document.addEventListener('keydown', keydownHandlerRight);
+	document.addEventListener('keydown', keydownHandlerRight, false);
     start_animation();
 }
 
