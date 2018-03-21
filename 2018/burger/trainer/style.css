@@ -48,3 +48,43 @@ html, body {
 .wrapper {
     position:fixed;
 }
+
+.burger {
+    position:relative; top:0; left:0; height:256px; width:128px;
+}
+
+.topbun {
+    position:absolute;
+    z-index:6;
+}
+
+.lettuce {
+    position:absolute;
+    transform:translateY(12px);
+    z-index:5;
+}
+
+.tomato {
+    position:absolute;
+    transform:translateY(20px);
+    z-index:4;
+}
+
+.cheese {
+    position:absolute;
+    z-index:3;
+    transform:translateY(26px);
+}
+
+.patty {
+    position:absolute;
+    z-index:2;
+    transform:translateY(30px);
+}
+
+.bottombun {
+    position:absolute;
+    z-index:1;
+    transform:translateY(42px);
+}
+
