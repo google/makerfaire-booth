@@ -84,11 +84,13 @@ function create_burger(layers) {
     wrapper.setAttribute('class', "wrapper");
     wrapper.setAttribute('id', 'hopper');
     for (i = 0; i < layers.length; i++) {
+	if (layers[i] == 'empty') continue;
     	var svg = document.createElementNS(svgNS, "svg");
     	svg.setAttributeNS(null, 'id', 'layer' + (i+1).toString());
     	svg.setAttributeNS(null, 'class', layers[i]);
     	var use = document.createElementNS(svgNS, 'use');
-    	use.setAttributeNS(null, 'href', 'element.svg#shape')
+	var href = 'assets/' + layers[i] + '.svg#g10';
+    	use.setAttributeNS(null, 'href', href);
     	svg.appendChild(use);
     	wrapper.appendChild(svg);
     }
@@ -129,9 +131,9 @@ function create_animation() {
     for (i = 0; i < 8; i++) {
 	animation.push(["layer" + (7-i+1), {
 	    delay: i*100,
-	    initialY: (baseInitialY - i * 50) + 'px',
-	    conveyorY: (baseConveyorY - i * 50) + 'px',
-	    finalY: (baseFinalY - i * 50) + 'px',
+	    initialY: (baseInitialY - i * 8) + 'px',
+	    conveyorY: (baseConveyorY - i * 8) + 'px',
+	    finalY: (baseFinalY - i * 8) + 'px',
 	}]);
     }
     return animation;
@@ -146,7 +148,7 @@ function start_animation() {
 	return;
     }
     console.log("Animationg a new burger in the hopper");
-    var layers = [ 'crown', 'crown', 'crown', 'lettuce', 'tomato', 'cheese', 'patty', 'heel' ];
+    var layers = [ 'empty', 'empty', 'topbun', 'lettuce', 'tomato', 'cheese', 'patty', 'bottombun' ];
     hopperBurger = create_burger(layers);
     document.body.appendChild(hopperBurger);
     var group1 = create_group(hopperBurger, create_animation1);
