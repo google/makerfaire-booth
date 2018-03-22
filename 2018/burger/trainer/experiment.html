@@ -9,24 +9,14 @@
   </head>
 
   <body>
-    <div class="burger">
-      <svg class="topbun">
-	<use href="assets/topbun.svg#g10"></use>
-      </svg>
-      <svg class="lettuce">
-	<use href="assets/lettuce.svg#g10"></use>
-      </svg>
-      <svg class="tomato">
-	<use href="assets/tomato.svg#g10"></use>
-      </svg>
-      <svg class="cheese">
-	<use href="assets/cheese.svg#g10"></use>
-      </svg>
-      <svg class="patty">
-	<use href="assets/patty.svg#g10"></use>
-      </svg>
-      <svg class="bottombun">
-	<use href="assets/bottombun.svg#g10"></use>
+    <div>
+      <svg>
+	<use class="bottombun" y="30" style="z-index: 1" href="assets/bottombun.svg#g10"></use>
+	<use class="patty" y="24" style="z-index: 2" href="assets/patty.svg#g10"></use>
+	<use class="cheese" y="18" style="z-index: 3" href="assets/cheese.svg#g10"></use>
+	<use class="tomato" y="12" style="z-index: 4" href="assets/tomato.svg#g10"></use>
+	<use class="lettuce" y="6" style="z-index: 6" href="assets/lettuce.svg#g10"></use>
+	<use class="topbun" y="0" style="z-index: 5" href="assets/topbun.svg#g10"></use>
       </svg>
     </div>
   </body>
