@@ -19,6 +19,8 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from enum import Enum, unique
 
+MAX_BURGER_HEIGHT=6
+
 @unique
 class BurgerElement(Enum):
   empty = 0
@@ -58,13 +60,13 @@ def has_sequential_nonempty_duplicates(burger):
 def has_internal_or_terminal_empty(burger):
   i = 0
   # Consume initial empties
-  while i < 8:
+  while i < MAX_BURGER_HEIGHT:
     if burger[i] != BurgerElement.empty.value:
       break
     i += 1
     
   # Consume subsequent non-empties
-  while i < 8:
+  while i < MAX_BURGER_HEIGHT:
     if burger[i] == BurgerElement.empty.value:
       return True
     i += 1
@@ -74,15 +76,15 @@ def has_internal_or_terminal_empty(burger):
 def has_internal_bun(burger):
   i = 0
   # Consume initial crown
-  while i < 7:
+  while i < MAX_BURGER_HEIGHT-1:
     if burger[i] == BurgerElement.crown.value:
       break
     i += 1
 
-  if i == 7:
+  if i == MAX_BURGER_HEIGHT-1:
     return False
 
-  while i < 7:
+  while i < MAX_BURGER_HEIGHT-1:
     if burger[i] == BurgerElement.crown.value or burger[i] == BurgerElement.heel.value:
       return True
     i += 1
@@ -92,7 +94,7 @@ def has_internal_bun(burger):
 
 def empty_prefix_count(burger):
   i = 0
-  while i < 8:
+  while i < MAX_BURGER_HEIGHT:
     if burger[i] != BurgerElement.empty.value:
       break
     i += 1
@@ -100,7 +102,7 @@ def empty_prefix_count(burger):
 
 def empty_crown_prefix(burger):
   i = 0
-  while i < 8:
+  while i < MAX_BURGER_HEIGHT:
     if burger[i] == BurgerElement.empty.value:
       i += 1
       continue
@@ -139,30 +141,8 @@ def heel_count(burger):
       count += 1
   return count
 
-#   # import pdb; pdb.set_trace()
-#   i = 0
-#   # Consume initial empties
-#   while i < 8:
-#     if burger[i] != BurgerElement.empty.value:
-#       break
-#     i += 1
-
-#   if i == 8:
-#     return False
-  
-#   # Consume subsequent crown
-#   if burger[i] != BurgerElement.crown.value:
-#     return False
-#   crown_pos = i
-  
-#   for i in range(crown_pos+1, len(burger)):
-#     if burger[i] == BurgerElement.crown.value:
-#       return True
-    
-#   return False
-
 def label_burger(burger, debug=False):
-  if len(burger) != 8:
+  if len(burger) != MAX_BURGER_HEIGHT:
     if debug: print "Burger is wrong size"
     return False
   crown_pos = None
@@ -218,33 +198,34 @@ def label_burger(burger, debug=False):
 
 
 names = [member.name for member in BurgerElement.__members__.values()]
-# values = [member.value for member in BurgerElement.__members__.values()]
-# burgers_it = itertools.product(values, repeat=8)
-# burgers = list(burgers_it)
-# index = [burger_to_index(burger) for burger in burgers]
-# df = pandas.DataFrame(data=burgers,
-#                       columns = ['layer0', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', 'layer6', 'layer7'],
-#                       index=index)
+values = [member.value for member in BurgerElement.__members__.values()]
+burgers_it = itertools.product(values, repeat=MAX_BURGER_HEIGHT)
+burgers = list(burgers_it)
+index = [burger_to_index(burger) for burger in burgers]
+column_names = ['layer0', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5']
+df = pandas.DataFrame(data=burgers,
+                      columns = column_names,
+                      index=index)
 
-# labels = [label_burger(burger) for burger in burgers]
-# df['output'] = labels
-# # df.to_csv('data.csv', index_label='id')
+labels = [label_burger(burger) for burger in burgers]
+df['output'] = labels
+df.to_csv('data.csv', index_label='id')
 
-# count = dict([(burger, count(burger)) for burger in burgers])
-# crown_getter = operator.itemgetter(BurgerElement.crown.value)
-# heel_getter = operator.itemgetter(BurgerElement.heel.value)
-# patty_getter = operator.itemgetter(BurgerElement.patty.value)
-# df['has_sequential_nonempty_duplicates'] = [has_sequential_nonempty_duplicates(burger) for burger in burgers]
-# df['has_internal_or_terminal_empty'] = [has_internal_or_terminal_empty(burger) for burger in burgers]
-# df['has_patty_under_last_cheese'] = [has_patty_under_last_cheese(burger) for burger in burgers]
-# df['has_internal_bun'] = [has_internal_bun(burger) for burger in burgers]
-# df['empty_prefix_count'] = [empty_prefix_count(burger) for burger in burgers]
-# df['empty_crown_prefix'] = [empty_crown_prefix(burger) for burger in burgers]
-# df['crown_count'] = [crown_getter(count[burger]) for burger in burgers]
-# df['heel_count'] = [heel_getter(count[burger]) for burger in burgers]
-# df['patty_count'] = [patty_getter(count[burger]) for burger in burgers]
+count = dict([(burger, count(burger)) for burger in burgers])
+crown_getter = operator.itemgetter(BurgerElement.crown.value)
+heel_getter = operator.itemgetter(BurgerElement.heel.value)
+patty_getter = operator.itemgetter(BurgerElement.patty.value)
+df['has_sequential_nonempty_duplicates'] = [has_sequential_nonempty_duplicates(burger) for burger in burgers]
+df['has_internal_or_terminal_empty'] = [has_internal_or_terminal_empty(burger) for burger in burgers]
+df['has_patty_under_last_cheese'] = [has_patty_under_last_cheese(burger) for burger in burgers]
+df['has_internal_bun'] = [has_internal_bun(burger) for burger in burgers]
+df['empty_prefix_count'] = [empty_prefix_count(burger) for burger in burgers]
+df['empty_crown_prefix'] = [empty_crown_prefix(burger) for burger in burgers]
+df['crown_count'] = [crown_getter(count[burger]) for burger in burgers]
+df['heel_count'] = [heel_getter(count[burger]) for burger in burgers]
+df['patty_count'] = [patty_getter(count[burger]) for burger in burgers]
 
-# df.to_hdf('data.h5', 'df', format='fixed')
+df.to_hdf('data.h5', 'df', format='fixed')
 df = pandas.read_hdf('data.h5', 'df')
 
 pos = df[df.output == True]
@@ -257,7 +238,7 @@ y = dataset['output']
 X_train, X_test, y_train, y_test = train_test_split(X, y)
 
 enc = OneHotEncoder()
-X_train_categoricals = X_train[['layer0','layer1','layer2','layer3','layer4','layer5','layer6','layer7']]
+X_train_categoricals = X_train[column_names]
 tX_train_categoricals = enc.fit_transform(X_train_categoricals)
 m = csr_matrix([
   X_train['has_sequential_nonempty_duplicates'].astype(int),
@@ -277,23 +258,23 @@ all_X_train= hstack([tX_train_categoricals, m.T])
 # # # clf = SVC(gamma=0.001, C=1., verbose=True)
 # # # clf = RandomForestClassifier(n_estimators=100, n_jobs=8, max_features=3,
 # # #                              max_depth=None, random_state=0, verbose=True)
-# # clf = MLPClassifier(solver='adam',  activation='identity',
-# #                     hidden_layer_sizes=(1,), verbose=True)
+clf = MLPClassifier(solver='adam',  activation='identity',
+                    hidden_layer_sizes=(1,), verbose=True)
 
 # clf = DecisionTreeClassifier(random_state=0, class_weight="balanced", max_depth=None)
 
 # clf = BaggingClassifier(KNeighborsClassifier(), max_samples=0.5, max_features=0.5, n_jobs=8, verbose=True)
 # clf = AdaBoostClassifier(n_estimators=100)
-clf = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0,
-                                 max_depth=1)
+# clf = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0,
+#                                  max_depth=1)
 # print "Training"
 clf.fit(all_X_train, y_train.as_matrix().astype(int))
-# pickle.dump(clf, open("mlp.pkl", "w"))
-# clf = pickle.load(open("mlp.pkl"))
+pickle.dump(clf, open("mlp.pkl", "w"))
+clf = pickle.load(open("mlp.pkl"))
 
 
 # feature_names = []
-# for name in ['layer0','layer1','layer2','layer3','layer4','layer5','layer6','layer7']:
+# for name in column_names:
 #   for i in range(len(names)):
 #     feature_names.append(name + "_" + names[i])
 # feature_names.append('has_sequential_nonempty_duplicates')
@@ -307,7 +288,7 @@ clf.fit(all_X_train, y_train.as_matrix().astype(int))
 # feature_names.append('patty_count')
 #dot_data = export_graphviz(clf, out_file="test.dot", feature_names=feature_names)
 
-X_test_categoricals = X_test[['layer0','layer1','layer2','layer3','layer4','layer5','layer6','layer7']]
+X_test_categoricals = X_test[column_names]
 tX_test_categoricals = enc.fit_transform(X_test_categoricals)
 m = csr_matrix([
   X_test['has_sequential_nonempty_duplicates'].astype(int),
@@ -336,7 +317,7 @@ print "FN:", cf[1][0]
 
 X = df.drop(['output'], axis=1)
 y = df['output']
-X_categoricals = X[['layer0','layer1','layer2','layer3','layer4','layer5','layer6','layer7']]
+X_categoricals = X[column_names]
 tX_categoricals = enc.fit_transform(X_categoricals)
 m = csr_matrix([
   X['has_sequential_nonempty_duplicates'].astype(int),
@@ -362,10 +343,10 @@ print "FP:", cf[0][1]
 print "TN:", cf[0][0]
 print "FN:", cf[1][0]
 
-df['prediction'] = prediction.astype(bool)
+# df['prediction'] = prediction.astype(bool)
 
 
-fp = df[~df.output & df.prediction]
-for index, row in fp.iterrows():
-    print index
-    label_burger([int(layer) for layer in index], True)
+# fp = df[~df.output & df.prediction]
+# for index, row in fp.iterrows():
+#     print index
+#     label_burger([int(layer) for layer in index], True)
