@@ -78,20 +78,42 @@ function create_group(wrapper, f) {
     return group;
 }
 
+function create_random_layers() {
+    var layers_enum = Object.freeze({
+	0: "empty",
+	1: "topbun",
+	2: "lettuce",
+	3: "tomato",
+	4: "cheese",
+	5: "patty",
+	6: "bottombun"
+    });
+    var layers = [];
+    var empty_layers = Math.floor(Math.random() * 7);
+    for (i = 0; i < empty_layers; i++) {
+	layers.push("empty");
+    }
+    for (i = empty_layers; i < 8; i++) {
+	layers.push(layers_enum[Math.floor(Math.random() * 6)+1]);
+    }
+    return layers;
+}
+
 function create_burger(layers) {
     var svgNS = 'http://www.w3.org/2000/svg';
     var wrapper = document.createElement("div");
     wrapper.setAttribute('class', "wrapper");
     wrapper.setAttribute('id', 'hopper');
     for (i = 0; i < layers.length; i++) {
-	if (layers[i] == 'empty') continue;
     	var svg = document.createElementNS(svgNS, "svg");
     	svg.setAttributeNS(null, 'id', 'layer' + (i+1).toString());
     	svg.setAttributeNS(null, 'class', layers[i]);
-    	var use = document.createElementNS(svgNS, 'use');
-	var href = 'assets/' + layers[i] + '.svg#g10';
-    	use.setAttributeNS(null, 'href', href);
-    	svg.appendChild(use);
+	if (layers[i] != 'empty') {
+    	    var use = document.createElementNS(svgNS, 'use');
+	    var href = '../assets/' + layers[i] + '.svg#g10';
+    	    use.setAttributeNS(null, 'href', href);
+    	    svg.appendChild(use);
+	}
     	wrapper.appendChild(svg);
     }
     return wrapper;
@@ -148,7 +170,8 @@ function start_animation() {
 	return;
     }
     console.log("Animationg a new burger in the hopper");
-    var layers = [ 'empty', 'empty', 'topbun', 'lettuce', 'tomato', 'cheese', 'patty', 'bottombun' ];
+    // var layers = [ 'empty', 'empty', 'topbun', 'lettuce', 'tomato', 'cheese', 'patty', 'bottombun' ];
+    var layers = create_random_layers();
     hopperBurger = create_burger(layers);
     document.body.appendChild(hopperBurger);
     var group1 = create_group(hopperBurger, create_animation1);
