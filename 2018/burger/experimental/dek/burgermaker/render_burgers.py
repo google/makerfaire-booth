@@ -45,7 +45,7 @@ def write_group(group, dir_):
 df = pandas.read_hdf('data.h5', 'df')
 pos = df[df.output == True]
 neg = df[df.output == False]
-neg_sampled = neg.sample(len(pos))
+neg_sampled = neg.sample(len(pos)/3)
 dataset = pos.append(neg_sampled)
 X = dataset.drop(['output'], axis=1)
 y = dataset['output']
@@ -53,6 +53,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y)
 Xy_train = pandas.concat([X_train,y_train], axis=1)
 Xy_test = pandas.concat([X_test,y_test], axis=1)
 
-write_group(Xy_train, 'data/train')
-write_group(Xy_test, 'data/validation')
-# write_group(pos.append(neg), 'data/all')
+# write_group(Xy_train, 'data/train')
+# write_group(Xy_test, 'data/validation')
+write_group(pos.append(neg), 'data/all')
