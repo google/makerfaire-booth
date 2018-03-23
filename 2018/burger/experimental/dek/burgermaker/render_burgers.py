@@ -45,8 +45,8 @@ def write_group(group, dir_):
 df = pandas.read_hdf('data.h5', 'df')
 pos = df[df.output == True]
 neg = df[df.output == False]
-# neg_sampled = neg.sample(len(pos)*500)
-dataset = pos.append(neg)
+neg_sampled = neg.sample(len(pos))
+dataset = pos.append(neg_sampled)
 X = dataset.drop(['output'], axis=1)
 y = dataset['output']
 X_train, X_test, y_train, y_test = train_test_split(X, y)

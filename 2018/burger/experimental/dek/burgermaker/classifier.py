@@ -48,9 +48,9 @@ img_width, img_height = 72, 120
 
 train_data_dir = 'data/train'
 validation_data_dir = 'data/validation'
-nb_train_samples = 88422
-nb_validation_samples = 29476
-epochs = 1
+nb_train_samples = 330
+nb_validation_samples = 110
+epochs = 10
 batch_size = 16
 
 if K.image_data_format() == 'channels_first':
