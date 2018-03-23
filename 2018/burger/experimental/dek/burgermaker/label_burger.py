@@ -29,11 +29,11 @@ def label_burger(burger, debug=False):
     if burger[i] == BurgerElement.empty.value:
       if debug: print "Cannot have internal or terminal empty"
       return False
-  for i in range(len(burger)-1):
-    first, second = burger[i], burger[i+1]
-    if first != BurgerElement.empty.value and second != BurgerElement.empty.value and first == second:
-      if debug: print "Cannot have identical sequential items"
-      return False
+  # for i in range(len(burger)-1):
+  #   first, second = burger[i], burger[i+1]
+  #   if first != BurgerElement.empty.value and second != BurgerElement.empty.value and first == second:
+  #     if debug: print "Cannot have identical sequential items"
+  #     return False
   for i in range(1, len(burger)-1):
     if burger[i] == BurgerElement.patty.value:
       break
@@ -44,11 +44,11 @@ def label_burger(burger, debug=False):
   for i in range(1, len(burger)-1):
     if burger[i] == BurgerElement.cheese.value:
       last_cheese_index = i
-  if last_cheese_index is not None:
-    for i in range(last_cheese_index+1, len(burger)):
-      if burger[i] == BurgerElement.patty.value:
-        break
-    else:
-      if debug: print "Must have at patty under last cheese."
-      return False
+  # if last_cheese_index is not None:
+  #   for i in range(last_cheese_index+1, len(burger)):
+  #     if burger[i] == BurgerElement.patty.value:
+  #       break
+  #   else:
+  #     if debug: print "Must have at patty under last cheese."
+  #     return False
   return True
