@@ -1,3 +1,6 @@
+const MAX_BURGERS = 6;
+const BURGER_LAYER_HEIGHT = 20;
+
 function create_animation1(element_name, data, wrapper) {
     var element = wrapper.children.namedItem(element_name);
     var body = document.getElementsByTagName("BODY")[0];
@@ -89,11 +92,11 @@ function create_random_layers() {
 	6: "bottombun"
     });
     var layers = [];
-    var empty_layers = Math.floor(Math.random() * 7);
+    var empty_layers = Math.floor(Math.random() * (MAX_BURGERS-1));
     for (i = 0; i < empty_layers; i++) {
 	layers.push("empty");
     }
-    for (i = empty_layers; i < 8; i++) {
+    for (i = empty_layers; i < MAX_BURGERS; i++) {
 	layers.push(layers_enum[Math.floor(Math.random() * 6)+1]);
     }
     return layers;
@@ -151,11 +154,11 @@ function create_animation() {
     var baseFinalY = 1000;
     var animation = [];
     for (i = 0; i < 8; i++) {
-	animation.push(["layer" + (7-i+1), {
+	animation.push(["layer" + (MAX_BURGERS-i+1), {
 	    delay: i*100,
-	    initialY: (baseInitialY - i * 8) + 'px',
-	    conveyorY: (baseConveyorY - i * 8) + 'px',
-	    finalY: (baseFinalY - i * 8) + 'px',
+	    initialY: (baseInitialY - i * BURGER_LAYER_HEIGHT) + 'px',
+	    conveyorY: (baseConveyorY - i * BURGER_LAYER_HEIGHT) + 'px',
+	    finalY: (baseFinalY - i * BURGER_LAYER_HEIGHT) + 'px',
 	}]);
     }
     return animation;
