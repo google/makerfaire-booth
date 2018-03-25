@@ -13,8 +13,8 @@ for layer in BurgerElement.__members__:
     layer_name = "../../../assets/%s.svg" % layer
     handles[layer] = rsvg.Handle(layer_name)
 
-def render_burger(burger, name):
-  img = cairo.ImageSurface(cairo.FORMAT_ARGB32, 72, 120)
+def render_burger(burger):
+  img = cairo.ImageSurface(cairo.FORMAT_ARGB32, 224, 224)
   ctx = cairo.Context(img)
   ctx.translate(0, -10)
   for i in range(6):
@@ -33,14 +33,17 @@ def write_group(group, dir_):
     burger = [BurgerElement(item).name for item in row]
     label = group.loc[index]['output']
     if label == True:
-      name = os.path.join(dir_, "burgers", "burger%05d" % burgercounter + ".png")
-      burgercounter += 1
-    else:
-      name = os.path.join(dir_, "notburgers", "notburger%05d" % notburgercounter + ".png")
-      notburgercounter += 1
+      for i in range(50):
+        name = os.path.join(dir_, "burgers", "burger%d" % burgercounter + ".png")
+        img = render_burger(burger)
+        img.write_to_png(name)
+        burgercounter += 1
+    # else:
+    #   name = os.path.join(dir_, "notburgers", "notburger%d" % notburgercounter + ".png")
+    #   img = render_burger(burger)
+    #   img.write_to_png(name)
+    #   notburgercounter += 1
       
-    img = render_burger(burger, item)
-    img.write_to_png(name)
 
 df = pandas.read_hdf('data.h5', 'df')
 pos = df[df.output == True]
