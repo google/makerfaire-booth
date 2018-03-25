@@ -5,7 +5,6 @@ import cairo
 import rsvg
 import pandas
 from burger_elements import BurgerElement
-from sklearn.model_selection import train_test_split
 
 handles = {}
 for layer in BurgerElement.__members__:
@@ -14,9 +13,9 @@ for layer in BurgerElement.__members__:
     handles[layer] = rsvg.Handle(layer_name)
 
 def render_burger(burger):
-  img = cairo.ImageSurface(cairo.FORMAT_ARGB32, 224, 224)
+  img = cairo.ImageSurface(cairo.FORMAT_ARGB32, 299, 299)
   ctx = cairo.Context(img)
-  ctx.translate(0, -10)
+  ctx.translate(110, 80)
   for i in range(6):
     layer = burger[i]
     if layer != 'empty':
@@ -25,37 +24,24 @@ def render_burger(burger):
   return img
 
 
-def write_group(group, dir_):
+def write_group(group, dir_, oversample_burgers=1):
   rows = group[['layer0','layer1','layer2','layer3','layer4','layer5']]
   burgercounter = 0
   notburgercounter = 0
   for index, row in rows.iterrows():
     burger = [BurgerElement(item).name for item in row]
+    burgername = "".join([str(BurgerElement(item).value) for item in row])
     label = group.loc[index]['output']
     if label == True:
-      for i in range(50):
-        name = os.path.join(dir_, "burgers", "burger%d" % burgercounter + ".png")
+      for i in range(oversample_burgers):
+        name = os.path.join(dir_, "burgers", "burger_" + burgername + ".png")
         img = render_burger(burger)
         img.write_to_png(name)
         burgercounter += 1
-    # else:
-    #   name = os.path.join(dir_, "notburgers", "notburger%d" % notburgercounter + ".png")
-    #   img = render_burger(burger)
-    #   img.write_to_png(name)
-    #   notburgercounter += 1
-      
+    else:
+      name = os.path.join(dir_, "notburgers", "notburger_" + burgername + ".png")
+      img = render_burger(burger)
+      img.write_to_png(name)
+      notburgercounter += 1
 
-df = pandas.read_hdf('data.h5', 'df')
-pos = df[df.output == True]
-neg = df[df.output == False]
-neg_sampled = neg.sample(len(pos)/3)
-dataset = pos.append(neg_sampled)
-X = dataset.drop(['output'], axis=1)
-y = dataset['output']
-X_train, X_test, y_train, y_test = train_test_split(X, y)
-Xy_train = pandas.concat([X_train,y_train], axis=1)
-Xy_test = pandas.concat([X_test,y_test], axis=1)
-
-# write_group(Xy_train, 'data/train')
-# write_group(Xy_test, 'data/validation')
-write_group(pos.append(neg), 'data/all')
+write_group(pos.append(neg), 'data/all', oversample_burgers=1)
