@@ -34,7 +34,10 @@ def write_group(group, dir_, oversample_burgers=1):
     label = group.loc[index]['output']
     if label == True:
       for i in range(oversample_burgers):
-        name = os.path.join(dir_, "burgers", "burger_" + burgername + ".png")
+        if i == 0:
+          name = os.path.join(dir_, "burgers", "burger_" + burgername + ".png")
+        else:
+          name = os.path.join(dir_, "burgers", "burger_" + burgername + "_" + str(i) + ".png")
         img = render_burger(burger)
         img.write_to_png(name)
         burgercounter += 1
@@ -44,4 +47,5 @@ def write_group(group, dir_, oversample_burgers=1):
       img.write_to_png(name)
       notburgercounter += 1
 
-write_group(pos.append(neg), 'data/all', oversample_burgers=1)
+df = pandas.read_hdf('data.h5', 'df')
+write_group(df, 'data/all', oversample_burgers=5)
