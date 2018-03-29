@@ -46,3 +46,6 @@ df['bottombun_count'] = [bottombun_getter(c[burger]) for burger in burgers]
 df['patty_count'] = [patty_getter(c[burger]) for burger in burgers]
 
 df.to_hdf('data.h5', 'df', format='fixed')
+
+pos = df[df.output == True]
+pos.to_csv('pos.csv')

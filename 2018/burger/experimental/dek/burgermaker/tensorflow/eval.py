@@ -517,20 +517,42 @@ def run_final_eval(sess, model_info, class_count, image_lists, jpeg_data_tensor,
                                     FLAGS.image_dir, jpeg_data_tensor,
                                     decoded_image_tensor, resized_image_tensor,
                                     bottleneck_tensor, FLAGS.architecture))
+  train_bottlenecks, train_ground_truth, train_filenames = (
+      get_random_cached_bottlenecks(sess, image_lists, FLAGS.test_batch_size,
+                                    'training', FLAGS.bottleneck_dir,
+                                    FLAGS.image_dir, jpeg_data_tensor,
+                                    decoded_image_tensor, resized_image_tensor,
+                                    bottleneck_tensor, FLAGS.architecture))
+  validation_bottlenecks, validation_ground_truth, validation_filenames = (
+      get_random_cached_bottlenecks(sess, image_lists, FLAGS.test_batch_size,
+                                    'training', FLAGS.bottleneck_dir,
+                                    FLAGS.image_dir, jpeg_data_tensor,
+                                    decoded_image_tensor, resized_image_tensor,
+                                    bottleneck_tensor, FLAGS.architecture))
+  bottlenecks = test_bottlenecks
+  bottlenecks.extend(train_bottlenecks)
+  bottlenecks.extend(validation_bottlenecks)
+  ground_truth = test_ground_truth
+  ground_truth.extend(train_ground_truth)
+  ground_truth.extend(validation_ground_truth)
+  filenames = test_filenames
+  filenames.extend(train_filenames)
+  filenames.extend(validation_filenames)
+  
   test_accuracy, predictions = sess.run(
       [evaluation_step, prediction],
       feed_dict={
-          bottleneck_input: test_bottlenecks,
-          ground_truth_input: test_ground_truth
+          bottleneck_input: bottlenecks,
+          ground_truth_input: ground_truth
       })
   tf.logging.info('Final test accuracy = %.1f%% (N=%d)' %
-                  (test_accuracy * 100, len(test_bottlenecks)))
+                  (test_accuracy * 100, len(bottlenecks)))
 
   if FLAGS.print_misclassified_test_images:
     tf.logging.info('=== MISCLASSIFIED TEST IMAGES ===')
-    for i, test_filename in enumerate(test_filenames):
-      if predictions[i] != test_ground_truth[i]:
-        tf.logging.info('%70s  %s' % (test_filename,
+    for i, filename in enumerate(filenames):
+      if predictions[i] != ground_truth[i]:
+        tf.logging.info('%70s  %s' % (filename,
                                       list(image_lists.keys())[predictions[i]]))
 
 
@@ -548,7 +570,7 @@ def build_eval_session(model_info, class_count):
   # If quantized, we need to create the correct eval graph for exporting.
   eval_graph, bottleneck_tensor, _ = create_model_graph(model_info)
 
-  eval_sess = tf.Session(graph=eval_graph)
+  eval_sess = tf.Session(graph=eval_graph, config=tf.ConfigProto(log_device_placement=True))
   with eval_graph.as_default():
     # Add the new layer for exporting.
     (_, _, bottleneck_input,
@@ -747,7 +769,7 @@ def main(_):
          model_info['bottleneck_tensor_size'], model_info['quantize_layer'],
          True)
 
-  with tf.Session(graph=graph) as sess:
+  with tf.Session(graph=graph, config=tf.ConfigProto(log_device_placement=True)) as sess:
     # Set up the image decoding sub-graph.
     jpeg_data_tensor, decoded_image_tensor = add_jpeg_decoding(
         model_info['input_width'], model_info['input_height'],

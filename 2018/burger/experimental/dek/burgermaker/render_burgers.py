@@ -13,9 +13,9 @@ for layer in BurgerElement.__members__:
     handles[layer] = rsvg.Handle(layer_name)
 
 def render_burger(burger):
-  img = cairo.ImageSurface(cairo.FORMAT_ARGB32, 299, 299)
+  img = cairo.ImageSurface(cairo.FORMAT_ARGB32, 128,128)
   ctx = cairo.Context(img)
-  ctx.translate(110, 80)
+  ctx.translate(28, -2)
   for i in range(6):
     layer = burger[i]
     if layer != 'empty':
@@ -48,4 +48,4 @@ def write_group(group, dir_, oversample_burgers=1):
       notburgercounter += 1
 
 df = pandas.read_hdf('data.h5', 'df')
-write_group(df, 'data/all', oversample_burgers=5)
+write_group(df, 'data/all', oversample_burgers=1)
