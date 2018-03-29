@@ -1,85 +1,6 @@
 const MAX_BURGERS = 6;
 const BURGER_LAYER_HEIGHT = 20;
 
-function create_animation1(element_name, data, wrapper) {
-    var element = wrapper.children.namedItem(element_name);
-    var body = document.getElementsByTagName("BODY")[0];
-    var width = body.getBoundingClientRect().width;
-    var height = body.getBoundingClientRect().height;
-
-    var timings = {
-	duration: 500,
-	iterations: 1,
-	easing: "linear",
-	direction: "normal",
-	fill: "forwards",
-	delay: data.delay,
-    }
-
-    var keyframes = [
-	{ transform: 'translateX(' + (width/2 - 128) + 'px) translateY(' + data.initialY + ')', opacity: 1},
-	{ transform: 'translateX(' + (width/2 - 128) + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
-    ];
-    return new KeyframeEffect(element, keyframes, timings);
-}
-
-
-function create_animation2(element_name, data, wrapper) {
-    var element = wrapper.children.namedItem(element_name);
-    var dest = wrapper.getAttribute('id');
-    var body = document.getElementsByTagName("BODY")[0];
-    var width = body.getBoundingClientRect().width;
-    var height = body.getBoundingClientRect().height;
-
-    var timings = {
-	duration: 500,
-	iterations: 1,
-	easing: "linear",
-	direction: "normal",
-	fill: "forwards",
-    }
-
-    var target = dest == 'left' ? 256 : width-256;
-    
-    var keyframes = [
-	{ transform: 'translateX(' + (width/2 - 128) + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
-	{ transform: 'translateX(' + target + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
-    ];
-    return new KeyframeEffect(element, keyframes, timings);
-}
-
-function create_animation3(element_name, data, wrapper) {
-    var element = wrapper.children.namedItem(element_name);
-    var dest = wrapper.getAttribute('id');
-    var body = document.getElementsByTagName("BODY")[0];
-    width = body.getBoundingClientRect().width;
-    height = body.getBoundingClientRect().height;
-
-    var timings = {
-	duration: 500,
-	iterations: 1,
-	easing: "linear",
-	direction: "normal",
-	fill: "forwards",
-    }
-    var target = dest == 'left' ? 0 : width-256;
-    var keyframes = [
-	{ transform: 'translateX(' + target + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
-	{ transform: 'translateX(' + target + 'px) translateY(' + data.finalY + ')', opacity: 1},
-    ];
-    return new KeyframeEffect(element, keyframes, timings);
-}
-
-function create_group(wrapper, f) {
-    var animation = create_animation();
-    var kEffects = [];
-    for (let a of animation) {
-	var kf = f(a[0], a[1], wrapper);
-	kEffects.push(kf);
-    }
-    var group = new GroupEffect(kEffects);
-    return group;
-}
 
 const layers_enum = Object.freeze({
     0: "empty",
@@ -90,19 +11,6 @@ const layers_enum = Object.freeze({
     5: "patty",
     6: "bottombun"
 });
-
-function create_random_layers() {
-    var layers = [];
-    var empty_layers = Math.floor(Math.random() * (MAX_BURGERS-1));
-    for (i = 0; i < empty_layers; i++) {
-	layers.push("empty");
-    }
-    for (i = empty_layers; i < MAX_BURGERS; i++) {
-	layers.push(layers_enum[Math.floor(Math.random() * 6)+1]);
-    }
-    return layers;
-}
-
 const valid_burgers = [
     [0,0,0,1,5,6],
     [0,0,1,2,5,6],
@@ -323,7 +231,23 @@ const valid_burgers = [
     [1,5,5,5,2,6],
     [1,5,5,5,3,6],
     [1,5,5,5,4,6],
-    [1,5,5,5,5,6]];
+    [1,5,5,5,5,6]
+];
+
+
+
+function create_random_layers() {
+    var layers = [];
+    var empty_layers = Math.floor(Math.random() * (MAX_BURGERS-1));
+    for (i = 0; i < empty_layers; i++) {
+	layers.push("empty");
+    }
+    for (i = empty_layers; i < MAX_BURGERS; i++) {
+	layers.push(layers_enum[Math.floor(Math.random() * 6)+1]);
+    }
+    return layers;
+}
+
 
 function create_valid_layers() {
     var layers_idx = valid_burgers[Math.floor(Math.random() * valid_burgers.length)];
@@ -332,26 +256,6 @@ function create_valid_layers() {
 	layers.push(layers_enum[layers_idx[i]]);
     }
     return layers;
-}
-
-function create_burger(layers) {
-    var svgNS = 'http://www.w3.org/2000/svg';
-    var wrapper = document.createElement("div");
-    wrapper.setAttribute('class', "wrapper");
-    wrapper.setAttribute('id', 'hopper');
-    for (i = 0; i < layers.length; i++) {
-    	var svg = document.createElementNS(svgNS, "svg");
-    	svg.setAttributeNS(null, 'id', 'layer' + (i+1).toString());
-    	svg.setAttributeNS(null, 'class', layers[i]);
-	if (layers[i] != 'empty') {
-    	    var use = document.createElementNS(svgNS, 'use');
-	    var href = '../assets/' + layers[i] + '.svg#g10';
-    	    use.setAttributeNS(null, 'href', href);
-    	    svg.appendChild(use);
-	}
-    	wrapper.appendChild(svg);
-    }
-    return wrapper;
 }
 
 function create_chute(name, center_x, height) {
@@ -397,11 +301,35 @@ function create_conveyor(width, height) {
     conveyor.appendChild(conveyorLine);
 }
 
-function create_animation(width, height) {
-    var body = document.getElementsByTagName('body')[0];
+function create_animation1(element_name, data, wrapper) {
+    var element = wrapper.children.namedItem(element_name);
+    var side = wrapper.getAttribute('id');
+    var body = document.getElementsByTagName("BODY")[0];
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
 
+    var timings = {
+	duration: 500,
+	iterations: 1,
+	easing: "linear",
+	direction: "normal",
+	fill: "forwards",
+	delay: data.delay,
+    }
+
+    var target = side == 'left' ? 256 : width-256;
+
+    var keyframes = [
+	{ transform: 'translateX(' + target + 'px) translateY(' + data.initialY + ')', opacity: 1},
+	{ transform: 'translateX(' + target + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+    ];
+    return new KeyframeEffect(element, keyframes, timings);
+}
+
+function create_animation() {
+    var body = document.getElementsByTagName('body')[0];
+    var width = body.getBoundingClientRect().width;
+    var height = body.getBoundingClientRect().height;
     var baseInitialY = -300;
     var baseConveyorY = height-100-10;
     var baseFinalY = 1000;
@@ -417,54 +345,112 @@ function create_animation(width, height) {
     return animation;
 }
 
-function start_animation() {
-    console.log("starting a new animation if needed");
-    var hopperBurger = document.getElementById('hopper');
-    if (hopperBurger != null) {	
-	console.log("hopper is not empty, conveying burger.");
-	convey_burger(hopperBurger);
-	return;
+
+function create_group(wrapper, f) {
+    var animation = create_animation();
+    var kEffects = [];
+    for (let a of animation) {
+	var kf = f(a[0], a[1], wrapper);
+	kEffects.push(kf);
     }
-    console.log("Animating a new burger in the hopper");
+    var group = new GroupEffect(kEffects);
+    return group;
+}
+
+function create_burger(layers, side) {
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var wrapper = document.createElement("div");
+    wrapper.setAttribute('class', "wrapper");
+    wrapper.setAttribute('id', side);
+    for (i = 0; i < layers.length; i++) {
+    	var svg = document.createElementNS(svgNS, "svg");
+    	svg.setAttributeNS(null, 'id', 'layer' + (i+1).toString());
+    	svg.setAttributeNS(null, 'class', layers[i]);
+	if (layers[i] != 'empty') {
+    	    var use = document.createElementNS(svgNS, 'use');
+	    var href = '../assets/' + layers[i] + '.svg#g10';
+    	    use.setAttributeNS(null, 'href', href);
+    	    svg.appendChild(use);
+	}
+    	wrapper.appendChild(svg);
+    }
+    return wrapper;
+}
+
+
+function start_animation(side) {
+    // console.log("starting a new animation if needed");
+    // var hopperBurger = document.getElementById('hopper');
+    // if (hopperBurger != null) {	
+    // 	console.log("hopper is not empty, conveying burger.");
+    // 	convey_burger(hopperBurger);
+    // 	return;
+    // }
+    console.log("Animating a new burger in the hopper on side: " + side);
     if (Math.random() < 0.5) {
 	var layers = create_random_layers();
     } else {
 	var layers = create_valid_layers();
     }
 
-    hopperBurger = create_burger(layers);
-    document.body.appendChild(hopperBurger);
-    var group1 = create_group(hopperBurger, create_animation1);
+    var burger = create_burger(layers, side);
+    document.body.appendChild(burger);
+    var group1 = create_group(burger, create_animation1);
 
     var player = new Animation(group1, document.timeline);
     player.onfinish = function() {
-	convey_burger(hopperBurger);
+	wait_for_keypress(burger);
+    // 	convey_burger(hopperBurger);
     }
     player.play();
+}
+
+function create_animation2(element_name, data, wrapper) {
+    var element = wrapper.children.namedItem(element_name);
+    var side = wrapper.getAttribute('id');
+    var body = document.getElementsByTagName("BODY")[0];
+    var width = body.getBoundingClientRect().width;
+    var height = body.getBoundingClientRect().height;
+
+    var timings = {
+	duration: 500,
+	iterations: 1,
+	easing: "linear",
+	direction: "normal",
+	fill: "forwards",
+    }
+
+    var target = side == 'left' ? 256 : width-256;
+    
+    var keyframes = [
+	{ transform: 'translateX(' + (width/2 - 128) + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + target + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+    ];
+    return new KeyframeEffect(element, keyframes, timings);
 }
 
 function convey_burger(wrapper) {
     console.log("conveying burger if needed.");
     // use leftBurger and rightBurger to determine if we need to make a random choice;
-    var dest;
+    var side;
     var leftBurger = document.getElementById('left');
     var rightBurger = document.getElementById('right');
     if (leftBurger == null && rightBurger == null) {
 	if (Math.random() < 0.5) {
-	    dest = 'left';
+	    side = 'left';
 	} else {
-	    dest = 'right';
+	    side = 'right';
 	}
     } else if (leftBurger == null) {
-	dest = 'left'; 
+	side = 'left'; 
     } else if (rightBurger == null) {
-	dest = 'right';
+	side = 'right';
     } else {
 	console.log("Cannot convey burger.");
 	return;
     }
-    console.log("Chose conveyor dest:", dest);
-    wrapper.setAttribute('id', dest);
+    console.log("Chose conveyor side:", side);
+    wrapper.setAttribute('id', side);
 
     var group2 = create_group(wrapper, create_animation2);
     var player = new Animation(group2, document.timeline);
@@ -474,29 +460,44 @@ function convey_burger(wrapper) {
     player.play();
 }
 
+function create_animation3(element_name, data, wrapper) {
+    var element = wrapper.children.namedItem(element_name);
+    var side = wrapper.getAttribute('id');
+    var body = document.getElementsByTagName("BODY")[0];
+    width = body.getBoundingClientRect().width;
+    height = body.getBoundingClientRect().height;
+
+    var timings = {
+	duration: 500,
+	iterations: 1,
+	easing: "linear",
+	direction: "normal",
+	fill: "forwards",
+    }
+    var target = side == 'left' ? 256 : width-256;
+    var keyframes = [
+	{ transform: 'translateX(' + target + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + target + 'px) translateY(' + data.finalY + ')', opacity: 1},
+    ];
+    return new KeyframeEffect(element, keyframes, timings);
+}
+
 function after_keypress(wrapper) {
     console.log("after keypress for", wrapper);
-    var dest = wrapper.getAttribute('id');
-    console.log("dest is", dest);
+    var side = wrapper.getAttribute('id');
+    console.log("side is", side);
     create_animation();
     var group = create_group(wrapper, create_animation3);
     var player = new Animation(group, document.timeline);
     player.onfinish = function() {
-	if (dest == 'left') {
-	    leftBurger = false;
-	} else if (dest == 'right') {
-	    rightBurger = false;
-	}
 	wrapper.remove();
-	start_animation();
+	start_animation(side);
     }
     player.play();
 }
 
 function wait_for_keypress(wrapper) {
     console.log("wait for keypress for", wrapper);
-    var dest = wrapper.getAttribute('id');
-    console.log("dest is", dest);
     var yesCode, noCode;
     function keydownHandlerLeft(e) {
 	var yesCode = "Z".charCodeAt(0);
@@ -516,11 +517,12 @@ function wait_for_keypress(wrapper) {
 	    after_keypress(wrapper);
 	}
     }
-    if (dest == 'left')
+    var side = wrapper.getAttribute('id');
+    console.log("side is", side);
+    if (side == 'left')
 	document.addEventListener('keydown', keydownHandlerLeft, false);
-    else if (dest == 'right')
+    else if (side == 'right')
 	document.addEventListener('keydown', keydownHandlerRight, false);
-    start_animation();
 }
 
 $(window).ready(function() {
@@ -530,6 +532,7 @@ $(window).ready(function() {
     create_conveyor(width, height-100);
     create_chute('left', 256, height-100);
     create_chute('right', width-256, height-100);
-    start_animation();
+    start_animation('left');
+    start_animation('right');
 });
 
