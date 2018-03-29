@@ -39,7 +39,7 @@ function create_animation2(element_name, data, wrapper) {
 	fill: "forwards",
     }
 
-    var target = dest == 'left' ? 0 : width-256;
+    var target = dest == 'left' ? 256 : width-256;
     
     var keyframes = [
 	{ transform: 'translateX(' + (width/2 - 128) + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
@@ -354,35 +354,56 @@ function create_burger(layers) {
     return wrapper;
 }
 
-function create_chute() {
+function create_chute(name, center_x, height) {
     var svgNS = 'http://www.w3.org/2000/svg';
     var chute = document.createElementNS(svgNS, "svg");
-    chute.setAttributeNS(null, 'id', 'chute');
-    var chuteline1 = document.createElementNS(svgNS, 'line');
-    chuteline1.setAttributeNS(null, 'id', 'chuteline1');
-    chuteline1.setAttributeNS(null, 'style', 'stroke:rgb(255,0,0);stroke-width:2');
-    chute.appendChild(chuteline1);
-    var chuteline2 = document.createElementNS(svgNS, 'line');
-    chuteline2.setAttributeNS(null, 'id', 'chuteline2');
-    chuteline2.setAttributeNS(null, 'style', 'stroke:rgb(255,0,0);stroke-width:2');
-    chute.appendChild(chuteline2);
+    chute.setAttributeNS(null, 'id', 'chute_' + name);
+    chute.setAttributeNS(null, 'class', 'chute');
     document.body.appendChild(chute);
-    
-    var width = chute.getBoundingClientRect().width;
-    var height = chute.getBoundingClientRect().height;
-    chuteline1.setAttributeNS(null, 'x1', width/2 - 128);
+
+    var SIZE=Math.floor(128);
+    var chuteline1 = document.createElementNS(svgNS, 'line');
+    chuteline1.setAttributeNS(null, 'class', 'chuteline');
+    chuteline1.setAttributeNS(null, 'style', 'stroke:rgb(255,0,0);stroke-width:5');
+    chuteline1.setAttributeNS(null, 'x1', center_x - SIZE);
     chuteline1.setAttributeNS(null, 'y1', 0);
-    chuteline1.setAttributeNS(null, 'x2', width/2 - 128);
+    chuteline1.setAttributeNS(null, 'x2', center_x - SIZE);
     chuteline1.setAttributeNS(null, 'y2', height);
-    chuteline2.setAttributeNS(null, 'x1', width/2 + 128);
+    chute.appendChild(chuteline1);
+
+    var chuteline2 = document.createElementNS(svgNS, 'line');
+    chuteline2.setAttributeNS(null, 'class', 'chuteline');
+    chuteline2.setAttributeNS(null, 'style', 'stroke:rgb(255,0,0);stroke-width:5');
+    chuteline2.setAttributeNS(null, 'x1', center_x + SIZE);
     chuteline2.setAttributeNS(null, 'y1', 0);
-    chuteline2.setAttributeNS(null, 'x2', width/2 + 128);
+    chuteline2.setAttributeNS(null, 'x2', center_x + SIZE);
     chuteline2.setAttributeNS(null, 'y2', height);
+    chute.appendChild(chuteline2);
 }
 
-function create_animation() {
+function create_conveyor(width, height) {
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var conveyor = document.createElementNS(svgNS, "svg");
+    conveyor.setAttributeNS(null, 'id', 'conveyor');
+    conveyor.setAttributeNS(null, 'class', 'conveyor');
+    document.body.appendChild(conveyor);
+    var conveyorLine = document.createElementNS(svgNS, 'line');
+    conveyorLine.setAttributeNS(null, 'class', 'chuteline');
+    conveyorLine.setAttributeNS(null, 'style', 'stroke:rgb(255,0,0);stroke-width:5');
+    conveyorLine.setAttributeNS(null, 'x1', 0);
+    conveyorLine.setAttributeNS(null, 'y1', height);
+    conveyorLine.setAttributeNS(null, 'x2', width);
+    conveyorLine.setAttributeNS(null, 'y2', height);
+    conveyor.appendChild(conveyorLine);
+}
+
+function create_animation(width, height) {
+    var body = document.getElementsByTagName('body')[0];
+    var width = body.getBoundingClientRect().width;
+    var height = body.getBoundingClientRect().height;
+
     var baseInitialY = -300;
-    var baseConveyorY = 420;
+    var baseConveyorY = height-100-10;
     var baseFinalY = 1000;
     var animation = [];
     for (i = 0; i < 8; i++) {
@@ -457,7 +478,7 @@ function after_keypress(wrapper) {
     console.log("after keypress for", wrapper);
     var dest = wrapper.getAttribute('id');
     console.log("dest is", dest);
-    var animation = create_animation();
+    create_animation();
     var group = create_group(wrapper, create_animation3);
     var player = new Animation(group, document.timeline);
     player.onfinish = function() {
@@ -503,7 +524,12 @@ function wait_for_keypress(wrapper) {
 }
 
 $(window).ready(function() {
-    create_chute();
+    var body = document.getElementsByTagName('body')[0];
+    var width = body.getBoundingClientRect().width;
+    var height = body.getBoundingClientRect().height;
+    create_conveyor(width, height-100);
+    create_chute('left', 256, height-100);
+    create_chute('right', width-256, height-100);
     start_animation();
 });
 
