@@ -580,15 +580,6 @@ def save_graph_to_file(graph, graph_file_name, model_info, class_count):
     f.write(output_graph_def.SerializeToString())
 
 
-def prepare_file_system():
-  # Setup the directory we'll write summaries to for TensorBoard
-  if tf.gfile.Exists(FLAGS.summaries_dir):
-    tf.gfile.DeleteRecursively(FLAGS.summaries_dir)
-  tf.gfile.MakeDirs(FLAGS.summaries_dir)
-  if FLAGS.intermediate_store_frequency > 0:
-    ensure_dir_exists(FLAGS.intermediate_output_graphs_dir)
-  return
-
 
 def create_model_info(architecture):
   """Given the name of a model architecture, returns information about it.
@@ -721,9 +712,6 @@ def main(_):
   # See https://github.com/tensorflow/tensorflow/issues/3047
   tf.logging.set_verbosity(tf.logging.INFO)
 
-  # Prepare necessary directories that can be used during training
-  prepare_file_system()
-
   # Gather information about the model architecture we'll be using.
   model_info = create_model_info(FLAGS.architecture)
   if not model_info:
@@ -769,18 +757,6 @@ def main(_):
     # Create the operations we need to evaluate the accuracy of our new layer.
     evaluation_step, _ = add_evaluation_step(final_tensor, ground_truth_input)
 
-    # Merge all the summaries and write them out to the summaries_dir
-    merged = tf.summary.merge_all()
-    train_writer = tf.summary.FileWriter(FLAGS.summaries_dir + '/train',
-                                         sess.graph)
-
-    validation_writer = tf.summary.FileWriter(
-        FLAGS.summaries_dir + '/validation')
-
-    # Create a train saver that is used to restore values into an eval graph
-    # when exporting models.
-    train_saver = tf.train.Saver()
-
     # Set up all our weights to their initial default values.
     init = tf.global_variables_initializer()
     sess.run(init)
@@ -813,27 +789,6 @@ if __name__ == '__main__':
       help='Where to save the intermediate graphs.'
   )
   parser.add_argument(
-      '--intermediate_store_frequency',
-      type=int,
-      default=0,
-      help="""\
-         How many steps to store intermediate graph. If "0" then will not
-         store.\
-      """
-  )
-  parser.add_argument(
-      '--output_labels',
-      type=str,
-      default='/tmp/output_labels.txt',
-      help='Where to save the trained graph\'s labels.'
-  )
-  parser.add_argument(
-      '--summaries_dir',
-      type=str,
-      default='/tmp/retrain_logs',
-      help='Where to save summary logs for TensorBoard.'
-  )
-  parser.add_argument(
       '--how_many_training_steps',
       type=int,
       default=4000,
@@ -858,18 +813,6 @@ if __name__ == '__main__':
       help='What percentage of images to use as a validation set.'
   )
   parser.add_argument(
-      '--eval_step_interval',
-      type=int,
-      default=10,
-      help='How often to evaluate the training results.'
-  )
-  parser.add_argument(
-      '--train_batch_size',
-      type=int,
-      default=100,
-      help='How many images to train on at a time.'
-  )
-  parser.add_argument(
       '--test_batch_size',
       type=int,
       default=-1,
@@ -878,19 +821,6 @@ if __name__ == '__main__':
       the final accuracy of the model after training completes.
       A value of -1 causes the entire test set to be used, which leads to more
       stable results across runs.\
-      """
-  )
-  parser.add_argument(
-      '--validation_batch_size',
-      type=int,
-      default=100,
-      help="""\
-      How many images to use in an evaluation batch. This validation set is
-      used much more often than the test set, and is an early indicator of how
-      accurate the model is during training.
-      A value of -1 causes the entire validation set to be used, which leads to
-      more stable results across training iterations, but may be slower on large
-      training sets.\
       """
   )
   parser.add_argument(
@@ -923,41 +853,6 @@ if __name__ == '__main__':
       default='final_result',
       help="""\
       The name of the output classification layer in the retrained graph.\
-      """
-  )
-  parser.add_argument(
-      '--flip_left_right',
-      default=False,
-      help="""\
-      Whether to randomly flip half of the training images horizontally.\
-      """,
-      action='store_true'
-  )
-  parser.add_argument(
-      '--random_crop',
-      type=int,
-      default=0,
-      help="""\
-      A percentage determining how much of a margin to randomly crop off the
-      training images.\
-      """
-  )
-  parser.add_argument(
-      '--random_scale',
-      type=int,
-      default=0,
-      help="""\
-      A percentage determining how much to randomly scale up the size of the
-      training images by.\
-      """
-  )
-  parser.add_argument(
-      '--random_brightness',
-      type=int,
-      default=0,
-      help="""\
-      A percentage determining how much to randomly multiply the training image
-      input pixels up or down by.\
       """
   )
   parser.add_argument(
