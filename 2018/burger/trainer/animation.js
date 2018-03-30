@@ -380,7 +380,6 @@ function create_burger(layers, side) {
 
 
 function start_burger_drop_animation(side) {
-    console.log("Animating a new burger in the hopper on side: " + side);
     if (Math.random() < 0.5) {
 	var layers = create_random_layers();
     } else {
@@ -526,10 +525,7 @@ function start_animation_trash_burger(wrapper) {
 }
 
 function after_keypress(wrapper, isBurger) {
-    console.log("after keypress for", wrapper);
     var side = wrapper.getAttribute('id');
-    console.log("side is", side);
-    console.log("isBurger is", isBurger);
     if (isBurger) {
 	start_animation_smoosh_burger(wrapper);
     } else {
@@ -538,12 +534,10 @@ function after_keypress(wrapper, isBurger) {
 }
 
 function wait_for_keypress(wrapper) {
-    console.log("wait for keypress for", wrapper);
     var yesCode, noCode;
     function keydownHandlerLeft(e) {
 	var yesCode = "Z".charCodeAt(0);
 	var noCode = "X".charCodeAt(0);
-	console.log("keydownHandlerLeft waiting for", yesCode, noCode, "got", e.keyCode);
 	if (e.keyCode == yesCode || e.keyCode == noCode) {
 	    document.removeEventListener('keydown', keydownHandlerLeft, false);
 	    after_keypress(wrapper, e.keyCode == yesCode);
@@ -552,14 +546,12 @@ function wait_for_keypress(wrapper) {
     function keydownHandlerRight(e) {
 	var yesCode = "M".charCodeAt(0);
 	var noCode = "N".charCodeAt(0);
-	console.log("keydownHandlerRight waiting for", yesCode, noCode, "got", e.keyCode);
 	if (e.keyCode == yesCode || e.keyCode == noCode) {
 	    document.removeEventListener('keydown', keydownHandlerRight, false);
 	    after_keypress(wrapper, e.keyCode == yesCode);
 	}
     }
     var side = wrapper.getAttribute('id');
-    console.log("side is", side);
     if (side == 'left')
 	document.addEventListener('keydown', keydownHandlerLeft, false);
     else if (side == 'right')
