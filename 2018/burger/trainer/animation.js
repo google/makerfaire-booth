@@ -348,10 +348,10 @@ function create_layer_height_offsets(spacing=BURGER_LAYER_SPACING) {
 
 
 function create_group(wrapper, f) {
-    var animation = create_layer_height_offsets();
+    var burgerOffsets = create_layer_height_offsets();
     var kEffects = [];
-    for (let a of animation) {
-	var kf = f(a[0], a[1], wrapper);
+    for (let bf of burgerOffsets) {
+	var kf = f(bf[0], bf[1], wrapper);
 	kEffects.push(kf);
     }
     var group = new GroupEffect(kEffects);
@@ -498,9 +498,63 @@ function create_animation4(element_name, data, wrapper) {
 }
 
 
-// Burger squish animation goes here.
-// just need to change the translateYs to be 1/2
+function create_animation5(element_name, data1, data2, wrapper) {
+    var element = wrapper.children.namedItem(element_name);
+    var side = wrapper.getAttribute('id');
+    var body = document.getElementsByTagName("BODY")[0];
+    var width = body.getBoundingClientRect().width;
+    var height = body.getBoundingClientRect().height;
+
+    var timings = {
+	duration: 500,
+	iterations: 1,
+	easing: "linear",
+	direction: "normal",
+	fill: "forwards",
+	delay: data1.delay,
+    }
+
+    var target = side == 'left' ? 256 : width-256;
+
+    var keyframes = [
+	{ transform: 'translateX(' + target + 'px) translateY(' + data1.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + target + 'px) translateY(' + data2.conveyorY + ')', opacity: 1},
+    ];
+    return new KeyframeEffect(element, keyframes, timings);
+}
+
+function start_animation6(wrapper) {
+    var burgerOffsets2 = create_layer_height_offsets(BURGER_LAYER_SPACING/2);
+    var kEffects = [];
+    for (let bf of burgerOffsets2) {
+	var kf = create_animation4(bf[0], bf[1], wrapper);
+	kEffects.push(kf);
+    }
+    var group = new GroupEffect(kEffects);
+    var player = new Animation(group, document.timeline);
+    player.onfinish = function() {
+	var side = wrapper.getAttribute('id');
+	wrapper.setAttribute('id', 'elevator');
+	start_animation(side);
+    }
+    player.play();
+}
+
 function start_animation5(wrapper) {
+    var burgerOffsets = create_layer_height_offsets();
+    var burgerOffsets2 = create_layer_height_offsets(BURGER_LAYER_SPACING/2);
+    var kEffects = [];
+    for (i = 0; i < burgerOffsets.length; i++) {
+	var kf = create_animation5(burgerOffsets[i][0], burgerOffsets[i][1], burgerOffsets2[i][1], wrapper);
+	kEffects.push(kf);
+    }
+    var group = new GroupEffect(kEffects);
+
+    var player = new Animation(group, document.timeline);
+    player.onfinish = function() {
+	start_animation6(wrapper);
+    }
+    player.play();
 }
 
 function after_keypress(wrapper, isBurger) {
@@ -508,15 +562,8 @@ function after_keypress(wrapper, isBurger) {
     var side = wrapper.getAttribute('id');
     console.log("side is", side);
     console.log("isBurger is", isBurger);
-    // create_layer_height_offsets();
     if (isBurger) {
-	var group = create_group(wrapper, create_animation4);
-	var player = new Animation(group, document.timeline);
-	player.onfinish = function() {
-	    wrapper.setAttribute('id', 'elevator');
-	    start_animation(side);
-	    // start_animation5(side);
-	}
+	start_animation5(wrapper);
     } else {
 	var group = create_group(wrapper, create_animation3);
 	var player = new Animation(group, document.timeline);
@@ -524,8 +571,8 @@ function after_keypress(wrapper, isBurger) {
 	    wrapper.remove();
 	    start_animation(side);
 	}
+	player.play();
     }
-    player.play();
 }
 
 function wait_for_keypress(wrapper) {
@@ -567,4 +614,3 @@ $(window).ready(function() {
     start_animation('left');
     start_animation('right');
 });
-
