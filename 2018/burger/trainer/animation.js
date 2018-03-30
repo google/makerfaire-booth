@@ -303,7 +303,7 @@ function create_conveyor(width, height) {
     conveyor.appendChild(conveyorLine);
 }
 
-function create_animation1(element_name, data, wrapper) {
+function create_animation_burger_drop(element_name, data, wrapper) {
     var element = wrapper.children.namedItem(element_name);
     var side = wrapper.getAttribute('id');
     var body = document.getElementsByTagName("BODY")[0];
@@ -379,7 +379,7 @@ function create_burger(layers, side) {
 }
 
 
-function start_animation(side) {
+function start_burger_drop_animation(side) {
     console.log("Animating a new burger in the hopper on side: " + side);
     if (Math.random() < 0.5) {
 	var layers = create_random_layers();
@@ -387,73 +387,24 @@ function start_animation(side) {
 	var layers = create_valid_layers();
     }
 
-    var burger = create_burger(layers, side);
-    document.body.appendChild(burger);
-    var group1 = create_group(burger, create_animation1);
+    var wrapper = create_burger(layers, side);
+    document.body.appendChild(wrapper);
 
-    var player = new Animation(group1, document.timeline);
-    player.onfinish = function() {
-	wait_for_keypress(burger);
+    var burgerOffsets = create_layer_height_offsets();
+    var kEffects = [];
+    for (let bf of burgerOffsets) {
+	var kf = create_animation_burger_drop(bf[0], bf[1], wrapper);
+	kEffects.push(kf);
     }
-    player.play();
-}
-
-function create_animation2(element_name, data, wrapper) {
-    var element = wrapper.children.namedItem(element_name);
-    var side = wrapper.getAttribute('id');
-    var body = document.getElementsByTagName("BODY")[0];
-    var width = body.getBoundingClientRect().width;
-    var height = body.getBoundingClientRect().height;
-
-    var timings = {
-	duration: 500,
-	iterations: 1,
-	easing: "linear",
-	direction: "normal",
-	fill: "forwards",
-    }
-
-    var target = side == 'left' ? 256 : width-256;
-    
-    var keyframes = [
-	{ transform: 'translateX(' + (width/2 - 128) + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
-	{ transform: 'translateX(' + target + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
-    ];
-    return new KeyframeEffect(element, keyframes, timings);
-}
-
-function convey_burger(wrapper) {
-    console.log("conveying burger if needed.");
-    // use leftBurger and rightBurger to determine if we need to make a random choice;
-    var side;
-    var leftBurger = document.getElementById('left');
-    var rightBurger = document.getElementById('right');
-    if (leftBurger == null && rightBurger == null) {
-	if (Math.random() < 0.5) {
-	    side = 'left';
-	} else {
-	    side = 'right';
-	}
-    } else if (leftBurger == null) {
-	side = 'left'; 
-    } else if (rightBurger == null) {
-	side = 'right';
-    } else {
-	console.log("Cannot convey burger.");
-	return;
-    }
-    console.log("Chose conveyor side:", side);
-    wrapper.setAttribute('id', side);
-
-    var group2 = create_group(wrapper, create_animation2);
-    var player = new Animation(group2, document.timeline);
+    var group = new GroupEffect(kEffects);
+    var player = new Animation(group, document.timeline);
     player.onfinish = function() {
 	wait_for_keypress(wrapper);
     }
     player.play();
 }
 
-function create_animation3(element_name, data, wrapper) {
+function create_animation_trash_burger(element_name, data, wrapper) {
     var element = wrapper.children.namedItem(element_name);
     var side = wrapper.getAttribute('id');
     var body = document.getElementsByTagName("BODY")[0];
@@ -475,7 +426,7 @@ function create_animation3(element_name, data, wrapper) {
     return new KeyframeEffect(element, keyframes, timings);
 }
 
-function create_animation4(element_name, data, wrapper) {
+function create_animation_convey_burger_to_middle(element_name, data, wrapper) {
     var element = wrapper.children.namedItem(element_name);
     var side = wrapper.getAttribute('id');
     var body = document.getElementsByTagName("BODY")[0];
@@ -498,7 +449,7 @@ function create_animation4(element_name, data, wrapper) {
 }
 
 
-function create_animation5(element_name, data1, data2, wrapper) {
+function create_animation_smoosh_burger(element_name, data1, data2, wrapper) {
     var element = wrapper.children.namedItem(element_name);
     var side = wrapper.getAttribute('id');
     var body = document.getElementsByTagName("BODY")[0];
@@ -523,11 +474,11 @@ function create_animation5(element_name, data1, data2, wrapper) {
     return new KeyframeEffect(element, keyframes, timings);
 }
 
-function start_animation6(wrapper) {
+function start_animation_convey_burger_to_middle(wrapper) {
     var burgerOffsets2 = create_layer_height_offsets(BURGER_LAYER_SPACING/2);
     var kEffects = [];
     for (let bf of burgerOffsets2) {
-	var kf = create_animation4(bf[0], bf[1], wrapper);
+	var kf = create_animation_convey_burger_to_middle(bf[0], bf[1], wrapper);
 	kEffects.push(kf);
     }
     var group = new GroupEffect(kEffects);
@@ -535,33 +486,33 @@ function start_animation6(wrapper) {
     player.onfinish = function() {
 	var side = wrapper.getAttribute('id');
 	wrapper.setAttribute('id', 'elevator');
-	start_animation(side);
+	start_burger_drop_animation(side);
     }
     player.play();
 }
 
-function start_animation5(wrapper) {
+function start_animation_smoosh_burger(wrapper) {
     var burgerOffsets = create_layer_height_offsets();
     var burgerOffsets2 = create_layer_height_offsets(BURGER_LAYER_SPACING/2);
     var kEffects = [];
     for (i = 0; i < burgerOffsets.length; i++) {
-	var kf = create_animation5(burgerOffsets[i][0], burgerOffsets[i][1], burgerOffsets2[i][1], wrapper);
+	var kf = create_animation_smoosh_burger(burgerOffsets[i][0], burgerOffsets[i][1], burgerOffsets2[i][1], wrapper);
 	kEffects.push(kf);
     }
     var group = new GroupEffect(kEffects);
 
     var player = new Animation(group, document.timeline);
     player.onfinish = function() {
-	start_animation6(wrapper);
+	start_animation_convey_burger_to_middle(wrapper);
     }
     player.play();
 }
 
-function start_animation7(wrapper) {
+function start_animation_trash_burger(wrapper) {
     var burgerOffsets = create_layer_height_offsets();
     var kEffects = [];
     for (let bf of burgerOffsets) {
-	var kf = create_animation3(bf[0], bf[1], wrapper);
+	var kf = create_animation_trash_burger(bf[0], bf[1], wrapper);
 	kEffects.push(kf);
     }
     var group = new GroupEffect(kEffects);
@@ -569,7 +520,7 @@ function start_animation7(wrapper) {
     player.onfinish = function() {
 	var side = wrapper.getAttribute('id');
     	wrapper.remove();
-    	start_animation(side);
+    	start_burger_drop_animation(side);
     }
     player.play();
 }
@@ -580,9 +531,9 @@ function after_keypress(wrapper, isBurger) {
     console.log("side is", side);
     console.log("isBurger is", isBurger);
     if (isBurger) {
-	start_animation5(wrapper);
+	start_animation_smoosh_burger(wrapper);
     } else {
-	start_animation7(wrapper);
+	start_animation_trash_burger(wrapper);
     }
 }
 
@@ -622,6 +573,6 @@ $(window).ready(function() {
     create_conveyor(width, height-100);
     create_chute('left', 256, height-100);
     create_chute('right', width-256, height-100);
-    start_animation('left');
-    start_animation('right');
+    start_burger_drop_animation('left');
+    start_burger_drop_animation('right');
 });
