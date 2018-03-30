@@ -2,6 +2,7 @@ const MAX_BURGERS = 6;
 const BURGER_LAYER_SPACING = 20;
 const BASE_INITIAL_Y = -300;
 const BASE_FINAL_Y = 2000;
+const BASE_ELEVATOR_FINAL_Y = 0;
 
 
 const layers_enum = Object.freeze({
@@ -340,6 +341,7 @@ function create_layer_height_offsets(spacing=BURGER_LAYER_SPACING) {
 	    initialY: (BASE_INITIAL_Y - i * spacing) + 'px',
 	    conveyorY: (baseConveyorY - i * spacing) + 'px',
 	    finalY: (BASE_FINAL_Y - i * spacing) + 'px',
+	    elevatorFinalY: (BASE_ELEVATOR_FINAL_Y - i * spacing) + 'px',
 	}]);
     }
     return animation;
@@ -485,7 +487,43 @@ function start_animation_convey_burger_to_middle(wrapper) {
     player.onfinish = function() {
 	var side = wrapper.getAttribute('id');
 	wrapper.setAttribute('id', 'elevator');
+	start_burger_elevator_animation(wrapper);
 	start_burger_drop_animation(side);
+    }
+    player.play();
+}
+
+function create_animation_elevator(element_name, data, wrapper) {
+    var element = wrapper.children.namedItem(element_name);
+    var body = document.getElementsByTagName("BODY")[0];
+    width = body.getBoundingClientRect().width;
+    height = body.getBoundingClientRect().height;
+
+    var timings = {
+	duration: 1000,
+	iterations: 1,
+	easing: "linear",
+	direction: "normal",
+	fill: "forwards",
+    }
+    var keyframes = [
+	{ transform: 'translateX(' + width/2 + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + width/2 + 'px) translateY(' + data.elevatorFinalY + ')', opacity: 1},
+    ];
+    return new KeyframeEffect(element, keyframes, timings);
+}
+
+function start_burger_elevator_animation(wrapper) {
+    var burgerOffsets2 = create_layer_height_offsets(BURGER_LAYER_SPACING/2);
+    var kEffects = [];
+    for (let bf of burgerOffsets2) {
+	var kf = create_animation_elevator(bf[0], bf[1], wrapper);
+	kEffects.push(kf);
+    }
+    var group = new GroupEffect(kEffects);
+    var player = new Animation(group, document.timeline);
+    player.onfinish = function() {
+	wrapper.remove();
     }
     player.play();
 }
