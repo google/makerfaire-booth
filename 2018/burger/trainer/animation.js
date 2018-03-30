@@ -1,5 +1,5 @@
 const MAX_BURGERS = 6;
-const BURGER_LAYER_HEIGHT = 20;
+const BURGER_LAYER_SPACING = 20;
 
 
 const layers_enum = Object.freeze({
@@ -326,7 +326,7 @@ function create_animation1(element_name, data, wrapper) {
     return new KeyframeEffect(element, keyframes, timings);
 }
 
-function create_animation() {
+function create_layer_height_offsets(spacing=BURGER_LAYER_SPACING) {
     var body = document.getElementsByTagName('body')[0];
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
@@ -337,17 +337,18 @@ function create_animation() {
     for (i = 0; i < 8; i++) {
 	animation.push(["layer" + (MAX_BURGERS-i+1), {
 	    delay: i*100,
-	    initialY: (baseInitialY - i * BURGER_LAYER_HEIGHT) + 'px',
-	    conveyorY: (baseConveyorY - i * BURGER_LAYER_HEIGHT) + 'px',
-	    finalY: (baseFinalY - i * BURGER_LAYER_HEIGHT) + 'px',
+	    initialY: (baseInitialY - i * spacing) + 'px',
+	    conveyorY: (baseConveyorY - i * spacing) + 'px',
+	    finalY: (baseFinalY - i * spacing) + 'px',
 	}]);
     }
     return animation;
 }
 
 
+
 function create_group(wrapper, f) {
-    var animation = create_animation();
+    var animation = create_layer_height_offsets();
     var kEffects = [];
     for (let a of animation) {
 	var kf = f(a[0], a[1], wrapper);
@@ -379,13 +380,6 @@ function create_burger(layers, side) {
 
 
 function start_animation(side) {
-    // console.log("starting a new animation if needed");
-    // var hopperBurger = document.getElementById('hopper');
-    // if (hopperBurger != null) {	
-    // 	console.log("hopper is not empty, conveying burger.");
-    // 	convey_burger(hopperBurger);
-    // 	return;
-    // }
     console.log("Animating a new burger in the hopper on side: " + side);
     if (Math.random() < 0.5) {
 	var layers = create_random_layers();
@@ -400,7 +394,6 @@ function start_animation(side) {
     var player = new Animation(group1, document.timeline);
     player.onfinish = function() {
 	wait_for_keypress(burger);
-    // 	convey_burger(hopperBurger);
     }
     player.play();
 }
@@ -482,16 +475,55 @@ function create_animation3(element_name, data, wrapper) {
     return new KeyframeEffect(element, keyframes, timings);
 }
 
-function after_keypress(wrapper) {
+function create_animation4(element_name, data, wrapper) {
+    var element = wrapper.children.namedItem(element_name);
+    var side = wrapper.getAttribute('id');
+    var body = document.getElementsByTagName("BODY")[0];
+    width = body.getBoundingClientRect().width;
+    height = body.getBoundingClientRect().height;
+
+    var timings = {
+	duration: 500,
+	iterations: 1,
+	easing: "linear",
+	direction: "normal",
+	fill: "forwards",
+    }
+    var target = side == 'left' ? 256 : width-256;
+    var keyframes = [
+	{ transform: 'translateX(' + target + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + width/2 + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+    ];
+    return new KeyframeEffect(element, keyframes, timings);
+}
+
+
+// Burger squish animation goes here.
+// just need to change the translateYs to be 1/2
+function start_animation5(wrapper) {
+}
+
+function after_keypress(wrapper, isBurger) {
     console.log("after keypress for", wrapper);
     var side = wrapper.getAttribute('id');
     console.log("side is", side);
-    create_animation();
-    var group = create_group(wrapper, create_animation3);
-    var player = new Animation(group, document.timeline);
-    player.onfinish = function() {
-	wrapper.remove();
-	start_animation(side);
+    console.log("isBurger is", isBurger);
+    // create_layer_height_offsets();
+    if (isBurger) {
+	var group = create_group(wrapper, create_animation4);
+	var player = new Animation(group, document.timeline);
+	player.onfinish = function() {
+	    wrapper.setAttribute('id', 'elevator');
+	    start_animation(side);
+	    // start_animation5(side);
+	}
+    } else {
+	var group = create_group(wrapper, create_animation3);
+	var player = new Animation(group, document.timeline);
+	player.onfinish = function() {
+	    wrapper.remove();
+	    start_animation(side);
+	}
     }
     player.play();
 }
@@ -505,7 +537,7 @@ function wait_for_keypress(wrapper) {
 	console.log("keydownHandlerLeft waiting for", yesCode, noCode, "got", e.keyCode);
 	if (e.keyCode == yesCode || e.keyCode == noCode) {
 	    document.removeEventListener('keydown', keydownHandlerLeft, false);
-	    after_keypress(wrapper);
+	    after_keypress(wrapper, e.keyCode == yesCode);
 	}
     }
     function keydownHandlerRight(e) {
@@ -514,7 +546,7 @@ function wait_for_keypress(wrapper) {
 	console.log("keydownHandlerRight waiting for", yesCode, noCode, "got", e.keyCode);
 	if (e.keyCode == yesCode || e.keyCode == noCode) {
 	    document.removeEventListener('keydown', keydownHandlerRight, false);
-	    after_keypress(wrapper);
+	    after_keypress(wrapper, e.keyCode == yesCode);
 	}
     }
     var side = wrapper.getAttribute('id');
