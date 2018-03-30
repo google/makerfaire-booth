@@ -1,5 +1,7 @@
 const MAX_BURGERS = 6;
 const BURGER_LAYER_SPACING = 20;
+const BASE_INITIAL_Y = -300;
+const BASE_FINAL_Y = 1000;
 
 
 const layers_enum = Object.freeze({
@@ -330,16 +332,14 @@ function create_layer_height_offsets(spacing=BURGER_LAYER_SPACING) {
     var body = document.getElementsByTagName('body')[0];
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
-    var baseInitialY = -300;
     var baseConveyorY = height-100-10;
-    var baseFinalY = 1000;
     var animation = [];
     for (i = 0; i < 8; i++) {
 	animation.push(["layer" + (MAX_BURGERS-i+1), {
 	    delay: i*100,
-	    initialY: (baseInitialY - i * spacing) + 'px',
+	    initialY: (BASE_INITIAL_Y - i * spacing) + 'px',
 	    conveyorY: (baseConveyorY - i * spacing) + 'px',
-	    finalY: (baseFinalY - i * spacing) + 'px',
+	    finalY: (BASE_FINAL_Y - i * spacing) + 'px',
 	}]);
     }
     return animation;
