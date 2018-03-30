@@ -1,7 +1,7 @@
 const MAX_BURGERS = 6;
 const BURGER_LAYER_SPACING = 20;
 const BASE_INITIAL_Y = -300;
-const BASE_FINAL_Y = 1000;
+const BASE_FINAL_Y = 2000;
 
 
 const layers_enum = Object.freeze({
@@ -557,6 +557,23 @@ function start_animation5(wrapper) {
     player.play();
 }
 
+function start_animation7(wrapper) {
+    var burgerOffsets = create_layer_height_offsets();
+    var kEffects = [];
+    for (let bf of burgerOffsets) {
+	var kf = create_animation3(bf[0], bf[1], wrapper);
+	kEffects.push(kf);
+    }
+    var group = new GroupEffect(kEffects);
+    var player = new Animation(group, document.timeline);
+    player.onfinish = function() {
+	var side = wrapper.getAttribute('id');
+    	wrapper.remove();
+    	start_animation(side);
+    }
+    player.play();
+}
+
 function after_keypress(wrapper, isBurger) {
     console.log("after keypress for", wrapper);
     var side = wrapper.getAttribute('id');
@@ -565,13 +582,7 @@ function after_keypress(wrapper, isBurger) {
     if (isBurger) {
 	start_animation5(wrapper);
     } else {
-	var group = create_group(wrapper, create_animation3);
-	var player = new Animation(group, document.timeline);
-	player.onfinish = function() {
-	    wrapper.remove();
-	    start_animation(side);
-	}
-	player.play();
+	start_animation7(wrapper);
     }
 }
 
