@@ -364,13 +364,12 @@ function create_burger(layers, side) {
     wrapper.setAttribute('class', "wrapper");
     wrapper.setAttribute('id', side);
     for (i = 0; i < layers.length; i++) {
-	idx = 7-i;
     	var svg = document.createElementNS(svgNS, "svg");
-    	svg.setAttributeNS(null, 'id', 'layer' + (idx+1).toString());
-    	svg.setAttributeNS(null, 'class', layers[idx]);
-	if (layers[idx] != 'empty') {
+    	svg.setAttributeNS(null, 'id', 'layer' + (i+1).toString());
+    	svg.setAttributeNS(null, 'class', layers[i]);
+	if (layers[i] != 'empty') {
     	    var use = document.createElementNS(svgNS, 'use');
-	    var href = '../assets/' + layers[idx] + '.svg#g10';
+	    var href = '../assets/' + layers[i] + '.svg#g10';
     	    use.setAttributeNS(null, 'href', href);
     	    svg.appendChild(use);
 	}
