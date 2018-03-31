@@ -24,15 +24,16 @@ from __future__ import print_function
 
 from grpc.beta import implementations
 import tensorflow as tf
-
+import glob
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2
 from PIL import Image
 import numpy as np
+import os
 
 tf.app.flags.DEFINE_string('server', 'localhost:9000',
                            'PredictionService host:port')
-tf.app.flags.DEFINE_string('image', '', 'path to image in JPEG format')
+tf.app.flags.DEFINE_string('image_dir', '', 'path containing images in PNG format')
 FLAGS = tf.app.flags.FLAGS
 
 
@@ -41,16 +42,22 @@ def main(_):
   channel = implementations.insecure_channel(host, int(port))
   stub = prediction_service_pb2.beta_create_PredictionService_stub(channel)
   # Send request
-  with Image.open(FLAGS.image).convert('RGB') as i:
-    data = np.array([np.array(i).astype(np.float32)])
-    print(data.shape)
-    # See prediction_service.proto for gRPC request/response details.
+  pattern = os.path.join(FLAGS.image_dir, "*png")
+  g = glob.glob(pattern)
+  chunk = 100
+  for i in range(0, len(g), chunk):
+    x = []
+    for j in range(i, i+chunk):
+      img = Image.open(g[j]).convert('RGB')
+      d = np.array(img).astype(np.float32)
+      x.append(d)
+    data = np.array(x)
     request = predict_pb2.PredictRequest()
     request.model_spec.name = 'inception'
     request.model_spec.signature_name = 'serving_default'
-    request.inputs['image'].CopyFrom(
-        tf.contrib.util.make_tensor_proto(data, shape=[1,128,128,3]))
-    result = stub.Predict(request, 10.0)  # 10 secs timeout
+    proto = tf.contrib.util.make_tensor_proto(data, shape=data.shape)
+    request.inputs['image'].CopyFrom(proto)
+    result = stub.Predict(request, 120.0)  # 120 secs timeout
     print(result)
 
 
