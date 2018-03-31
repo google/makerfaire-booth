@@ -1,7 +1,8 @@
 ARCH=mobilenet_1.0_128_quant
 OUTDIR=/tmp/retrain_arch_$ARCH
 mkdir -p $OUTDIR
-python ~/tensorflow/tensorflow/examples/image_retraining/retrain.py \
+
+python retrain.py \
   --image_height 128 \
   --image_width 128 \
   --image_dir ~/makerfaire-booth/2018/burger/experimental/dek/burgermaker/data/all \
@@ -15,7 +16,7 @@ python ~/tensorflow/tensorflow/examples/image_retraining/retrain.py \
   --print_misclassified_test_images \
   --test_batch_size -1  \
   --validation_batch_size -1 \
-  --how_many_training_steps 3000 \
-  --train_batch_size 512 \
-  --eval_step_interval 1000 \
+  --how_many_training_steps 5000 \
+  --train_batch_size 128 \
+  --eval_step_interval 5000 \
   --architecture $ARCH
