@@ -1,4 +1,4 @@
-ARCH=mobilenet_1.0_128_quant
+ARCH=mobilenet_1.0_128
 OUTDIR=/tmp/retrain_arch_$ARCH
 mkdir -p $OUTDIR
 
