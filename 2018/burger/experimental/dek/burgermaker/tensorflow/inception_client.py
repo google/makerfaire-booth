@@ -22,6 +22,7 @@ from __future__ import print_function
 
 # This is a placeholder for a Google-internal import.
 
+import pandas
 from grpc.beta import implementations
 import tensorflow as tf
 import glob
@@ -30,12 +31,19 @@ from tensorflow_serving.apis import prediction_service_pb2
 from PIL import Image
 import numpy as np
 import os
+from multiprocessing import Pool
 
 tf.app.flags.DEFINE_string('server', 'localhost:9000',
                            'PredictionService host:port')
 tf.app.flags.DEFINE_string('image_dir', '', 'path containing images in PNG format')
+tf.app.flags.DEFINE_string('label', '', 'label of burger/notburger')
 FLAGS = tf.app.flags.FLAGS
 
+def img_to_array(filename):
+  img = Image.open(filename).convert('RGB')
+  d = np.array(img).astype(np.float32)
+  d = (d - 127.5)/127.5
+  return d
 
 def main(_):
   host, port = FLAGS.server.split(':')
@@ -44,22 +52,40 @@ def main(_):
   # Send request
   pattern = os.path.join(FLAGS.image_dir, "*png")
   g = glob.glob(pattern)
-  chunk = 100
-  for i in range(0, len(g), chunk):
-    x = []
-    for j in range(i, i+chunk):
-      img = Image.open(g[j]).convert('RGB')
-      d = np.array(img).astype(np.float32)
-      x.append(d)
-    data = np.array(x)
+  keys = [os.path.basename(file_).split('_')[1].split(".")[0] for file_ in g]
+  x = map(img_to_array, g)
+  print("Read all files")
+  x = np.array(x)
+  print("Converted all files to numpy")
+  chunk = 1000
+  results = []
+  preds = np.zeros( (len(x), 2), dtype=float)
+  for i in range(0, len(x), chunk):
+    print(i, "of", len(x))
+    first = i
+    last = i+chunk
+    if last > len(x):
+      last = len(x)
+    data = x[first:last]
     request = predict_pb2.PredictRequest()
     request.model_spec.name = 'inception'
     request.model_spec.signature_name = 'serving_default'
     proto = tf.contrib.util.make_tensor_proto(data, shape=data.shape)
     request.inputs['image'].CopyFrom(proto)
     result = stub.Predict(request, 120.0)  # 120 secs timeout
-    print(result)
+    p = list(result.outputs['prediction'].float_val)
+    p = np.array(p).reshape(last-first, 2)
+    preds[first:last] = p
 
+  labels = [FLAGS.label] * preds.shape[0]
+  df = pandas.DataFrame(data = {
+    'notburger_p': preds[:,0],
+    'burger_p': preds[:,1],
+    'label': labels,
+    },
+                        columns = ['label','notburger_p', 'burger_p'],
+                        index=keys)
+  df.to_csv("predictions.csv", index_label='key')
 
 if __name__ == '__main__':
   tf.app.run()
