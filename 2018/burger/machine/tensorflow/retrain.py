@@ -1125,6 +1125,8 @@ def main(_):
   # Needed to make sure the logging output is visible.
   # See https://github.com/tensorflow/tensorflow/issues/3047
   tf.logging.set_verbosity(tf.logging.INFO)
+  cluster = tf.train.ClusterSpec({"local": ["localhost:2222"]})
+  server = tf.train.Server(cluster, job_name="local")
 
   # Prepare necessary directories that can be used during training
   prepare_file_system()
