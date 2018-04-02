@@ -6,6 +6,9 @@ import rsvg
 import pandas
 from burger_elements import BurgerElement
 
+width = 128
+height = 128
+
 handles = {}
 for layer in BurgerElement.__members__:
   if layer != 'empty':
@@ -13,7 +16,7 @@ for layer in BurgerElement.__members__:
     handles[layer] = rsvg.Handle(layer_name)
 
 def render_burger(burger):
-  img = cairo.ImageSurface(cairo.FORMAT_ARGB32, 128,128)
+  img = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
   ctx = cairo.Context(img)
   ctx.translate(28, -2)
   for i in range(6):
