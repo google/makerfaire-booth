@@ -5,7 +5,7 @@ mkdir -p $OUTDIR
 python retrain.py \
   --image_height 128 \
   --image_width 128 \
-  --image_dir ~/makerfaire-booth/2018/burger/experimental/dek/burgermaker/data/all \
+  --image_dir ~/makerfaire-booth/2018/burger/machine/data/all \
   --output_graph $OUTDIR/output_graph.pb \
   --bottleneck_dir $OUTDIR/bottleneck \
   --intermediate_output_graphs_dir $OUTDIR/intermediate \
