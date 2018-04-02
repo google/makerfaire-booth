@@ -47,7 +47,7 @@ def read_tensor_from_image_file(file_names,
 
 
 if __name__ == "__main__":
-  prefix = "/home/dek/makerfaire-booth/2018/burger/experimental/dek/burgermaker/data/all/notburgers"
+  prefix = "/home/dek/makerfaire-booth/2018/burger/machine/data/all/notburgers"
   file_name = os.path.join(prefix, "notburger0.png")
   file_name2 = os.path.join(prefix, "notburger1.png")
   model_file = \
