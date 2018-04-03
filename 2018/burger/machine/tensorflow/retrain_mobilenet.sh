@@ -17,6 +17,7 @@ python retrain.py \
   --test_batch_size -1  \
   --validation_batch_size -1 \
   --how_many_training_steps 5000 \
-  --train_batch_size 128 \
-  --eval_step_interval 5000 \
-  --architecture $ARCH
+  --train_batch_size 256 \
+  --eval_step_interval 1000 \
+  --architecture $ARCH \
+  --nocache_bottlenecks
