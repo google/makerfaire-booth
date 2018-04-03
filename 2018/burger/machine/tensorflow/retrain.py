@@ -137,10 +137,6 @@ FLAGS = None
 # need to update these to reflect the values in the network you're using.
 MAX_NUM_IMAGES_PER_CLASS = 2 ** 27 - 1  # ~134M
 
-# The location where variable checkpoints will be stored.
-CHECKPOINT_NAME = '/tmp/_retrain_checkpoint'
-
-
 def create_image_lists(image_dir, testing_percentage, validation_percentage):
   """Builds a list of training images from the file system.
 
@@ -922,7 +918,7 @@ def build_eval_session(model_info, class_count):
 
     # Now we need to restore the values from the training graph to the eval
     # graph.
-    tf.train.Saver().restore(eval_sess, CHECKPOINT_NAME)
+    tf.train.Saver().restore(eval_sess, FLAGS.checkpoint_dir)
 
     evaluation_step, prediction = add_evaluation_step(final_tensor,
                                                       ground_truth_input)
@@ -950,6 +946,7 @@ def prepare_file_system():
   tf.gfile.MakeDirs(FLAGS.summaries_dir)
   if FLAGS.intermediate_store_frequency > 0:
     ensure_dir_exists(FLAGS.intermediate_output_graphs_dir)
+  ensure_dir_exists(FLAGS.checkpoint_dir)
   return
 
 
@@ -1275,7 +1272,7 @@ def main(_):
           and i > 0):
         # If we want to do an intermediate save, save a checkpoint of the train
         # graph, to restore into the eval graph.
-        train_saver.save(sess, CHECKPOINT_NAME)
+        train_saver.save(sess, FLAGS.checkpoint_dir)
         intermediate_file_name = (FLAGS.intermediate_output_graphs_dir +
                                   'intermediate_' + str(i) + '.pb')
         tf.logging.info('Save intermediate result to : ' +
@@ -1284,7 +1281,7 @@ def main(_):
                            class_count)
 
     # After training is complete, force one last save of the train checkpoint.
-    train_saver.save(sess, CHECKPOINT_NAME)
+    train_saver.save(sess, FLAGS.checkpoint_dir)
 
     # We've completed all our training, so run a final test evaluation on
     # some new images we haven't used before.
@@ -1501,5 +1498,10 @@ if __name__ == '__main__':
       default=False,
       action='store_true',
       help='Whether to cache bottlenecks.')
+  parser.add_argument(
+      '--checkpoint_dir',
+      type=str,
+      default='/tmp/_retrain_checkpoint',
+      help='Where to save the checkpoints.')
   FLAGS, unparsed = parser.parse_known_args()
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)

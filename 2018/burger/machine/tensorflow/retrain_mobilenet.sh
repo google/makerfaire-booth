@@ -20,4 +20,6 @@ python retrain.py \
   --train_batch_size 256 \
   --eval_step_interval 5000 \
   --architecture $ARCH \
-  --nocache_bottlenecks
+  --nocache_bottlenecks \
+  --checkpoint_dir $OUTDIR/checkpoints
+  
