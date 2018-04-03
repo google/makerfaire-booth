@@ -596,8 +596,8 @@ function wait_for_keypress(wrapper) {
 	document.addEventListener('keydown', keydownHandlerRight, false);
 }
 
-$(window).ready(function() {
-    var body = document.getElementsByTagName('body')[0];
+const body = document.getElementsByTagName('body')[0];
+body.onload = async () => {
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
     create_conveyor(width, height-100);
@@ -605,4 +605,4 @@ $(window).ready(function() {
     create_chute('right', width-256, height-100);
     start_burger_drop_animation('left');
     start_burger_drop_animation('right');
-});
+};
