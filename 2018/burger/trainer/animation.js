@@ -597,7 +597,7 @@ function wait_for_keypress(wrapper) {
 }
 
 const body = document.getElementsByTagName('body')[0];
-body.onload = async () => {
+body.onload = function() {
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
     create_conveyor(width, height-100);
