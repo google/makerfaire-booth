@@ -1187,10 +1187,11 @@ def main(_):
     else:
       # We'll make sure we've calculated the 'bottleneck' image summaries and
       # cached them on disk.
-      cache_bottlenecks(sess, image_lists, FLAGS.image_dir,
-                        FLAGS.bottleneck_dir, jpeg_data_tensor,
-                        decoded_image_tensor, resized_image_tensor,
-                        bottleneck_tensor, FLAGS.architecture)
+      if not FLAGS.nocache_bottlenecks:
+        cache_bottlenecks(sess, image_lists, FLAGS.image_dir,
+                          FLAGS.bottleneck_dir, jpeg_data_tensor,
+                          decoded_image_tensor, resized_image_tensor,
+                          bottleneck_tensor, FLAGS.architecture)
 
     # Create the operations we need to evaluate the accuracy of our new layer.
     evaluation_step, _ = add_evaluation_step(final_tensor, ground_truth_input)
@@ -1488,5 +1489,10 @@ if __name__ == '__main__':
       type=str,
       default='/tmp/saved_models/1/',
       help='Where to save the exported graph.')
+  parser.add_argument(
+      '--nocache_bottlenecks',
+      default=False,
+      action='store_true',
+      help='Whether to cache bottlenecks.')
   FLAGS, unparsed = parser.parse_known_args()
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
