@@ -521,11 +521,15 @@ def run_final_eval(sess, model_info, class_count, image_lists, jpeg_data_tensor,
                                     bottleneck_tensor, FLAGS.architecture))
   validation_bottlenecks, validation_ground_truth, validation_filenames = (
       get_random_cached_bottlenecks(sess, image_lists, FLAGS.test_batch_size,
-                                    'training', FLAGS.bottleneck_dir,
+                                    'validation', FLAGS.bottleneck_dir,
                                     FLAGS.image_dir, jpeg_data_tensor,
                                     decoded_image_tensor, resized_image_tensor,
                                     bottleneck_tensor, FLAGS.architecture))
+
   bottlenecks = test_bottlenecks
+  print("test_bottlenecks=", len(test_bottlenecks))
+  print("train_bottlenecks=", len(train_bottlenecks))
+  print("validation_bottlenecks=", len(validation_bottlenecks))
   bottlenecks.extend(train_bottlenecks)
   bottlenecks.extend(validation_bottlenecks)
   ground_truth = test_ground_truth
@@ -544,12 +548,11 @@ def run_final_eval(sess, model_info, class_count, image_lists, jpeg_data_tensor,
   tf.logging.info('Final test accuracy = %.1f%% (N=%d)' %
                   (test_accuracy * 100, len(bottlenecks)))
 
-  if FLAGS.print_misclassified_test_images:
-    tf.logging.info('=== MISCLASSIFIED TEST IMAGES ===')
-    for i, filename in enumerate(filenames):
-      if predictions[i] != ground_truth[i]:
-        tf.logging.info('%70s  %s' % (filename,
-                                      list(image_lists.keys())[predictions[i]]))
+  k = list(image_lists.keys())
+  for i, filename in enumerate(filenames):
+        tf.logging.info('%s,%s,%s' % (os.path.basename(filename),
+                                        k[ground_truth[i]], k[predictions[i]]))
+                                      
 
 
 def build_eval_session(model_info, class_count):

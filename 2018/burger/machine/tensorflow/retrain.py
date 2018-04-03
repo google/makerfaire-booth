@@ -119,6 +119,7 @@ import random
 import re
 import sys
 import tarfile
+import time
 
 import numpy as np
 from six.moves import urllib
@@ -823,8 +824,8 @@ def add_final_retrain_ops(class_count, final_tensor_name, bottleneck_tensor,
   tf.summary.scalar('cross_entropy', cross_entropy_mean)
 
   with tf.name_scope('train'):
-    #optimizer = tf.train.AdamOptimizer(FLAGS.learning_rate)
-    optimizer = tf.train.RMSPropOptimizer(FLAGS.learning_rate)
+    optimizer = tf.train.AdamOptimizer(FLAGS.learning_rate)
+    #optimizer = tf.train.RMSPropOptimizer(FLAGS.learning_rate)
     train_step = optimizer.minimize(cross_entropy_mean)
 
   return (train_step, cross_entropy_mean, bottleneck_input, ground_truth_input,
@@ -876,21 +877,41 @@ def run_final_eval(sess, model_info, class_count, image_lists, jpeg_data_tensor,
                                     FLAGS.image_dir, jpeg_data_tensor,
                                     decoded_image_tensor, resized_image_tensor,
                                     bottleneck_tensor, FLAGS.architecture))
+  train_bottlenecks, train_ground_truth, train_filenames = (
+      get_random_cached_bottlenecks(sess, image_lists, FLAGS.test_batch_size,
+                                    'training', FLAGS.bottleneck_dir,
+                                    FLAGS.image_dir, jpeg_data_tensor,
+                                    decoded_image_tensor, resized_image_tensor,
+                                    bottleneck_tensor, FLAGS.architecture))
+  validation_bottlenecks, validation_ground_truth, validation_filenames = (
+      get_random_cached_bottlenecks(sess, image_lists, FLAGS.test_batch_size,
+                                    'validation', FLAGS.bottleneck_dir,
+                                    FLAGS.image_dir, jpeg_data_tensor,
+                                    decoded_image_tensor, resized_image_tensor,
+                                    bottleneck_tensor, FLAGS.architecture))
+
+  bottlenecks = test_bottlenecks
+  bottlenecks.extend(train_bottlenecks)
+  bottlenecks.extend(validation_bottlenecks)
+  ground_truth = test_ground_truth
+  ground_truth.extend(train_ground_truth)
+  ground_truth.extend(validation_ground_truth)
+  filenames = test_filenames
+  filenames.extend(train_filenames)
+  filenames.extend(validation_filenames)
+
   test_accuracy, predictions = sess.run(
       [evaluation_step, prediction],
       feed_dict={
-          bottleneck_input: test_bottlenecks,
-          ground_truth_input: test_ground_truth
+          bottleneck_input: bottlenecks,
+          ground_truth_input: ground_truth
       })
-  tf.logging.info('Final test accuracy = %.1f%% (N=%d)' %
-                  (test_accuracy * 100, len(test_bottlenecks)))
-
-  if FLAGS.print_misclassified_test_images:
-    tf.logging.info('=== MISCLASSIFIED TEST IMAGES ===')
-    for i, test_filename in enumerate(test_filenames):
-      if predictions[i] != test_ground_truth[i]:
-        tf.logging.info('%70s  %s' % (test_filename,
-                                      list(image_lists.keys())[predictions[i]]))
+  k = list(image_lists.keys())
+  for i, filename in enumerate(filenames):
+        tf.logging.info('%s,%s,%s' % (os.path.basename(filename),
+                                        k[ground_truth[i]], k[predictions[i]]))
+                                      
+                                      # list(image_lists.keys())[predictions[i]]))
 
 
 def build_eval_session(model_info, class_count):
@@ -1213,6 +1234,7 @@ def main(_):
     for i in range(FLAGS.how_many_training_steps):
       # Get a batch of input bottleneck values, either calculated fresh every
       # time with distortions applied, or from the cache stored on disk.
+      t0 = time.time()
       if do_distort_images:
         (train_bottlenecks,
          train_ground_truth) = get_random_distorted_bottlenecks(
@@ -1228,12 +1250,14 @@ def main(_):
              FLAGS.architecture)
       # Feed the bottlenecks and ground truth into the graph, and run a training
       # step. Capture training summaries for TensorBoard with the `merged` op.
+      t1 = time.time()
       train_summary, _ = sess.run(
           [merged, train_step],
           feed_dict={bottleneck_input: train_bottlenecks,
                      ground_truth_input: train_ground_truth})
       train_writer.add_summary(train_summary, i)
-
+      t2 = time.time()
+      
       # Every so often, print out how well the graph is training.
       is_last_step = (i + 1 == FLAGS.how_many_training_steps)
       if (i % FLAGS.eval_step_interval) == 0 or is_last_step:
@@ -1279,6 +1303,8 @@ def main(_):
                         intermediate_file_name)
         save_graph_to_file(graph, intermediate_file_name, model_info,
                            class_count)
+      t3 = time.time()
+      print(t1-t0, t2-t1, t3-t2)
 
     # After training is complete, force one last save of the train checkpoint.
     train_saver.save(sess, FLAGS.checkpoint_dir)
