@@ -1,7 +1,6 @@
 import * as tfc from '@tensorflow/tfjs-core';
 import {MobileNet} from './mobilenet';
-// import imageURL from './cat.jpg';
-import imageURL from './burger_000156.png';
+import imageURL from './cat.jpg';
 
 const cat = document.getElementById('cat');
 cat.onload = async () => {
