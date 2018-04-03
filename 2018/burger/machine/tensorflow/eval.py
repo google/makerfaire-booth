@@ -28,10 +28,6 @@ FLAGS = None
 # need to update these to reflect the values in the network you're using.
 MAX_NUM_IMAGES_PER_CLASS = 2 ** 27 - 1  # ~134M
 
-# The location where variable checkpoints will be stored.
-CHECKPOINT_NAME = '/tmp/_retrain_checkpoint'
-
-
 def create_image_lists(image_dir, testing_percentage, validation_percentage):
   """Builds a list of training images from the file system.
 
@@ -581,7 +577,7 @@ def build_eval_session(model_info, class_count):
 
     # Now we need to restore the values from the training graph to the eval
     # graph.
-    tf.train.Saver().restore(eval_sess, CHECKPOINT_NAME)
+    tf.train.Saver().restore(eval_sess, FLAGS.checkpoint_dir)
 
     evaluation_step, prediction = add_evaluation_step(final_tensor,
                                                       ground_truth_input)
@@ -893,9 +889,9 @@ if __name__ == '__main__':
       for more information on Mobilenet.\
       """)
   parser.add_argument(
-      '--saved_model_dir',
+      '--checkpoint_dir',
       type=str,
-      default='/tmp/saved_models/1/',
-      help='Where to save the exported graph.')
+      default='/tmp/_retrain_checkpoint',
+      help='Where to save the checkpoints.')
   FLAGS, unparsed = parser.parse_known_args()
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)

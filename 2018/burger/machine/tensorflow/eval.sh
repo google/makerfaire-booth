@@ -18,4 +18,5 @@ python eval.py \
   --how_many_training_steps 10000 \
   --train_batch_size 512 \
   --eval_step_interval 500 \
-  --architecture $ARCH
+  --architecture $ARCH \
+  --checkpoint_dir $OUTDIR/checkpoints
