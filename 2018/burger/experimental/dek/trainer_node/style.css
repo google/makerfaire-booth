@@ -1,0 +1,85 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden
+}
+
+.chute {
+    position:fixed; top:0; left:0; height:100%; width:100%;
+}
+
+.conveyor {
+    position:fixed; top:0; left:0; height:100%; width:100%;
+}
+
+#layer1, #layer2, #layer3, #layer4, #layer5, #layer6, #layer7, #layer8 {
+    height:50px;
+    width:200px;
+    position:absolute;
+    top:0;
+    left:0;
+    margin:0;
+    padding:0;
+    opacity:0;
+}
+
+.wrapper {
+    position:fixed;
+}
+
+.burger {
+    position:relative; top:0; left:0; height:256px; width:128px;
+}
+
+.topbun {
+    position:absolute;
+}
+
+.lettuce {
+    position:absolute;
+}
+
+.tomato {
+    position:absolute;
+}
+
+.cheese {
+    position:absolute;
+}
+
+.patty {
+    position:absolute;
+}
+
+.bottombun {
+    position:absolute;
+}
+
+
+#layer1 {
+    z-index: 8;
+}
+#layer2 {
+    z-index: 7;
+}
+#layer3 {
+    z-index: 6;
+}
+#layer4 {
+    z-index: 5;
+}
+#layer5 {
+    z-index: 4;
+}
+#layer6 {
+    z-index: 3;
+}
+#layer7 {
+    z-index: 2;
+}
+#layer8 {
+    z-index: 1;
+}
+
