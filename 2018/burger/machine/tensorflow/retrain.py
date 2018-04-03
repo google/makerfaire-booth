@@ -1298,7 +1298,14 @@ def main(_):
     with gfile.FastGFile(FLAGS.output_labels, 'w') as f:
       f.write('\n'.join(image_lists.keys()) + '\n')
 
-    export_model(model_info, class_count, FLAGS.saved_model_dir)
+    model_index = 1
+    while os.path.exists(os.path.join(FLAGS.saved_model_dir, str(model_index))):
+      model_index += 1
+    print("Using model index:", model_index+1)
+    model_dir = os.path.join(FLAGS.saved_model_dir, str(model_index))
+    print("Using model dir:", model_dir)
+    
+    export_model(model_info, class_count, model_dir)
 
 
 if __name__ == '__main__':
@@ -1487,7 +1494,7 @@ if __name__ == '__main__':
   parser.add_argument(
       '--saved_model_dir',
       type=str,
-      default='/tmp/saved_models/1/',
+      default='/tmp/saved_models',
       help='Where to save the exported graph.')
   parser.add_argument(
       '--nocache_bottlenecks',
