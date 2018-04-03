@@ -33,7 +33,7 @@ import numpy as np
 import os
 from multiprocessing import Pool
 
-tf.app.flags.DEFINE_string('server', 'localhost:9000',
+tf.app.flags.DEFINE_string('server', 'localhost:8500',
                            'PredictionService host:port')
 tf.app.flags.DEFINE_string('image_dir', '', 'path containing images in PNG format')
 tf.app.flags.DEFINE_string('label', '', 'label of burger/notburger')
@@ -54,9 +54,7 @@ def main(_):
   g = glob.glob(pattern)
   keys = [os.path.basename(file_).split('_')[1].split(".")[0] for file_ in g]
   x = map(img_to_array, g)
-  print("Read all files")
   x = np.array(x)
-  print("Converted all files to numpy")
   chunk = 1000
   results = []
   preds = np.zeros( (len(x), 2), dtype=float)
@@ -68,7 +66,7 @@ def main(_):
       last = len(x)
     data = x[first:last]
     request = predict_pb2.PredictRequest()
-    request.model_spec.name = 'inception'
+    request.model_spec.name = 'default'
     request.model_spec.signature_name = 'serving_default'
     proto = tf.contrib.util.make_tensor_proto(data, shape=data.shape)
     request.inputs['image'].CopyFrom(proto)
