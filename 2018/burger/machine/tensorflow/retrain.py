@@ -1234,29 +1234,27 @@ def main(_):
     for i in range(FLAGS.how_many_training_steps):
       # Get a batch of input bottleneck values, either calculated fresh every
       # time with distortions applied, or from the cache stored on disk.
-      t0 = time.time()
       if do_distort_images:
         (train_bottlenecks,
          train_ground_truth) = get_random_distorted_bottlenecks(
-             sess, image_lists, FLAGS.train_batch_size, 'training',
-             FLAGS.image_dir, distorted_jpeg_data_tensor,
-             distorted_image_tensor, resized_image_tensor, bottleneck_tensor)
+           sess, image_lists, FLAGS.train_batch_size, 'training',
+           FLAGS.image_dir, distorted_jpeg_data_tensor,
+           distorted_image_tensor, resized_image_tensor, bottleneck_tensor)
       else:
         (train_bottlenecks,
          train_ground_truth, _) = get_random_cached_bottlenecks(
-             sess, image_lists, FLAGS.train_batch_size, 'training',
-             FLAGS.bottleneck_dir, FLAGS.image_dir, jpeg_data_tensor,
-             decoded_image_tensor, resized_image_tensor, bottleneck_tensor,
-             FLAGS.architecture)
+           sess, image_lists, FLAGS.train_batch_size, 'training',
+           FLAGS.bottleneck_dir, FLAGS.image_dir, jpeg_data_tensor,
+           decoded_image_tensor, resized_image_tensor, bottleneck_tensor,
+           FLAGS.architecture)
+
       # Feed the bottlenecks and ground truth into the graph, and run a training
       # step. Capture training summaries for TensorBoard with the `merged` op.
-      t1 = time.time()
       train_summary, _ = sess.run(
           [merged, train_step],
           feed_dict={bottleneck_input: train_bottlenecks,
                      ground_truth_input: train_ground_truth})
       train_writer.add_summary(train_summary, i)
-      t2 = time.time()
       
       # Every so often, print out how well the graph is training.
       is_last_step = (i + 1 == FLAGS.how_many_training_steps)
@@ -1303,8 +1301,6 @@ def main(_):
                         intermediate_file_name)
         save_graph_to_file(graph, intermediate_file_name, model_info,
                            class_count)
-      t3 = time.time()
-      print(t1-t0, t2-t1, t3-t2)
 
     # After training is complete, force one last save of the train checkpoint.
     train_saver.save(sess, FLAGS.checkpoint_dir)
