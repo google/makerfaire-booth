@@ -14,6 +14,17 @@ const layers_enum = Object.freeze({
     5: "patty",
     6: "bottombun"
 });
+
+const layer_names_enum = Object.freeze({
+    "empty":0,
+    "topbun":1,
+    "lettuce":2,
+    "tomato":3,
+    "cheese":4,
+    "patty":5,
+    "bottombun":6
+});
+
 const valid_burgers = [
     [0,0,0,1,5,6],
     [0,0,1,2,5,6],
@@ -562,11 +573,39 @@ function start_animation_trash_burger(wrapper) {
     player.play();
 }
 
+function element_to_burger(wrapper) {
+    var burger = [];
+    for (let node of wrapper.childNodes) {
+	burger.push(layer_names_enum[node.getAttribute('class')])
+    }
+    return burger.join('');
+}
+function vote(wrapper, choice) {
+    var request = new XMLHttpRequest();
+
+    burger = element_to_burger(wrapper);
+    
+    request.onreadystatechange = function() {
+	if(request.readyState === 4) {
+	    if(request.status === 200) {
+		console.log("celebration!");
+	    } else {
+		console.log("sadness!", request.status, request.statusText);
+	    }
+	}
+    }
+
+    request.open('GET', 'http://gork:8888/vote?burger=' + burger + '&vote=' + choice);
+    request.send();
+}
+
 function after_keypress(wrapper, isBurger) {
     var side = wrapper.getAttribute('id');
     if (isBurger) {
+	vote(wrapper, true);
 	start_animation_smoosh_burger(wrapper);
     } else {
+	vote(wrapper, false);
 	start_animation_trash_burger(wrapper);
     }
 }
