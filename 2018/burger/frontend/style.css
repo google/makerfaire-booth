@@ -15,8 +15,8 @@ html, body {
 }
 
 #layer1, #layer2, #layer3, #layer4, #layer5, #layer6, #layer7, #layer8 {
-    height:50px;
-    width:200px;
+    height: 80px;
+    width: 142.5px;
     position:absolute;
     top:0;
     left:0;

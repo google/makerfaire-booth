@@ -1,5 +1,5 @@
 const MAX_BURGERS = 6;
-const BURGER_LAYER_SPACING = 20;
+const BURGER_LAYER_SPACING = 40;
 const BASE_INITIAL_Y = -300;
 const BASE_FINAL_Y = 2000;
 const BASE_ELEVATOR_FINAL_Y = 0;
@@ -378,6 +378,7 @@ function create_burger(layers, side) {
     wrapper.setAttribute('id', side);
     for (i = 0; i < layers.length; i++) {
     	var svg = document.createElementNS(svgNS, "svg");
+    	svg.setAttributeNS(null, 'viewBox', '0 0 71.25 40');
     	svg.setAttributeNS(null, 'id', 'layer' + (i+1).toString());
     	svg.setAttributeNS(null, 'class', layers[i]);
 	if (layers[i] != 'empty') {
