@@ -35,7 +35,7 @@ sess = tf.InteractiveSession(config=config)
 model = tf.saved_model.loader.load(
     sess,
     [tf.saved_model.tag_constants.SERVING],
-    "/tmp/retrain_arch_mobilenet_1.0_128/saved_models/21")
+    "/tmp/retrain_arch_mobilenet_1.0_128/saved_models/23")
 
 burgers = []
 labels = []
