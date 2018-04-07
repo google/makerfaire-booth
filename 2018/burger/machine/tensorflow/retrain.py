@@ -907,11 +907,12 @@ def run_final_eval(sess, model_info, class_count, image_lists, jpeg_data_tensor,
           ground_truth_input: ground_truth
       })
   k = list(image_lists.keys())
+  f = open("eval.txt", "w")
   for i, filename in enumerate(filenames):
-        tf.logging.info('%s,%s,%s' % (os.path.basename(filename),
-                                        k[ground_truth[i]], k[predictions[i]]))
-                                      
-                                      # list(image_lists.keys())[predictions[i]]))
+    f.write('%s,%s,%s\n' % (os.path.basename(filename),
+                          k[ground_truth[i]], k[predictions[i]]))
+    # list(image_lists.keys())[predictions[i]]))
+  f.close()
 
 
 def build_eval_session(model_info, class_count):
