@@ -854,72 +854,6 @@ def add_evaluation_step(result_tensor, ground_truth_tensor):
   return evaluation_step, prediction
 
 
-def run_final_eval(sess, model_info, class_count, image_lists, jpeg_data_tensor,
-                   decoded_image_tensor, resized_image_tensor,
-                   bottleneck_tensor):
-  """Runs a final evaluation on an eval graph using the test data set.
-
-  Args:
-    sess: Session for the train graph.
-    model_info: Model info dictionary from create_model_info()
-    class_count: Number of classes
-    image_lists: Dictionary of training images for each label.
-    jpeg_data_tensor: The layer to feed jpeg image data into.
-    decoded_image_tensor: The output of decoding and resizing the image.
-    resized_image_tensor: The input node of the recognition graph.
-    bottleneck_tensor: The bottleneck output layer of the CNN graph.
-  """
-  (sess, bottleneck_input, ground_truth_input, evaluation_step,
-   prediction) = build_eval_session(model_info, class_count)
-
-  test_bottlenecks, test_ground_truth, test_filenames = (
-      get_random_cached_bottlenecks(sess, image_lists, FLAGS.test_batch_size,
-                                    'testing', FLAGS.bottleneck_dir,
-                                    FLAGS.image_dir, jpeg_data_tensor,
-                                    decoded_image_tensor, resized_image_tensor,
-                                    bottleneck_tensor, FLAGS.architecture))
-  train_bottlenecks, train_ground_truth, train_filenames = (
-      get_random_cached_bottlenecks(sess, image_lists, FLAGS.test_batch_size,
-                                    'training', FLAGS.bottleneck_dir,
-                                    FLAGS.image_dir, jpeg_data_tensor,
-                                    decoded_image_tensor, resized_image_tensor,
-                                    bottleneck_tensor, FLAGS.architecture))
-  validation_bottlenecks, validation_ground_truth, validation_filenames = (
-      get_random_cached_bottlenecks(sess, image_lists, FLAGS.test_batch_size,
-                                    'validation', FLAGS.bottleneck_dir,
-                                    FLAGS.image_dir, jpeg_data_tensor,
-                                    decoded_image_tensor, resized_image_tensor,
-                                    bottleneck_tensor, FLAGS.architecture))
-
-  bottlenecks = test_bottlenecks
-  bottlenecks.extend(train_bottlenecks)
-  bottlenecks.extend(validation_bottlenecks)
-  ground_truth = test_ground_truth
-  ground_truth.extend(train_ground_truth)
-  ground_truth.extend(validation_ground_truth)
-  filenames = test_filenames
-  filenames.extend(train_filenames)
-  filenames.extend(validation_filenames)
-
-  test_accuracy, predictions = sess.run(
-      [evaluation_step, prediction],
-      feed_dict={
-          bottleneck_input: bottlenecks,
-          ground_truth_input: ground_truth
-      })
-  k = list(image_lists.keys())
-  c = collections.Counter()
-  f = open("eval.txt", "w")
-  for i, filename in enumerate(filenames):
-    f.write('%s,%s,%s\n' % (os.path.basename(filename),
-                          k[ground_truth[i]], k[predictions[i]]))
-    if ground_truth[i] != predictions[i]:
-      c[k[ground_truth[i]]] += 1
-    # list(image_lists.keys())[predictions[i]]))
-  f.close()
-  print(c)
-
-
 def build_eval_session(model_info, class_count):
   """Builds an restored eval session without train operations for exporting.
 
@@ -1316,12 +1250,6 @@ def main(_):
 
     # After training is complete, force one last save of the train checkpoint.
     train_saver.save(sess, FLAGS.checkpoint_dir)
-
-    # We've completed all our training, so run a final test evaluation on
-    # some new images we haven't used before.
-    run_final_eval(sess, model_info, class_count, image_lists, jpeg_data_tensor,
-                   decoded_image_tensor, resized_image_tensor,
-                   bottleneck_tensor)
 
     # Write out the trained graph and labels with the weights stored as
     # constants.
