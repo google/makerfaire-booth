@@ -930,20 +930,7 @@ def create_model_info(architecture):
   """
   architecture = architecture.lower()
   is_quantized = False
-  if architecture == 'inception_v3':
-    # pylint: disable=line-too-long
-    data_url = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
-    # pylint: enable=line-too-long
-    bottleneck_tensor_name = 'pool_3/_reshape:0'
-    bottleneck_tensor_size = 2048
-    input_width = 299
-    input_height = 299
-    input_depth = 3
-    resized_input_tensor_name = 'Mul:0'
-    model_file_name = 'classify_image_graph_def.pb'
-    input_mean = 128
-    input_std = 128
-  elif architecture.startswith('mobilenet_'):
+  if architecture.startswith('mobilenet_'):
     parts = architecture.split('_')
     if len(parts) != 3 and len(parts) != 4:
       tf.logging.error("Couldn't understand architecture name '%s'",
@@ -1438,7 +1425,7 @@ if __name__ == '__main__':
   parser.add_argument(
       '--architecture',
       type=str,
-      default='inception_v3',
+      default='mobilenet_1.0_128',
       help="""\
       Which model architecture to use. 'inception_v3' is the most accurate, but
       also the slowest. For faster or smaller models, chose a MobileNet with the
