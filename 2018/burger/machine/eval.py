@@ -28,20 +28,38 @@ def img_to_array(filename):
   d = (d - 127.5)/127.5
   return d
 
-config=tf.ConfigProto()
-# allow_soft_placement=True,
-#                       log_device_placement=True)
-sess = tf.InteractiveSession(config=config)
-model = tf.saved_model.loader.load(
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument(
+      '--saved_model_dir',
+      type=str,
+      default='',
+      help='Path to saved models.'
+  )
+
+  FLAGS, unparsed = parser.parse_known_args()
+
+  config=tf.ConfigProto()
+  # allow_soft_placement=True,
+  # log_device_placement=True)
+  sess = tf.InteractiveSession(config=config)
+  model_dir = None
+  model_index = 1
+  while os.path.exists(os.path.join(FLAGS.saved_model_dir, str(model_index))):
+    model_index += 1
+  print("Using model index:", model_index-1)
+  model_dir = os.path.join(FLAGS.saved_model_dir, str(model_index-1))
+  print("Using model dir:", model_dir)
+  model = tf.saved_model.loader.load(
     sess,
     [tf.saved_model.tag_constants.SERVING],
-    "/tmp/retrain_arch_mobilenet_1.0_128/saved_models/23")
+    model_dir)
+  
+  burgers = []
+  labels = []
+  predictions = []
 
-burgers = []
-labels = []
-predictions = []
-
-for type_ in 'burgers', 'notburgers':
+  for type_ in 'burgers', 'notburgers':
     images=os.path.join("/home/dek/makerfaire-booth/2018/burger/machine/data/all/%s" % type_)
     pattern = os.path.join(images, "*.png")
     g = glob.glob(pattern)
@@ -71,10 +89,9 @@ for type_ in 'burgers', 'notburgers':
           burgers.append(burger)
           labels.append(type_)
           predictions.append(prediction)
-          
 
-df = pandas.DataFrame(data = {'labels': labels,
-                              'predictions': predictions},
-                      index = burgers)
-df = df.sort_index()
-df.to_csv("test.csv")
+  df = pandas.DataFrame(data = {'labels': labels,
+                                'predictions': predictions},
+                        index = burgers)
+  df = df.sort_index()
+  df.to_csv("test.csv")
