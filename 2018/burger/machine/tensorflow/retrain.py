@@ -1210,6 +1210,7 @@ def main(_):
                           FLAGS.bottleneck_dir, jpeg_data_tensor,
                           decoded_image_tensor, resized_image_tensor,
                           bottleneck_tensor, FLAGS.architecture)
+        FLAGS.nocache_bottlenecks = False
 
     # Create the operations we need to evaluate the accuracy of our new layer.
     evaluation_step, _ = add_evaluation_step(final_tensor, ground_truth_input)
