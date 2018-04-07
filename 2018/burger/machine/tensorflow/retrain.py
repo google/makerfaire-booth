@@ -112,6 +112,7 @@ from __future__ import division
 from __future__ import print_function
 
 import argparse
+import collections
 from datetime import datetime
 import hashlib
 import os.path
@@ -907,12 +908,16 @@ def run_final_eval(sess, model_info, class_count, image_lists, jpeg_data_tensor,
           ground_truth_input: ground_truth
       })
   k = list(image_lists.keys())
+  c = collections.Counter()
   f = open("eval.txt", "w")
   for i, filename in enumerate(filenames):
     f.write('%s,%s,%s\n' % (os.path.basename(filename),
                           k[ground_truth[i]], k[predictions[i]]))
+    if ground_truth[i] != predictions[i]:
+      c[k[ground_truth[i]]] += 1
     # list(image_lists.keys())[predictions[i]]))
   f.close()
+  print(c)
 
 
 def build_eval_session(model_info, class_count):
@@ -1188,7 +1193,10 @@ def main(_):
          model_info['bottleneck_tensor_size'], model_info['quantize_layer'],
          True)
 
-  with tf.Session(graph=graph) as sess:
+  config = tf.ConfigProto(
+    # device_count = {'GPU': 0}
+  )
+  with tf.Session(graph=graph, config=config) as sess:
     # Set up the image decoding sub-graph.
     jpeg_data_tensor, decoded_image_tensor = add_jpeg_decoding(
         model_info['input_width'], model_info['input_height'],
@@ -1259,6 +1267,8 @@ def main(_):
       train_writer.add_summary(train_summary, i)
       
       # Every so often, print out how well the graph is training.
+      if (i % 100 == 0):
+        tf.logging.info('Step %d' % i)
       is_last_step = (i + 1 == FLAGS.how_many_training_steps)
       if (i % FLAGS.eval_step_interval) == 0 or is_last_step:
         train_accuracy, cross_entropy_value = sess.run(
@@ -1390,7 +1400,7 @@ if __name__ == '__main__':
   )
   parser.add_argument(
       '--validation_percentage',
-      type=int,
+      type=float,
       default=10,
       help='What percentage of images to use as a validation set.'
   )
