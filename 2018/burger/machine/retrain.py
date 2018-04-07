@@ -35,6 +35,7 @@ from tensorflow.python.framework import graph_util
 from tensorflow.python.framework import tensor_shape
 from tensorflow.python.platform import gfile
 from tensorflow.python.util import compat
+from tensorflow.python.client import timeline
 
 FLAGS = None
 
@@ -659,10 +660,20 @@ def main(_):
 
       # Feed the bottlenecks and ground truth into the graph, and run a training
       # step. Capture training summaries for TensorBoard with the `merged` op.
+      options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+      run_metadata = tf.RunMetadata()
       train_summary, _ = sess.run(
           [merged, train_step],
+          # options=options,
+          # run_metadata=run_metadata,
           feed_dict={bottleneck_input: train_bottlenecks,
                      ground_truth_input: train_ground_truth})
+
+      # Create the Timeline object, and write it to a json file
+      fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+      chrome_trace = fetched_timeline.generate_chrome_trace_format()
+      with open('timeline.%d.json' % i, 'w') as f:
+        f.write(chrome_trace)
       train_writer.add_summary(train_summary, i)
       
       # Every so often, print out how well the graph is training.
@@ -725,7 +736,7 @@ def main(_):
     model_index = 1
     while os.path.exists(os.path.join(FLAGS.saved_model_dir, str(model_index))):
       model_index += 1
-    print("Using model index:", model_index+1)
+    print("Using model index:", model_index)
     model_dir = os.path.join(FLAGS.saved_model_dir, str(model_index))
     print("Using model dir:", model_dir)
     
