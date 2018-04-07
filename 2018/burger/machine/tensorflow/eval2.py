@@ -8,6 +8,7 @@ import glob
 import hashlib
 import os.path
 from PIL import Image
+import pandas
 import random
 import re
 import sys
@@ -27,8 +28,9 @@ def img_to_array(filename):
   d = (d - 127.5)/127.5
   return d
 
-config=tf.ConfigProto(allow_soft_placement=True,
-                      log_device_placement=True)
+config=tf.ConfigProto()
+# allow_soft_placement=True,
+#                       log_device_placement=True)
 sess = tf.InteractiveSession(config=config)
 model = tf.saved_model.loader.load(
     sess,
@@ -36,6 +38,10 @@ model = tf.saved_model.loader.load(
     "/tmp/retrain_arch_mobilenet_1.0_128/saved_models/20")
 
 # TODO(dek): figure out how to combine all the results into pandas df
+burgers = []
+labels = []
+predictions = []
+
 for type_ in 'burgers', 'notburgers':
     images=os.path.join("/home/dek/makerfaire-booth/2018/burger/machine/data/all/%s" % type_)
     pattern = os.path.join(images, "*.png")
@@ -45,7 +51,6 @@ for type_ in 'burgers', 'notburgers':
     input_operation = sess.graph.get_operation_by_name('input')
     output_operation = sess.graph.get_operation_by_name('final_result')
     chunk = 1000
-    results = []
     tensors = []
     for i in range(len(g)):
         item = g[i]
@@ -58,8 +63,19 @@ for type_ in 'burgers', 'notburgers':
         print(first,":",last)
         if last > len(g):
           last = len(g)
-        result = sess.run(output_operation.outputs[0], {
+        results = sess.run(output_operation.outputs[0], {
             input_operation.outputs[0]: tensors[first:last]
         })
-        results.extend(result)
+        for j, result in enumerate(results):
+          burger = os.path.basename(g[i+j]).split(".")[0].split("_")[1]
+          prediction = 'burgers' if result[0] > 0.5 else 'notburgers'
+          burgers.append(burger)
+          labels.append(type_)
+          predictions.append(prediction)
+          
 
+df = pandas.DataFrame(data = {'labels': labels,
+                              'predictions': predictions},
+                      index = burgers)
+df = df.sort_index()
+df.to_csv("test.csv")
