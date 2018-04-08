@@ -61,25 +61,23 @@ class CameraReader(QtCore.QThread):
             boxes = []
 
             corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(img, self.aruco_dict, parameters=self.parameters)
+            pts = {}
             for i, corner in enumerate(corners):
                 ul, ur, lr, ll = corner[0].astype(int)
-                pts = np.array([ul, ur, lr, ll])
+                id_ = str(ids[i][0])
+                if id_ == '1':
+                    pts['1'] = tuple(map(int, lr))
+                elif id_ == '2':
+                    pts['2'] = tuple(map(int, ul))
+            if '1' in pts and '2' in pts:
+                iul = pts['1']
+                ilr = pts['2']
+                iur = np.array([iul[0], ilr[1]])
+                ill = np.array([ilr[0], iul[1]])
+                pts = np.array([iul, iur, ilr, ill])
                 pts = [pts.reshape((-1,1,2))]
-                print ids[i][0]
-                if ids[i][0] == 1:
-                    color = (255, 0, 0)
-                elif ids[i][0] == 2:
-                    color = (0, 255, 0)
-                else:
-                    color = (0, 0, 255)
+                color=(255,0,0)
                 cv2.polylines(img, pts, False, color, thickness=4)
-            #for i in range(result['num_detections']):
-            #    if result['detection_scores'][i] > 0.5:
-            #        class_ = result['detection_classes'][i]
-            #        box = result['detection_boxes'][i]
-            #        y1, x1 = box[0] * self.width, box[1] * self.height
-            #        y2, x2 = box[2] * self.width, box[3] * self.height
-            #        boxes.append((class_, x1, y1, x2, y2))
                     
             image = QtGui.QImage(img.data, self.width, self.height, QtGui.QImage.Format_RGB888).rgbSwapped()
             self.signal.emit(image, boxes)
