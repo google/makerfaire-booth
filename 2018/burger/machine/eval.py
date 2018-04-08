@@ -42,6 +42,12 @@ if __name__ == '__main__':
       default='test.csv',
       help='Path to evaluated data output.'
   )
+  parser.add_argument(
+      '--data_dir',
+      type=str,
+      default='/home/dek/makerfaire-booth/2018/burger/machine/data/all',
+      help='Path containing labelled data directories.'
+  )
 
   FLAGS, unparsed = parser.parse_known_args()
 
@@ -68,15 +74,16 @@ if __name__ == '__main__':
   predictions = []
   correct = []
   dir_ = []
-  
-  for type_ in 'burgers', 'notburgers':
-    images=os.path.join("/home/dek/makerfaire-booth/2018/burger/machine/data/all/%s" % type_)
+  input_operation = sess.graph.get_operation_by_name('input')
+  output_operation = sess.graph.get_operation_by_name('final_result')
+
+  subdirs = os.listdir(FLAGS.data_dir)
+  for type_ in subdirs:
+    print "Label:", type_
+    images=os.path.join(FLAGS.data_dir, type_)
     pattern = os.path.join(images, "*.png")
     g = glob.glob(pattern)
 
-
-    input_operation = sess.graph.get_operation_by_name('input')
-    output_operation = sess.graph.get_operation_by_name('final_result')
     chunk = 1000
     tensors = []
     for i in range(len(g)):
