@@ -57,8 +57,10 @@ if __name__ == '__main__':
   
   burgers = []
   labels = []
+  burger_p = []
+  notburger_p = []
   predictions = []
-
+  
   for type_ in 'burgers', 'notburgers':
     images=os.path.join("/home/dek/makerfaire-booth/2018/burger/machine/data/all/%s" % type_)
     pattern = os.path.join(images, "*.png")
@@ -85,13 +87,18 @@ if __name__ == '__main__':
         })
         for j, result in enumerate(results):
           burger = os.path.basename(g[i+j]).split(".")[0].split("_")[1]
-          prediction = 'burgers' if result[0] > 0.5 else 'notburgers'
+          burger_p.append(result[0])
+          notburger_p.append(result[1])
           burgers.append(burger)
           labels.append(type_)
+          prediction = 'burgers' if result[0] > 0.5 else 'notburgers'
           predictions.append(prediction)
 
   df = pandas.DataFrame(data = {'labels': labels,
-                                'predictions': predictions},
+                                'prediction': prediction,
+                                'burger_p': burger_p,
+                                'notburger_p': notburger_p},
+                        columns = ['labels', 'prediction', 'burger_p', 'notburger_p'],
                         index = burgers)
   df = df.sort_index()
   df.to_csv("test.csv")
