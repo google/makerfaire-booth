@@ -36,6 +36,12 @@ if __name__ == '__main__':
       default='',
       help='Path to saved models.'
   )
+  parser.add_argument(
+      '--output',
+      type=str,
+      default='test.csv',
+      help='Path to evaluated data output.'
+  )
 
   FLAGS, unparsed = parser.parse_known_args()
 
@@ -60,6 +66,8 @@ if __name__ == '__main__':
   burger_p = []
   notburger_p = []
   predictions = []
+  correct = []
+  dir_ = []
   
   for type_ in 'burgers', 'notburgers':
     images=os.path.join("/home/dek/makerfaire-booth/2018/burger/machine/data/all/%s" % type_)
@@ -93,12 +101,18 @@ if __name__ == '__main__':
           labels.append(type_)
           prediction = 'burgers' if result[0] > 0.5 else 'notburgers'
           predictions.append(prediction)
+          correct.append(True if type_ == prediction else False)
+          dir_.append('positive' if prediction is 'burgers' else 'negative')
 
-  df = pandas.DataFrame(data = {'labels': labels,
-                                'prediction': prediction,
-                                'burger_p': burger_p,
-                                'notburger_p': notburger_p},
-                        columns = ['labels', 'prediction', 'burger_p', 'notburger_p'],
+  df = pandas.DataFrame(data = {
+    'labels': labels,
+    'prediction': predictions,
+    'burger_p': burger_p,
+    'notburger_p': notburger_p,
+    'dir':dir_,
+    'correct':correct,
+  },
+                        columns = ['labels', 'prediction', 'correct', 'dir', 'burger_p', 'notburger_p'],
                         index = burgers)
   df = df.sort_index()
-  df.to_csv("test.csv")
+  df.to_csv(FLAGS.output)
