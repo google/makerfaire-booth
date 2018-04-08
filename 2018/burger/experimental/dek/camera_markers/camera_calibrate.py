@@ -1,6 +1,5 @@
 import pickle
 import numpy as np
-import os
 import sys
 sys.path.insert(0, 'utils')
 import signal
@@ -16,18 +15,16 @@ class MainWindow(QtGui.QMainWindow):
         self.setCentralWidget(self.central_widget)
         self.image_widget = QtGui.QLabel(self)
         self.central_layout.addWidget(self.image_widget)
-
-        self.camera()
+        self.camera = CameraReader()
+        self.camera.signal.connect(self.imageTo)
+        self.camera.start()
+        self.button = QtGui.QPushButton(self, "Hello")
+        self.button.clicked.connect(self.camera.calibrate)
         
     def imageTo(self, image):
         pixmap = QtGui.QPixmap.fromImage(image)
         self.image_widget.setPixmap(pixmap);
     
-    def camera(self):
-        self.camera = CameraReader()
-        self.camera.start()
-        self.camera.signal.connect(self.imageTo)
-
 class CameraReader(QtCore.QThread):
     signal = QtCore.Signal(QtGui.QImage)
     def __init__(self):
@@ -37,31 +34,34 @@ class CameraReader(QtCore.QThread):
         self.height = long(self.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_1000)
         self.parameters =  cv2.aruco.DetectorParameters_create()
-        rms, self.mtx, self.dist, rvecs, tvecs = pickle.load(open("calib.pkl"))
 
+        self.objpoints = [] # 3d point in real world space
+        self.imgpoints = [] # 2d points in image plane
+        
+    def calibrate(self):
+        rms, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, (self.width, self.height), None,None)
+        pickle.dump([rms, mtx, dist, rvecs, tvecs], open("calib.pkl", "w"))
+            
+        
     def run(self):
+        # termination criteria
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+
+        # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
+        objp = np.zeros((6*8,3), np.float32)
+        objp[:,:2] = np.mgrid[0:8,0:6].T.reshape(-1,2)
+
 
         while True:
             ret, img = self.cam.read()
+            # Find the chess board corners
             if ret == True:
-                h, w, _ = img.shape
-                newcameramtx, roi=cv2.getOptimalNewCameraMatrix(self.mtx, self.dist, (w,h), 1, (w,h))
-                dst = cv2.undistort(img, self.mtx, self.dist, None, newcameramtx)
-                # # crop the image
-                x, y, w, h = roi
-                dst = dst[y:y+h, x:x+w]
-                img = np.ascontiguousarray(dst, dst.dtype)
-                h, w, _ = img.shape
-
-                corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(img, self.aruco_dict, parameters=self.parameters)
-                cv2.aruco.drawDetectedMarkers(img,corners, ids)
-                for corner in corners:
-                    rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corner, 0.05, newcameramtx, self.dist)
-                    try:
-                        cv2.aruco.drawAxis(img, newcameramtx, self.dist, rvec, tvec, 0.1)
-                    except cv2.error:
-                        print "bad matrix"
-                image = QtGui.QImage(img.data, w, h, QtGui.QImage.Format_RGB888).rgbSwapped()
+                ret, corners = cv2.findChessboardCorners(img, (8,6),None)
+                if ret == True:
+                    self.objpoints.append(objp)
+                    self.imgpoints.append(corners)
+                    img = cv2.drawChessboardCorners(img, (8,6), corners, ret)
+                image = QtGui.QImage(img.data, self.width, self.height, QtGui.QImage.Format_RGB888).rgbSwapped()
                 self.signal.emit(image)
 
 if __name__ == '__main__':
