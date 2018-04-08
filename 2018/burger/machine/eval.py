@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
   subdirs = os.listdir(FLAGS.data_dir)
   for type_ in subdirs:
-    print "Label:", type_
+    print("Label:", type_)
     images=os.path.join(FLAGS.data_dir, type_)
     pattern = os.path.join(images, "*.png")
     g = glob.glob(pattern)
