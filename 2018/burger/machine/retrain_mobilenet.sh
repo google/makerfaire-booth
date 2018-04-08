@@ -16,9 +16,10 @@ python retrain.py \
   --print_misclassified_test_images \
   --test_batch_size -1  \
   --validation_batch_size -1 \
-  --how_many_training_steps 5000 \
+  --validation_percentage 50 \
+  --how_many_training_steps 2500 \
   --train_batch_size 256 \
-  --eval_step_interval 5000 \
+  --eval_step_interval 100 \
   --architecture $ARCH \
   --nocache_bottlenecks \
   --checkpoint_dir $OUTDIR/checkpoints
