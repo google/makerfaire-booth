@@ -1,2 +1,6 @@
 *.pyc
 output/
+data.csv
+data.h5
+data/
+test.csv
