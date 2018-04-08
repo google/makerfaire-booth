@@ -847,14 +847,6 @@ if __name__ == '__main__':
       """
   )
   parser.add_argument(
-      '--print_misclassified_test_images',
-      default=False,
-      help="""\
-      Whether to print out a list of all misclassified test images.\
-      """,
-      action='store_true'
-  )
-  parser.add_argument(
       '--model_dir',
       type=str,
       default='/tmp/imagenet',
@@ -876,41 +868,6 @@ if __name__ == '__main__':
       default='final_result',
       help="""\
       The name of the output classification layer in the retrained graph.\
-      """
-  )
-  parser.add_argument(
-      '--flip_left_right',
-      default=False,
-      help="""\
-      Whether to randomly flip half of the training images horizontally.\
-      """,
-      action='store_true'
-  )
-  parser.add_argument(
-      '--random_crop',
-      type=int,
-      default=0,
-      help="""\
-      A percentage determining how much of a margin to randomly crop off the
-      training images.\
-      """
-  )
-  parser.add_argument(
-      '--random_scale',
-      type=int,
-      default=0,
-      help="""\
-      A percentage determining how much to randomly scale up the size of the
-      training images by.\
-      """
-  )
-  parser.add_argument(
-      '--random_brightness',
-      type=int,
-      default=0,
-      help="""\
-      A percentage determining how much to randomly multiply the training image
-      input pixels up or down by.\
       """
   )
   parser.add_argument(
