@@ -385,7 +385,8 @@ def add_final_retrain_ops(class_count, final_tensor_name, bottleneck_tensor,
 
   with tf.name_scope('train'):
     optimizer = tf.train.AdamOptimizer(FLAGS.learning_rate)
-    #optimizer = tf.train.RMSPropOptimizer(FLAGS.learning_rate)
+    # optimizer = tf.train.RMSPropOptimizer(FLAGS.learning_rate)
+    # optimizer = tf.train.GradientDescentOptimizer(FLAGS.learning_rate)
     train_step = optimizer.minimize(cross_entropy_mean)
 
   return (train_step, cross_entropy_mean, bottleneck_input, ground_truth_input,
@@ -649,6 +650,7 @@ def main(_):
     init = tf.global_variables_initializer()
     sess.run(init)
 
+          
     # Run the training for as many cycles as requested on the command line.
     for i in range(FLAGS.how_many_training_steps):
       (train_bottlenecks,
@@ -670,11 +672,11 @@ def main(_):
                      ground_truth_input: train_ground_truth})
 
       # Create the Timeline object, and write it to a json file
-      fetched_timeline = timeline.Timeline(run_metadata.step_stats)
-      chrome_trace = fetched_timeline.generate_chrome_trace_format()
-      with open('timeline.%d.json' % i, 'w') as f:
-        f.write(chrome_trace)
-      train_writer.add_summary(train_summary, i)
+      # fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+      # chrome_trace = fetched_timeline.generate_chrome_trace_format()
+      # with open('timeline.%d.json' % i, 'w') as f:
+      #   f.write(chrome_trace)
+      # train_writer.add_summary(train_summary, i)
       
       # Every so often, print out how well the graph is training.
       if (i % 100 == 0):
