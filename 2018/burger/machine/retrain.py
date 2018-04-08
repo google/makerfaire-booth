@@ -384,8 +384,8 @@ def add_final_retrain_ops(class_count, final_tensor_name, bottleneck_tensor,
   tf.summary.scalar('cross_entropy', cross_entropy_mean)
 
   with tf.name_scope('train'):
-    optimizer = tf.train.AdamOptimizer(FLAGS.learning_rate)
-    # optimizer = tf.train.RMSPropOptimizer(FLAGS.learning_rate)
+    # optimizer = tf.train.AdamOptimizer(FLAGS.learning_rate)
+    optimizer = tf.train.RMSPropOptimizer(FLAGS.learning_rate)
     # optimizer = tf.train.GradientDescentOptimizer(FLAGS.learning_rate)
     train_step = optimizer.minimize(cross_entropy_mean)
 
