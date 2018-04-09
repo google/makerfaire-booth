@@ -222,6 +222,8 @@ def create_bottleneck_file(bottleneck_path, image_lists, label_name, index,
     bottleneck_file.write(bottleneck_string)
 
 
+bottleneck_cache = {}
+
 def get_or_create_bottleneck(sess, image_lists, label_name, index, image_dir,
                              category, bottleneck_dir, jpeg_data_tensor,
                              decoded_image_tensor, resized_input_tensor,
@@ -232,6 +234,8 @@ def get_or_create_bottleneck(sess, image_lists, label_name, index, image_dir,
   ensure_dir_exists(sub_dir_path)
   bottleneck_path = get_bottleneck_path(image_lists, label_name, index,
                                         bottleneck_dir, category, architecture)
+  if bottleneck_path in bottleneck_cache:
+    return bottleneck_cache[bottleneck_path]
   if not os.path.exists(bottleneck_path):
     create_bottleneck_file(bottleneck_path, image_lists, label_name, index,
                            image_dir, category, sess, jpeg_data_tensor,
@@ -255,6 +259,7 @@ def get_or_create_bottleneck(sess, image_lists, label_name, index, image_dir,
     # Allow exceptions to propagate here, since they shouldn't happen after a
     # fresh creation
     bottleneck_values = [float(x) for x in bottleneck_string.split(',')]
+  bottleneck_cache[bottleneck_path] = bottleneck_values
   return bottleneck_values
 
 
