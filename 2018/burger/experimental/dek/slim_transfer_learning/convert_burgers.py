@@ -36,7 +36,7 @@ import tensorflow as tf
 import dataset_utils
 
 # The number of images in the validation set.
-_NUM_VALIDATION = 11700
+_NUM_VALIDATION = 100000
 
 # Seed for repeatability.
 _RANDOM_SEED = 0
@@ -146,7 +146,6 @@ def _convert_dataset(split_name, filenames, class_names_to_ids, dataset_dir):
 
             class_name = os.path.basename(os.path.dirname(filenames[i]))
             class_id = class_names_to_ids[class_name]
-
             example = dataset_utils.image_to_tfexample(
                 image_data, b'jpg', height, width, class_id)
             tfrecord_writer.write(example.SerializeToString())
@@ -222,7 +221,7 @@ def run(dataset_dir):
   # print('\nFinished converting the Burgers dataset!')
 
 def main(_):
-  run('/home/dek/makerfaire-booth/2018/burger/machine/data/all')
+  run('data')
   
 if __name__ == '__main__':
   tf.app.run()
