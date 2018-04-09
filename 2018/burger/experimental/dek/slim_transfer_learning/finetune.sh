@@ -1,12 +1,12 @@
-# ARCH=resnet_v1_50
+#ARCH=resnet_v1_50
 ARCH=inception_v3
 TRAIN_DIR=/tmp/burger-models/$ARCH
-DATASET_DIR=/home/dek/makerfaire-booth/2018/burger/experimental/dek/burgermaker/data/all
+DATASET_DIR=data
 PRETRAINED_CHECKPOINT_DIR=/tmp/checkpoints
 # python convert_burgers.py
 #   # --checkpoint_exclude_scopes=${ARCH}/logits \
 #   # --trainable_scopes=${ARCH}/logits \
-python train_image_classifier.py \
+python ~/workspace/models/research/slim/train_image_classifier.py \
   --train_dir=${TRAIN_DIR} \
   --dataset_name=burgers \
   --dataset_split_name=train \
@@ -18,6 +18,7 @@ python train_image_classifier.py \
   --max_number_of_steps=1000 \
   --batch_size=32 \
   --learning_rate=0.01 \
+  --learning_rate_decay_type=fixed \
   --save_interval_secs=60 \
   --save_summaries_secs=60 \
   --log_every_n_steps=100 \
