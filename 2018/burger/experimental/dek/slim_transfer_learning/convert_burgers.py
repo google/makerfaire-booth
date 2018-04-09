@@ -200,6 +200,13 @@ def run(dataset_dir):
   random.seed(_RANDOM_SEED)
   random.shuffle(photo_filenames)
   training_filenames = photo_filenames[_NUM_VALIDATION:]
+  d = {'burgers': 0, 'notburgers': 0}
+  for fn in training_filenames:
+    if 'all/burgers' in fn:
+      d['burgers'] += 1
+    else:
+      d['notburgers'] += 1
+  print(d)
   validation_filenames = photo_filenames[:_NUM_VALIDATION]
 
   # First, convert the training and validation sets.
@@ -215,7 +222,7 @@ def run(dataset_dir):
   # print('\nFinished converting the Burgers dataset!')
 
 def main(_):
-  run('/home/dek/makerfaire-booth/2018/burger/experimental/dek/burgermaker/data/all')
+  run('/home/dek/makerfaire-booth/2018/burger/machine/data/all')
   
 if __name__ == '__main__':
   tf.app.run()
