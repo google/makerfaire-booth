@@ -1,28 +1,39 @@
+import os
+import math
+import io
 import sys
 import numpy
 from PIL import Image
 import tensorflow as tf
 import rsvg
 import cairo
-
+import random
 from object_detection.utils import dataset_util
 sys.path.insert(0, "../../../../machine")
 from burger_elements import BurgerElement
 
 
 flags = tf.app.flags
-flags.DEFINE_string('output_path', '', 'Path to output TFRecord')
+flags.DEFINE_string('train_output_path', '', 'Path to output TFRecord')
+flags.DEFINE_string('eval_output_path', '', 'Path to output TFRecord')
 FLAGS = flags.FLAGS
 
+handles = {}
+for layer in BurgerElement.__members__:
+  if layer != 'empty':
+    layer_name = "../../../../assets/%s.svg" % layer
+    handles[layer] = rsvg.Handle(layer_name)
 
-def get_image():
+layers = BurgerElement.__members__.keys()
+
+def get_example():
     width = int(256)
     height = int(256)
 
-    handles = {}
-    layer = 'patty'
-    layer_name = "../../../../assets/%s.svg" % layer
-    handle = rsvg.Handle(layer_name)
+    layer = random.choice(layers)
+    while layer == 'empty':
+      layer = random.choice(layers)
+    handle = handles[layer]
     dims = handle.get_dimension_data()[2:]
 
     # angles = numpy.linspace(0, math.pi*2,10, endpoint=False)
@@ -31,12 +42,17 @@ def get_image():
     ctx.translate(width/2 - dims[0]/2, height/2 - dims[1]/2)
 
     ctx.translate(dims[0]/2, dims[1]/2)
-    ctx.rotate(3.14/2)
-    ctx.scale(3,3)
+    rot = numpy.random.uniform(-math.pi, math.pi)
+    tx = numpy.random.uniform(-100, 100)
+    ty = numpy.random.uniform(-100, 100)
+    ctx.translate(tx, ty)
+    ctx.rotate(rot)
+    scale = numpy.random.uniform(0.1, 2)
+    ctx.scale(scale, scale)
     ctx.translate(-dims[0]/2, -dims[1]/2)
 
     handle.render_cairo(ctx)
-    # img.write_to_png(os.path.join("images", layer + ".png"))
+    # img.write_to_png(os.path.join("images", "%s.%.2f.%.2f.png" % (layer, rot, scale)))
     a = numpy.ndarray(shape=(width, height, 4), dtype=numpy.uint8, buffer=img.get_data())
 
     a= a[...,[2,1,0,3]]
@@ -44,30 +60,39 @@ def get_image():
     alpha = a[:, :, 3]
     x = numpy.where(alpha != 0)
     bbox = numpy.min(x[1]), numpy.min(x[0]), numpy.max(x[1]), numpy.max(x[0])
-
-    fname = 'test.png'
+    
     im = Image.fromarray(a, mode='RGBA')
-    im.save(fname)
-    return fname, bbox
+    arr = io.BytesIO()
+    im.save(arr, format='PNG')
+    example = {
+      'width': im.width,
+      'height': im.height,
+      'filename': 'arbitrary',
+      'encoded_image_data': arr.getvalue(),
+      'image_format': 'png',
+      'bbox': bbox,
+      'class_text': layer,
+      'class_idx': BurgerElement[layer].value,
+      }
+
+    return example
 
 
-def create_tf_example(example):
-  # TODO(user): Populate the following variables from your example.
+def create_tf_example(example, writer):
   height = example['height']
   width = example['width']
-  filename = example['filename'] # Filename of the image. Empty if image is not from file
-  encoded_image_data = example['encoded_image_data'] # Encoded image bytes
+  filename = example['filename']
+  encoded_image_data = example['encoded_image_data']
   image_format = example['image_format']
 
   bbox = example['bbox']
-  xmins = [bbox[0]] # List of normalized left x coordinates in bounding box (1 per box)
-  xmaxs = [bbox[2]] # List of normalized right x coordinates in bounding box
-             # (1 per box)
-  ymins = [bbox[1]] # List of normalized top y coordinates in bounding box (1 per box)
-  ymaxs = [bbox[3]] # List of normalized bottom y coordinates in bounding box
-             # (1 per box)
-  classes_text = [example['class_text']] # List of string class name of bounding box (1 per box)
-  classes = [example['class_idx']] # List of integer class id of bounding box (1 per box)
+  # TODO(dek): ensure the bbox indices and width/height are correct
+  xmins = [bbox[0]/float(width)] # List of normalized left x coordinates in bounding box (1 per box)
+  xmaxs = [bbox[2]/float(width)] # List of normalized right x coordinates in bounding box
+  ymins = [bbox[1]/float(height)] # List of normalized top y coordinates in bounding box (1 per box)
+  ymaxs = [bbox[3]/float(height)] # List of normalized bottom y coordinates in bounding box
+  classes_text = [example['class_text']]
+  classes = [example['class_idx']]
 
   tf_example = tf.train.Example(features=tf.train.Features(feature={
       'image/height': dataset_util.int64_feature(height),
@@ -83,30 +108,19 @@ def create_tf_example(example):
       'image/object/class/text': dataset_util.bytes_list_feature(classes_text),
       'image/object/class/label': dataset_util.int64_list_feature(classes),
   }))
-  return tf_example
+  writer.write(tf_example.SerializeToString())
 
 def main(_):
-  writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
+  train_writer = tf.python_io.TFRecordWriter(FLAGS.train_output_path)
+  eval_writer = tf.python_io.TFRecordWriter(FLAGS.eval_output_path)
 
-  fname, bbox = get_image()
-  t = open(fname).read()
-  im = Image.open(fname)
-  examples = [{
-      'width': im.width,
-      'height': im.height,
-      'filename': fname,
-      'encoded_image_data': t,
-      'image_format': 'png',
-      'bbox': bbox,
-      'class_text': 'patty',
-      'class_idx': 0,
-      }]
+  while True:
+    example = get_example()
+    writer = train_writer if random.random() < .7 else eval_writer
+    tf_example = create_tf_example(example, writer)
 
-  for example in examples:
-    tf_example = create_tf_example(example)
-    writer.write(tf_example.SerializeToString())
-
-  writer.close()
+  train_writer.close()
+  eval_writer.close()
 
 
 if __name__ == '__main__':
