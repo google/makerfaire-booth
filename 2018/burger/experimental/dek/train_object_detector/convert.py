@@ -39,8 +39,10 @@ def get_example():
     # angles = numpy.linspace(0, math.pi*2,10, endpoint=False)
     img = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     ctx = cairo.Context(img)
+    ctx.set_source_rgb (255,255,255)
+    ctx.paint()
+    
     ctx.translate(width/2 - dims[0]/2, height/2 - dims[1]/2)
-
     ctx.translate(dims[0]/2, dims[1]/2)
     rot = numpy.random.uniform(-math.pi, math.pi)
     tx = numpy.random.uniform(-100, 100)
@@ -52,7 +54,7 @@ def get_example():
     ctx.translate(-dims[0]/2, -dims[1]/2)
 
     handle.render_cairo(ctx)
-    # img.write_to_png(os.path.join("images", "%s.%.2f.%.2f.png" % (layer, rot, scale)))
+    img.write_to_png(os.path.join("images", "%s.%.2f.%.2f.png" % (layer, rot, scale)))
     a = numpy.ndarray(shape=(width, height, 4), dtype=numpy.uint8, buffer=img.get_data())
 
     a= a[...,[2,1,0,3]]
