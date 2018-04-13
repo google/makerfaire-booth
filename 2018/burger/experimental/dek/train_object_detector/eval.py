@@ -55,16 +55,18 @@ def run_inference_for_single_image(image, graph):
       output_dict['detection_scores'] = output_dict['detection_scores'][0]
       if 'detection_masks' in output_dict:
         output_dict['detection_masks'] = output_dict['detection_masks'][0]
+      import pdb; pdb.set_trace()
   return output_dict
 
 detection_graph = tf.Graph()
 with detection_graph.as_default():
   od_graph_def = tf.GraphDef()
-  with tf.gfile.GFile("output_inference_graph.pb/frozen_inference_graph.pb", 'rb') as fid:
+  with tf.gfile.GFile("output_inference_graph/frozen_inference_graph.pb", 'rb') as fid:
     serialized_graph = fid.read()
     od_graph_def.ParseFromString(serialized_graph)
     tf.import_graph_def(od_graph_def, name='')
-label_map = label_map_util.load_labelmap("/home/dek/makerfaire-booth/2018/burger/experimental/dek/object_detection/training_data_generator/data/burgers_label_map.pb.txt")
+label_map = label_map_util.load_labelmap("data/burgers_label_map.pb.txt")
+print label_map
                                       
 categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=2, use_display_name=True)
 category_index = label_map_util.create_category_index(categories)
@@ -73,7 +75,7 @@ category_index = label_map_util.create_category_index(categories)
 IMAGE_SIZE = (12, 8)
 
 
-TEST_IMAGE_PATHS=["/home/dek/makerfaire-booth/2018/burger/machine/data/all.big/burgers/burger_000156.png"]
+TEST_IMAGE_PATHS=["images/patty.0.02.0.85.png"]
 
 for image_path in TEST_IMAGE_PATHS:
   image = Image.open(image_path)
