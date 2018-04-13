@@ -38,15 +38,14 @@ class Widget(QtGui.QWidget):
         img = numpy.fromstring(image.constBits(), dtype=numpy.uint8).reshape(768, 1024, 3)
         cv2.imwrite("test.png", img)
         edged = cv2.Canny(img, 40, 200)
-        print edged.dtype
-        img = cv2.cvtColor(edged, cv2.COLOR_GRAY2BGR)
-        # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
-        # closed = cv2.morphologyEx(edged, cv2.MORPH_CLOSE, kernel)
-        # im2, contours, hierarchy = cv2.findContours(closed.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        # for c in contours:
-        #         peri = cv2.arcLength(c, True)
-        #         approx = cv2.approxPolyDP(c, 0.02 * peri, True)
-        #         cv2.drawContours(img, [approx], -1, (0, 255, 0), 2)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
+        closed = cv2.morphologyEx(edged, cv2.MORPH_CLOSE, kernel)
+        im2, contours, hierarchy = cv2.findContours(closed.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+        for c in contours:
+                peri = cv2.arcLength(c, True)
+                approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+                cv2.drawContours(img, [approx], -1, (0, 255, 0), 1)
 
 
         image = QtGui.QImage(img.data, 1024, 768, QtGui.QImage.Format_RGB888)
