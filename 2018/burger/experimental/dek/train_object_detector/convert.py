@@ -26,6 +26,38 @@ for layer in BurgerElement.__members__:
 
 layers = BurgerElement.__members__.keys()
 
+def get_random_orientation():
+    rot = numpy.random.uniform(-math.pi, math.pi)
+    tx = numpy.random.uniform(-100, 100)
+    ty = numpy.random.uniform(-100, 100)
+    scale = numpy.random.uniform(0.1, 2)
+    return rot, tx, ty, scale
+  
+def draw_example(layer, width, height, rot, tx, ty, scale, clear_background=True):
+    img = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+    ctx = cairo.Context(img)
+    handle = handles[layer]
+    dims = handle.get_dimension_data()[2:]
+    if clear_background:
+        ctx.set_source_rgb (255,255,255)
+        ctx.paint()
+    
+    ctx.translate(width/2 - dims[0]/2, height/2 - dims[1]/2)
+    ctx.translate(dims[0]/2, dims[1]/2)
+    ctx.translate(tx, ty)
+    ctx.rotate(rot)
+    ctx.scale(scale, scale)
+    ctx.translate(-dims[0]/2, -dims[1]/2)
+    handle.render_cairo(ctx)
+
+    return img
+
+def get_bbox(a, width, height):
+    alpha = a[:, :, 3]
+    x = numpy.where(alpha != 0)
+    bbox = numpy.min(x[1]), numpy.min(x[0]), numpy.max(x[1]), numpy.max(x[0])
+    return bbox
+
 def get_example():
     width = int(256)
     height = int(256)
@@ -33,39 +65,27 @@ def get_example():
     layer = random.choice(layers)
     while layer == 'empty':
       layer = random.choice(layers)
-    handle = handles[layer]
-    dims = handle.get_dimension_data()[2:]
 
     # angles = numpy.linspace(0, math.pi*2,10, endpoint=False)
     img = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     ctx = cairo.Context(img)
-    ctx.set_source_rgb (255,255,255)
-    ctx.paint()
-    
-    ctx.translate(width/2 - dims[0]/2, height/2 - dims[1]/2)
-    ctx.translate(dims[0]/2, dims[1]/2)
-    rot = numpy.random.uniform(-math.pi, math.pi)
-    tx = numpy.random.uniform(-100, 100)
-    ty = numpy.random.uniform(-100, 100)
-    ctx.translate(tx, ty)
-    ctx.rotate(rot)
-    scale = numpy.random.uniform(0.1, 2)
-    ctx.scale(scale, scale)
-    ctx.translate(-dims[0]/2, -dims[1]/2)
 
-    handle.render_cairo(ctx)
-    img.write_to_png(os.path.join("images", "%s.%.2f.%.2f.png" % (layer, rot, scale)))
+    rot, tx, ty, scale = get_random_orientation()
+    img = draw_example(layer, width, height, rot, tx, ty, scale, clear_background=False)
     a = numpy.ndarray(shape=(width, height, 4), dtype=numpy.uint8, buffer=img.get_data())
-
-    a= a[...,[2,1,0,3]]
-
-    alpha = a[:, :, 3]
-    x = numpy.where(alpha != 0)
-    bbox = numpy.min(x[1]), numpy.min(x[0]), numpy.max(x[1]), numpy.max(x[0])
+    a = a[...,[2,1,0,3]]
+    bbox = get_bbox(a, width, height)
     
+    img = draw_example(layer, width, height, rot, tx, ty, scale, clear_background=True)
+    a = numpy.ndarray(shape=(width, height, 4), dtype=numpy.uint8, buffer=img.get_data())
+    a = a[...,[2,1,0,3]]
     im = Image.fromarray(a, mode='RGBA')
     arr = io.BytesIO()
     im.save(arr, format='PNG')
+    
+    # fname = os.path.join("images", "%s.%.2f.%.2f.%.2f.%.2f.png" % (layer, rot, tx, ty, scale))
+    # im.save(fname)
+
     example = {
       'width': im.width,
       'height': im.height,
@@ -89,6 +109,7 @@ def create_tf_example(example, writer):
 
   bbox = example['bbox']
   # TODO(dek): ensure the bbox indices and width/height are correct
+  print bbox[0], bbox[1], bbox[2], bbox[3]
   xmins = [bbox[0]/float(width)] # List of normalized left x coordinates in bounding box (1 per box)
   xmaxs = [bbox[2]/float(width)] # List of normalized right x coordinates in bounding box
   ymins = [bbox[1]/float(height)] # List of normalized top y coordinates in bounding box (1 per box)
@@ -120,6 +141,7 @@ def main(_):
     example = get_example()
     writer = train_writer if random.random() < .7 else eval_writer
     tf_example = create_tf_example(example, writer)
+    break
 
   train_writer.close()
   eval_writer.close()
