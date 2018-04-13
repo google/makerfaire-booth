@@ -30,7 +30,7 @@ def get_random_orientation():
     rot = numpy.random.uniform(-math.pi, math.pi)
     tx = numpy.random.uniform(-100, 100)
     ty = numpy.random.uniform(-100, 100)
-    scale = numpy.random.uniform(0.1, 2)
+    scale = numpy.random.uniform(0.25, 4)
     return rot, tx, ty, scale
   
 def draw_example(layer, width, height, rot, tx, ty, scale, clear_background=True):
@@ -75,6 +75,11 @@ def get_example():
     a = numpy.ndarray(shape=(width, height, 4), dtype=numpy.uint8, buffer=img.get_data())
     a = a[...,[2,1,0,3]]
     bbox = get_bbox(a, width, height)
+    x=numpy.array(bbox)
+    if numpy.any(x==0):
+      return None
+    if numpy.any(x==255):
+      return None
     
     img = draw_example(layer, width, height, rot, tx, ty, scale, clear_background=True)
     a = numpy.ndarray(shape=(width, height, 4), dtype=numpy.uint8, buffer=img.get_data())
@@ -83,8 +88,11 @@ def get_example():
     arr = io.BytesIO()
     im.save(arr, format='PNG')
     
-    fname = os.path.join("images", "%s.%.2f.%.2f.%.2f.%.2f.png" % (layer, rot, tx, ty, scale))
-    im.save(fname)
+    fname = os.path.join("images", "%s_%.2f_%.2f_%.2f_%.2f.png" % (layer, rot, tx, ty, scale))
+    if os.path.exists(fname):
+      print "already exists", fname
+    else:
+      im.save(fname)
 
     example = {
       'width': im.width,
@@ -138,6 +146,8 @@ def main(_):
 
   while True:
     example = get_example()
+    if example is None:
+      continue
     writer = train_writer if random.random() < .7 else eval_writer
     tf_example = create_tf_example(example, writer)
 
