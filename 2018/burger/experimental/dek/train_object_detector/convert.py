@@ -83,8 +83,8 @@ def get_example():
     arr = io.BytesIO()
     im.save(arr, format='PNG')
     
-    # fname = os.path.join("images", "%s.%.2f.%.2f.%.2f.%.2f.png" % (layer, rot, tx, ty, scale))
-    # im.save(fname)
+    fname = os.path.join("images", "%s.%.2f.%.2f.%.2f.%.2f.png" % (layer, rot, tx, ty, scale))
+    im.save(fname)
 
     example = {
       'width': im.width,
@@ -140,6 +140,7 @@ def main(_):
     example = get_example()
     writer = train_writer if random.random() < .7 else eval_writer
     tf_example = create_tf_example(example, writer)
+
 
   train_writer.close()
   eval_writer.close()
