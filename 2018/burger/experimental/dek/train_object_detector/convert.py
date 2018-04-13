@@ -109,7 +109,6 @@ def create_tf_example(example, writer):
 
   bbox = example['bbox']
   # TODO(dek): ensure the bbox indices and width/height are correct
-  print bbox[0], bbox[1], bbox[2], bbox[3]
   xmins = [bbox[0]/float(width)] # List of normalized left x coordinates in bounding box (1 per box)
   xmaxs = [bbox[2]/float(width)] # List of normalized right x coordinates in bounding box
   ymins = [bbox[1]/float(height)] # List of normalized top y coordinates in bounding box (1 per box)
@@ -141,7 +140,6 @@ def main(_):
     example = get_example()
     writer = train_writer if random.random() < .7 else eval_writer
     tf_example = create_tf_example(example, writer)
-    break
 
   train_writer.close()
   eval_writer.close()
