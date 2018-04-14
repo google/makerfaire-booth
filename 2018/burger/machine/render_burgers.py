@@ -12,7 +12,7 @@ height = 128
 handles = {}
 for layer in BurgerElement.__members__:
   if layer != 'empty':
-    layer_name = "../../../assets/%s.svg" % layer
+    layer_name = "../assets/%s.svg" % layer
     handles[layer] = rsvg.Handle(layer_name)
 
 def render_burger(burger):
