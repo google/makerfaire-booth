@@ -1,3 +1,4 @@
+import os
 from matplotlib import pyplot as plt
 import numpy as np
 from PIL import Image
@@ -73,7 +74,9 @@ category_index = label_map_util.create_category_index(categories)
 IMAGE_SIZE = (12, 8)
 
 
-TEST_IMAGE_PATHS=["images/patty.0.02.0.85.png"]
+TEST_IMAGE_PATHS = []
+for layer in 'topbun', 'lettuce', 'tomato', 'cheese', 'patty', 'bottombun':
+  TEST_IMAGE_PATHS.append(os.path.join("../template_matching/canonical", layer + ".png"))
 
 for image_path in TEST_IMAGE_PATHS:
   image = Image.open(image_path)
@@ -85,15 +88,16 @@ for image_path in TEST_IMAGE_PATHS:
   # Actual detection.
   output_dict = run_inference_for_single_image(image_np, detection_graph)
   # Visualization of the results of a detection.
-  vis_util.visualize_boxes_and_labels_on_image_array(
-      image_np,
-      output_dict['detection_boxes'],
-      output_dict['detection_classes'],
-      output_dict['detection_scores'],
-      category_index,
-      instance_masks=output_dict.get('detection_masks'),
-      use_normalized_coordinates=True,
-      line_thickness=2)
-  plt.figure(figsize=IMAGE_SIZE)
-  plt.imshow(image_np)
-  plt.savefig("test.png")
+  print output_dict['detection_scores'][0], output_dict['detection_classes'][0]
+  # vis_util.visualize_boxes_and_labels_on_image_array(
+  #     image_np,
+  #     output_dict['detection_boxes'],
+  #     output_dict['detection_classes'],
+  #     output_dict['detection_scores'],
+  #     category_index,
+  #     instance_masks=output_dict.get('detection_masks'),
+  #     use_normalized_coordinates=True,
+  #     line_thickness=2)
+  # plt.figure(figsize=IMAGE_SIZE)
+  # plt.imshow(image_np)
+  # plt.savefig("test.png")

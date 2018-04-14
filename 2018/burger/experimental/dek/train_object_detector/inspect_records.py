@@ -16,10 +16,10 @@ for record in tf.python_io.tf_record_iterator("data/burgers_train.record"):
     ymax = f['image/object/bbox/ymax'].float_list.value[0]
     e = f['image/encoded'].bytes_list.value[0]
     i = Image.open(io.BytesIO(e))
-    print xmin*width, ymin*height, xmax*width, ymax*height
+    i.save("decoded/%s_%03d_%03d_%03d_%03d.nobox.png" % (class_text, int(round(xmin*width)), int(round(ymin*height)), int(round(xmax*width)), int(round(ymax*height))))
     
     draw = ImageDraw.Draw(i)
     draw.rectangle([xmin*width, ymin*height, xmax*width, ymax*height], outline="rgb(255,0,0)")
-    i.save("decoded/%s_%d_%d_%d_%d.png" % (class_text, int(round(xmin*width)), int(round(ymin*height)), int(round(xmax*width)), int(round(ymax*height))))
+    i.save("decoded/%s_%03d_%03d_%03d_%03d.png" % (class_text, int(round(xmin*width)), int(round(ymin*height)), int(round(xmax*width)), int(round(ymax*height))))
     # v2 = f['float feature'].float_list.value[0]
     # v3 = f['bytes feature'].bytes_list.value[0]

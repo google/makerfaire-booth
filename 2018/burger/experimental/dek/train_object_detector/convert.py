@@ -1,3 +1,4 @@
+import itertools
 import os
 import math
 import io
@@ -27,9 +28,9 @@ for layer in BurgerElement.__members__:
 layers = BurgerElement.__members__.keys()
 
 def get_orientations():
-  rot = numpy.linspace(-math.pi, math.pi, 10)
-  tx = numpy.linspace(-100, 100, 200)
-  ty = numpy.linspace(-100, 100, 200)
+  rot = numpy.linspace(-math.pi, math.pi, 10, endpoint=False)
+  tx = numpy.linspace(-25, 25, 10)
+  ty = numpy.linspace(-25, 25, 10)
   scale = numpy.linspace(0.25, 4, 10)
   return rot, tx, ty, scale
   
@@ -39,7 +40,7 @@ def get_random_orientation():
     ty = numpy.random.uniform(-100, 100)
     scale = numpy.random.uniform(0.25, 4)
     return rot, tx, ty, scale
-  
+   
 def draw_example(layer, width, height, rot, tx, ty, scale, clear_background=True):
     img = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     ctx = cairo.Context(img)
@@ -51,6 +52,7 @@ def draw_example(layer, width, height, rot, tx, ty, scale, clear_background=True
     
     ctx.translate(width/2 - dims[0]/2, height/2 - dims[1]/2)
     ctx.translate(dims[0]/2, dims[1]/2)
+    
     ctx.translate(tx, ty)
     ctx.rotate(rot)
     ctx.scale(scale, scale)
@@ -65,19 +67,15 @@ def get_bbox(a, width, height):
     bbox = numpy.min(x[1]), numpy.min(x[0]), numpy.max(x[1]), numpy.max(x[0])
     return bbox
 
-def get_example():
+def get_example(layer, rot, tx, ty, scale):
+      
     width = int(256)
     height = int(256)
-
-    layer = random.choice(layers)
-    while layer == 'empty':
-      layer = random.choice(layers)
 
     # angles = numpy.linspace(0, math.pi*2,10, endpoint=False)
     img = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     ctx = cairo.Context(img)
 
-    rot, tx, ty, scale = get_random_orientation()
     img = draw_example(layer, width, height, rot, tx, ty, scale, clear_background=False)
     a = numpy.ndarray(shape=(width, height, 4), dtype=numpy.uint8, buffer=img.get_data())
     a = a[...,[2,1,0,3]]
@@ -94,12 +92,13 @@ def get_example():
     im = Image.fromarray(a, mode='RGBA')
     arr = io.BytesIO()
     im.save(arr, format='PNG')
-    
-    fname = os.path.join("images", "%s_%.2f_%.2f_%.2f_%.2f.png" % (layer, rot, tx, ty, scale))
-    if os.path.exists(fname):
-      print "already exists", fname
-    else:
-      im.save(fname)
+
+    # fname = os.path.join("images", "%s_%.2f_%.2f_%.2f_%.2f.png" % (layer, rot, tx, ty, scale))
+    # if os.path.exists(fname):
+    #   print "already exists", fname
+    #   return None
+    # else:
+    #   im.save(fname)
 
     example = {
       'width': im.width,
@@ -151,10 +150,27 @@ def main(_):
   train_writer = tf.python_io.TFRecordWriter(FLAGS.train_output_path)
   eval_writer = tf.python_io.TFRecordWriter(FLAGS.eval_output_path)
 
-  rot, tx, ty, scale = get_orientations()
-  
+
+  rots, txs, tys, scales = get_orientations()
+  all = list(itertools.product(layers[1:], rots, txs, tys, scales))
+  for i, ev in enumerate(all):
+    if (i % 1000) == 0:
+      print i, i/float(len(all))*100.
+    layer, rot, tx, ty, scale = ev
+    
+    example = get_example(layer, rot, tx, ty, scale)
+    if example is None:
+        continue
+    writer = train_writer if random.random() < .7 else eval_writer
+    tf_example = create_tf_example(example, writer)
+    
   # while True:
-  #   example = get_example()
+  #   layer = random.choice(layers)
+  #   while layer == 'empty':
+  #     layer = random.choice(layers)
+
+  #   rot, tx, ty, scale = get_random_orientation()
+  #   example = get_example(layer, rot, tx, ty, scale)
   #   if example is None:
   #     continue
   #   writer = train_writer if random.random() < .7 else eval_writer
