@@ -1,3 +1,4 @@
+import numpy
 import os
 import math
 import sys
@@ -31,15 +32,28 @@ def draw_example(layer, width, height, scale, clear_background=True):
     ctx.translate(-dims[0]/2, -dims[1]/2)
     handle.render_cairo(ctx)
 
-    img.write_to_png(os.path.join("canonical", layer + ".png"))
+    return img
 
+def get_bbox(a, width, height):
+    alpha = a[:, :, 3]
+    x = numpy.where(alpha != 0)
+    bbox = numpy.min(x[1]), numpy.min(x[0]), numpy.max(x[1]), numpy.max(x[0])
+    return bbox
 
 def main():
     width = 256
     height = 256
-    scale = 3
+    scale = 2
     for layer in layers[1:]:
-        draw_example(layer, width, height, scale)
+        img = draw_example(layer, width, height, scale, clear_background=False)
+        a = numpy.ndarray(shape=(width, height, 4), dtype=numpy.uint8, buffer=img.get_data())
+        a = a[...,[2,1,0,3]]
+        bbox = get_bbox(a, width, height)
+        crop_width = (bbox[2]-bbox[0])*2
+        crop_height = (bbox[3]-bbox[1])*2
+        img = draw_example(layer, crop_width, crop_height, scale)
+        
+        img.write_to_png(os.path.join("canonical", layer + ".png"))
 
 
 if __name__ == '__main__':
