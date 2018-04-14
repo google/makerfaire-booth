@@ -1,4 +1,5 @@
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 from matplotlib import pyplot as plt
 import numpy as np
 from PIL import Image
@@ -47,7 +48,6 @@ def run_inference_for_single_image(image, graph):
       # Run inference
       output_dict = sess.run(tensor_dict,
                              feed_dict={image_tensor: np.expand_dims(image, 0)})
-
       # all outputs are float32 numpy arrays, so convert types as appropriate
       output_dict['num_detections'] = int(output_dict['num_detections'][0])
       output_dict['detection_classes'] = output_dict[
@@ -67,18 +67,13 @@ with detection_graph.as_default():
     tf.import_graph_def(od_graph_def, name='')
 label_map = label_map_util.load_labelmap("data/burgers_label_map.pb.txt")
                                       
-categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=2, use_display_name=True)
+categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=6, use_display_name=True)
 category_index = label_map_util.create_category_index(categories)
-
 # Size, in inches, of the output images.
 IMAGE_SIZE = (12, 8)
 
-
-TEST_IMAGE_PATHS = []
-for layer in 'topbun', 'lettuce', 'tomato', 'cheese', 'patty', 'bottombun':
-  TEST_IMAGE_PATHS.append(os.path.join("../template_matching/canonical", layer + ".png"))
-
-for image_path in TEST_IMAGE_PATHS:
+def eval(layer):
+  image_path = os.path.join("../template_matching/canonical", layer + ".png")
   image = Image.open(image_path)
   # the array based representation of the image will be used later in order to prepare the
   # result image with boxes and labels on it.
@@ -89,15 +84,45 @@ for image_path in TEST_IMAGE_PATHS:
   output_dict = run_inference_for_single_image(image_np, detection_graph)
   # Visualization of the results of a detection.
   print output_dict['detection_scores'][0], output_dict['detection_classes'][0]
-  # vis_util.visualize_boxes_and_labels_on_image_array(
-  #     image_np,
-  #     output_dict['detection_boxes'],
-  #     output_dict['detection_classes'],
-  #     output_dict['detection_scores'],
-  #     category_index,
-  #     instance_masks=output_dict.get('detection_masks'),
-  #     use_normalized_coordinates=True,
-  #     line_thickness=2)
-  # plt.figure(figsize=IMAGE_SIZE)
-  # plt.imshow(image_np)
-  # plt.savefig("test.png")
+  vis_util.visualize_boxes_and_labels_on_image_array(
+      image_np,
+      output_dict['detection_boxes'],
+      output_dict['detection_classes'],
+      output_dict['detection_scores'],
+      category_index,
+      instance_masks=output_dict.get('detection_masks'),
+      use_normalized_coordinates=True,
+      line_thickness=2)
+  plt.figure(figsize=IMAGE_SIZE)
+  plt.imshow(image_np)
+  plt.savefig("eval_images/test.%s.png" % layer)
+
+def eval_image():
+  image_path = os.path.join("../../../machine/data/all.big/burgers", "burger_000156.png")
+  image = Image.open(image_path)
+  # the array based representation of the image will be used later in order to prepare the
+  # result image with boxes and labels on it.
+  image_np = load_image_into_numpy_array(image)
+  # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+  image_np_expanded = np.expand_dims(image_np, axis=0)
+  # Actual detection.
+  output_dict = run_inference_for_single_image(image_np, detection_graph)
+  # Visualization of the results of a detection.
+  print output_dict['detection_scores'], output_dict['detection_classes']
+  vis_util.visualize_boxes_and_labels_on_image_array(
+      image_np,
+      output_dict['detection_boxes'],
+      output_dict['detection_classes'],
+      output_dict['detection_scores'],
+      category_index,
+      min_score_thresh=0.1,
+      instance_masks=output_dict.get('detection_masks'),
+      use_normalized_coordinates=True,
+      line_thickness=2)
+  plt.figure(figsize=IMAGE_SIZE)
+  plt.imshow(image_np)
+  plt.savefig("eval_images/test.png")
+
+# for layer in 'topbun', 'lettuce', 'tomato', 'cheese', 'patty', 'bottombun':
+#   eval(layer)
+eval_image()
