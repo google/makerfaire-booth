@@ -1,3 +1,4 @@
+import time
 import io
 import cairo
 import numpy
@@ -5,9 +6,10 @@ import math
 import signal                                    
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 import os
+import skimage
 from skimage import transform
 from skimage.transform import ProjectiveTransform, SimilarityTransform
-from skimage.measure import ransac
+from skimage.measure import ransac, compare_ssim
 from scipy.misc import imshow
 
 import sys
@@ -31,9 +33,9 @@ for layer in BurgerElement.__members__:
 
 def get_random_orientation():
     rot = numpy.random.uniform(-math.pi, math.pi)
-    tx = numpy.random.uniform(-100, 100)
-    ty = numpy.random.uniform(-100, 100)
-    scale = numpy.random.uniform(0.75, 4)
+    tx = numpy.random.uniform(-25, 25)
+    ty = numpy.random.uniform(-25, 25)
+    scale = numpy.random.uniform(0.75, 2)
     return rot, tx, ty, scale
   
 def draw_example(layer, width, height, rot, tx, ty, scale, clear_background=True):
@@ -66,7 +68,10 @@ def main():
     template = os.path.join(canonical_dir, 'patty.png')
 
     img1 = imread(template)
-    print img1.shape, img1.dtype
+    # img1_padded = numpy.zeros( (256, 256,3), dtype=numpy.uint8)
+    img1_padded = numpy.resize( [255,255,255], (256, 256, 3))
+    s = img1.shape
+    img1_padded[:s[0], :s[1]] = img1
     img1_gray = rgb2gray(img1)
 
     descriptor_extractor = ORB()
@@ -81,7 +86,6 @@ def main():
         rot, tx, ty, scale = get_random_orientation()
         # img2 = imread(moving)
         img2 = draw_example('patty', 256, 256, rot, tx, ty, scale)
-        print img2.shape, img2.dtype
         img2_gray = rgb2gray(img2)
 
         try:
@@ -103,25 +107,20 @@ def main():
         if not model_robust:
             print "bad"
             continue
-        img2_transformed = transform.warp(img2, model_robust.inverse)
-
-        # tf = SimilarityTransform()
-        # tf.estimate(src, dst)
-        # n = os.path.basename(moving)
-        # img2_transformed = transform.warp(img2, inverse_map=tf.inverse)
-
-
+        img2_transformed = transform.warp(img2, model_robust.inverse, mode='constant', cval=1)
+        img1_padded_float = img1_padded.astype(numpy.float64)/255.
+        sub = img2_transformed - img1_padded_float
+        print compare_ssim(img2_transformed, img1_padded_float, win_size=5, multichannel=True)
         fig, axes = plt.subplots(2, 2, figsize=(7, 6), sharex=True, sharey=True)
         ax = axes.ravel()
 
-
-        ax[0].imshow(img1)
+        ax[0].imshow(img1_padded_float)
         ax[1].imshow(img2)
         ax[1].set_title("Template image")
         ax[2].imshow(img2_transformed)
         ax[2].set_title("Matched image")
-
-        print scale
+        ax[3].imshow(sub)
+        ax[3].set_title("Subtracted image")
         # plt.gray()
 
         # ax = plt.gca()
