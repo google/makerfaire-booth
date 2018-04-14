@@ -26,6 +26,13 @@ for layer in BurgerElement.__members__:
 
 layers = BurgerElement.__members__.keys()
 
+def get_orientations():
+  rot = numpy.linspace(-math.pi, math.pi, 10)
+  tx = numpy.linspace(-100, 100, 200)
+  ty = numpy.linspace(-100, 100, 200)
+  scale = numpy.linspace(0.25, 4, 10)
+  return rot, tx, ty, scale
+  
 def get_random_orientation():
     rot = numpy.random.uniform(-math.pi, math.pi)
     tx = numpy.random.uniform(-100, 100)
@@ -144,16 +151,18 @@ def main(_):
   train_writer = tf.python_io.TFRecordWriter(FLAGS.train_output_path)
   eval_writer = tf.python_io.TFRecordWriter(FLAGS.eval_output_path)
 
-  while True:
-    example = get_example()
-    if example is None:
-      continue
-    writer = train_writer if random.random() < .7 else eval_writer
-    tf_example = create_tf_example(example, writer)
+  rot, tx, ty, scale = get_orientations()
+  
+  # while True:
+  #   example = get_example()
+  #   if example is None:
+  #     continue
+  #   writer = train_writer if random.random() < .7 else eval_writer
+  #   tf_example = create_tf_example(example, writer)
 
 
-  train_writer.close()
-  eval_writer.close()
+  # train_writer.close()
+  # eval_writer.close()
 
 
 if __name__ == '__main__':
