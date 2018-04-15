@@ -29,9 +29,9 @@ layers = BurgerElement.__members__.keys()
 
 def get_orientations():
   rot = numpy.linspace(-math.pi, math.pi, 10, endpoint=False)
-  tx = numpy.linspace(-25, 25, 10)
-  ty = numpy.linspace(-25, 25, 10)
-  scale = numpy.linspace(0.25, 4, 10)
+  tx = numpy.linspace(0, 0, 1)
+  ty = numpy.linspace(0, 0, 1)
+  scale = numpy.linspace(1, 1, 1)
   return rot, tx, ty, scale
   
 def get_random_orientation():
@@ -93,12 +93,12 @@ def get_example(layer, rot, tx, ty, scale):
     arr = io.BytesIO()
     im.save(arr, format='PNG')
 
-    # fname = os.path.join("images", "%s_%.2f_%.2f_%.2f_%.2f.png" % (layer, rot, tx, ty, scale))
-    # if os.path.exists(fname):
-    #   print "already exists", fname
-    #   return None
-    # else:
-    #   im.save(fname)
+    fname = os.path.join("images", "%s_%.2f_%.2f_%.2f_%.2f.png" % (layer, rot, tx, ty, scale))
+    if os.path.exists(fname):
+      print "already exists", fname
+      return None
+    else:
+      im.save(fname)
 
     example = {
       'width': im.width,
@@ -152,7 +152,9 @@ def main(_):
 
 
   rots, txs, tys, scales = get_orientations()
+  print txs
   all = list(itertools.product(layers[1:], rots, txs, tys, scales))
+  print all
   for i, ev in enumerate(all):
     if (i % 1000) == 0:
       print i, i/float(len(all))*100.
