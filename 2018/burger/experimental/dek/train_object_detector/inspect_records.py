@@ -4,7 +4,7 @@ import tensorflow as tf
 
 
 example = tf.train.Example()
-for record in tf.python_io.tf_record_iterator("data/burgers_train.record"):
+for record in tf.python_io.tf_record_iterator("data/burgers_eval.record"):
     example.ParseFromString(record)
     f = example.features.feature
     height = f['image/height'].int64_list.value[0]
@@ -21,5 +21,3 @@ for record in tf.python_io.tf_record_iterator("data/burgers_train.record"):
     draw = ImageDraw.Draw(i)
     draw.rectangle([xmin*width, ymin*height, xmax*width, ymax*height], outline="rgb(255,0,0)")
     i.save("decoded/%s_%03d_%03d_%03d_%03d.png" % (class_text, int(round(xmin*width)), int(round(ymin*height)), int(round(xmax*width)), int(round(ymax*height))))
-    # v2 = f['float feature'].float_list.value[0]
-    # v3 = f['bytes feature'].bytes_list.value[0]

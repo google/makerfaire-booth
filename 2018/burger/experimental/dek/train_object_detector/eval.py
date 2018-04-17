@@ -73,7 +73,7 @@ category_index = label_map_util.create_category_index(categories)
 IMAGE_SIZE = (12, 8)
 
 def eval(layer):
-  image_path = os.path.join("../template_matching/canonical", layer + ".png")
+  image_path = os.path.join("canonical", layer + ".png")
   image = Image.open(image_path)
   # the array based representation of the image will be used later in order to prepare the
   # result image with boxes and labels on it.
@@ -97,8 +97,7 @@ def eval(layer):
   plt.imshow(image_np)
   plt.savefig("eval_images/test.%s.png" % layer)
 
-def eval_image():
-  image_path = os.path.join("../../../machine/data/all.big/burgers", "burger_000156.png")
+def eval_image(image_path):
   image = Image.open(image_path)
   # the array based representation of the image will be used later in order to prepare the
   # result image with boxes and labels on it.
@@ -123,6 +122,10 @@ def eval_image():
   plt.imshow(image_np)
   plt.savefig("eval_images/test.png")
 
-# for layer in 'topbun', 'lettuce', 'tomato', 'cheese', 'patty', 'bottombun':
-#   eval(layer)
-eval_image()
+for layer in 'topbun', 'lettuce', 'tomato', 'cheese', 'patty', 'bottombun':
+  eval(layer)
+image_path = os.path.join("../../../machine/data/all.big/burgers", "burger_000156.png")
+eval_image(image_path)
+# image_path = "decoded/tomato_101_113_159_126.nobox.png"
+image_path = "decoded/lettuce_001_075_251_148.nobox.png"
+eval_image(image_path)

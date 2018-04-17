@@ -1,3 +1,4 @@
+import random
 import itertools
 import os
 import math
@@ -21,24 +22,24 @@ FLAGS = flags.FLAGS
 
 handles = {}
 for layer in BurgerElement.__members__:
-  if layer != 'empty':
-    layer_name = "../../../assets/%s.svg" % layer
-    handles[layer] = rsvg.Handle(layer_name)
+    if layer != 'empty':
+      layer_name = "../../../assets/%s.svg" % layer
+      handles[layer] = rsvg.Handle(layer_name)
 
 layers = BurgerElement.__members__.keys()
 
 def get_orientations():
-  rot = numpy.linspace(-math.pi, math.pi, 10, endpoint=False)
-  tx = numpy.linspace(0, 0, 1)
-  ty = numpy.linspace(0, 0, 1)
-  scale = numpy.linspace(1, 1, 1)
-  return rot, tx, ty, scale
+    rot = numpy.linspace(-math.pi, math.pi, 8, endpoint=False)
+    tx = numpy.linspace(-10, 10, 5)
+    ty = numpy.linspace(-10, 10, 5)
+    scale = numpy.linspace(1, 4, 4)
+    return rot, tx, ty, scale
   
 def get_random_orientation():
     rot = numpy.random.uniform(-math.pi, math.pi)
-    tx = numpy.random.uniform(-100, 100)
-    ty = numpy.random.uniform(-100, 100)
-    scale = numpy.random.uniform(0.25, 4)
+    tx = numpy.random.uniform(-25, 25)
+    ty = numpy.random.uniform(-25, 25)
+    scale = numpy.random.uniform(1, 4)
     return rot, tx, ty, scale
    
 def draw_example(layer, width, height, rot, tx, ty, scale, clear_background=True):
@@ -68,6 +69,7 @@ def get_bbox(a, width, height):
     return bbox
 
 def get_example(layer, rot, tx, ty, scale):
+    fname = os.path.join("images", "%s_%.2f_%.2f_%.2f_%.2f.png" % (layer, rot, tx, ty, scale))
       
     width = int(256)
     height = int(256)
@@ -92,13 +94,6 @@ def get_example(layer, rot, tx, ty, scale):
     im = Image.fromarray(a, mode='RGBA')
     arr = io.BytesIO()
     im.save(arr, format='PNG')
-
-    fname = os.path.join("images", "%s_%.2f_%.2f_%.2f_%.2f.png" % (layer, rot, tx, ty, scale))
-    if os.path.exists(fname):
-      print "already exists", fname
-      return None
-    else:
-      im.save(fname)
 
     example = {
       'width': im.width,
@@ -152,9 +147,8 @@ def main(_):
 
 
   rots, txs, tys, scales = get_orientations()
-  print txs
   all = list(itertools.product(layers[1:], rots, txs, tys, scales))
-  print all
+  random.shuffle(all)
   for i, ev in enumerate(all):
     if (i % 1000) == 0:
       print i, i/float(len(all))*100.
@@ -179,8 +173,8 @@ def main(_):
   #   tf_example = create_tf_example(example, writer)
 
 
-  # train_writer.close()
-  # eval_writer.close()
+  train_writer.close()
+  eval_writer.close()
 
 
 if __name__ == '__main__':
