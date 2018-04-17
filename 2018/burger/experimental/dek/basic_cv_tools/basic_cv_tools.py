@@ -4,6 +4,21 @@ import sys
 from PySide import QtGui, QtCore, QtSvg
 import cv2
 
+def canny(img):
+    edged = cv2.Canny(img, 40, 200)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    closed = cv2.morphologyEx(edged, cv2.MORPH_CLOSE, kernel)
+    im2, contours, hierarchy = cv2.findContours(closed.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+    if len(contours):
+        c = contours[0]
+        peri = cv2.arcLength(c, True)
+        approx = cv2.approxPolyDP(c, 0.01 * peri, True)
+        cv2.drawContours(img, [approx], -1, (0, 255, 0), 1)
+
+
+    return QtGui.QImage(img.data, 1024, 768, QtGui.QImage.Format_RGB888)
+
 class QGraphicsSvgItem(QtSvg.QGraphicsSvgItem):
     def __init__(self, *args, **kwargs):
         super(QGraphicsSvgItem, self).__init__(*args, **kwargs)
@@ -62,20 +77,7 @@ class Widget(QtGui.QWidget):
         painter.end()
         bits = image.constBits()
         img = numpy.fromstring(image.constBits(), dtype=numpy.uint8).reshape(768, 1024, 3)
-        cv2.imwrite("test.png", img)
-        edged = cv2.Canny(img, 40, 200)
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-        closed = cv2.morphologyEx(edged, cv2.MORPH_CLOSE, kernel)
-        im2, contours, hierarchy = cv2.findContours(closed.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
-        if len(contours):
-            c = contours[0]
-            peri = cv2.arcLength(c, True)
-            approx = cv2.approxPolyDP(c, 0.01 * peri, True)
-            cv2.drawContours(img, [approx], -1, (0, 255, 0), 1)
-
-
-        image = QtGui.QImage(img.data, 1024, 768, QtGui.QImage.Format_RGB888)
+        image = canny(img)
         pixmap = QtGui.QPixmap.fromImage(image)
         self.image_widget.setPixmap(pixmap)
         
