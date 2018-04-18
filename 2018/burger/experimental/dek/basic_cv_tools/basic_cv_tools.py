@@ -4,7 +4,7 @@ import sys
 #from PySide import QtGui, QtCore, QtSvg
 from PyQt5 import QtGui, QtCore, QtSvg, QtWidgets
 #from canny import canny
-# from object_detector import ObjectDetector
+from object_detector import ObjectDetector
 
 WIDTH=640
 HEIGHT=480
@@ -67,6 +67,51 @@ class QGraphicsPixmapItem(QtWidgets.QGraphicsPixmapItem):
         
         return super(QGraphicsPixmapItem, self).mousePressEvent(event)
 
+class QGraphicsView(QtWidgets.QGraphicsView):
+    def __init__(self, *args, **kwargs):
+        super(QGraphicsView, self).__init__(*args, **kwargs)
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, e):
+        print "dEE"
+        if e.mimeData().hasFormat('text/plain'):
+            print "Accept"
+            e.accept()
+        else:
+            e.ignore() 
+    def dragMoveEvent(self, e):
+        print "dME"
+        if e.mimeData().hasFormat('text/plain'):
+            print "Accept"
+            e.accept()
+        else:
+            e.ignore() 
+
+    def dropEvent(self, e):
+        print "dro", e
+        path = e.mimeData().text()
+        item = QGraphicsSvgItem(path)
+        item.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable)
+        item.setScale(2)
+        self.scene().addItem(item)
+
+class QSvgWidget(QtSvg.QSvgWidget):
+    def __init__(self, *args, **kwargs):
+        self.path = args[0]
+        super(QSvgWidget, self).__init__(*args, **kwargs)
+        
+    def mousePressEvent(self, event):
+        if (event.buttons() & QtCore.Qt.LeftButton):
+            mimeData = QtCore.QMimeData()
+            mimeData.setText(self.path)
+            drag = QtGui.QDrag(self)
+            drag.setMimeData(mimeData)
+            dropAction = drag.exec_(QtCore.Qt.MoveAction)
+            return
+        
+        return super(QSvgWidget, self).mousePressEvent(event)
+
+
 class Widget(QtWidgets.QWidget):
     def __init__(self):
         super(Widget, self).__init__()
@@ -74,7 +119,7 @@ class Widget(QtWidgets.QWidget):
         self.scene = QtWidgets.QGraphicsScene()
         self.scene.setSceneRect(0, 0, WIDTH, HEIGHT)
         self.scene.changed.connect(self.changed)
-        self.view = QtWidgets.QGraphicsView(self.scene)
+        self.view = QGraphicsView(self.scene)
         self.view.setFixedSize(WIDTH,HEIGHT)
         self.view.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 	self.view.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -96,12 +141,13 @@ class Widget(QtWidgets.QWidget):
         self.icons = QtWidgets.QWidget(self)
         self.iconsLayout = QtWidgets.QVBoxLayout()
         self.icons.setLayout(self.iconsLayout)
-        self.topbun = QtSvg.QSvgWidget("../../../assets/topbun.svg")
-        self.lettuce = QtSvg.QSvgWidget("../../../assets/lettuce.svg")
-        self.tomato = QtSvg.QSvgWidget("../../../assets/tomato.svg")
-        self.cheese = QtSvg.QSvgWidget("../../../assets/cheese.svg")
-        self.patty = QtSvg.QSvgWidget("../../../assets/patty.svg")
-        self.bottombun = QtSvg.QSvgWidget("../../../assets/bottombun.svg")
+        
+        self.topbun = QSvgWidget("../../../assets/topbun.svg")
+        self.lettuce = QSvgWidget("../../../assets/lettuce.svg")
+        self.tomato = QSvgWidget("../../../assets/tomato.svg")
+        self.cheese = QSvgWidget("../../../assets/cheese.svg")
+        self.patty = QSvgWidget("../../../assets/patty.svg")
+        self.bottombun = QSvgWidget("../../../assets/bottombun.svg")
         self.iconsLayout.addWidget(self.topbun)
         self.iconsLayout.addWidget(self.lettuce)
         self.iconsLayout.addWidget(self.tomato)
@@ -120,19 +166,20 @@ class Widget(QtWidgets.QWidget):
         self.layout.addWidget(self.icons)
         # self.layout.addWidget(self.buttons)
         self.layout.addWidget(self.view)
-        # self.layout.addWidget(self.image_widget)
+        self.layout.addWidget(self.image_widget)
         self.setLayout(self.layout)
 
-        # self.objdet = ObjectDetector()
+        self.objdet = ObjectDetector()
         
-
+    def topbun_clicked(self, *args):
+        print args
+        
     def buttonAClicked(self, *args):
         print args
         self.classify()
         
     def changed(self):
-        pass
-        # self.classify()
+        self.classify()
         
     def classify(self):
         image = QtGui.QImage(QtCore.QSize(WIDTH, HEIGHT), QtGui.QImage.Format_RGB888)
