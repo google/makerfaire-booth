@@ -1,9 +1,13 @@
 import numpy as np
 import signal
 import sys
-from PySide import QtGui, QtCore, QtSvg
-from canny import canny
-from object_detector import ObjectDetector
+#from PySide import QtGui, QtCore, QtSvg
+from PyQt5 import QtGui, QtCore, QtSvg, QtWidgets
+#from canny import canny
+# from object_detector import ObjectDetector
+
+WIDTH=640
+HEIGHT=480
 
 labels = {
     0: 'empty',
@@ -39,7 +43,7 @@ class QGraphicsSvgItem(QtSvg.QGraphicsSvgItem):
         
         return super(QGraphicsSvgItem, self).mousePressEvent(event)
 
-class QGraphicsPixmapItem(QtGui.QGraphicsPixmapItem):
+class QGraphicsPixmapItem(QtWidgets.QGraphicsPixmapItem):
     def __init__(self, *args, **kwargs):
         super(QGraphicsPixmapItem, self).__init__(*args, **kwargs)
 
@@ -63,45 +67,84 @@ class QGraphicsPixmapItem(QtGui.QGraphicsPixmapItem):
         
         return super(QGraphicsPixmapItem, self).mousePressEvent(event)
 
-class Widget(QtGui.QWidget):
+class Widget(QtWidgets.QWidget):
     def __init__(self):
-        QtGui.QWidget.__init__(self)
+        super(Widget, self).__init__()
 
-        self.scene = QtGui.QGraphicsScene()
-        self.scene.setSceneRect(0, 0, 1024, 768)
+        self.scene = QtWidgets.QGraphicsScene()
+        self.scene.setSceneRect(0, 0, WIDTH, HEIGHT)
         self.scene.changed.connect(self.changed)
-        self.view = QtGui.QGraphicsView(self.scene)
-        self.view.setFixedSize(1024,768)
+        self.view = QtWidgets.QGraphicsView(self.scene)
+        self.view.setFixedSize(WIDTH,HEIGHT)
         self.view.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 	self.view.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.view.setMouseTracking(True)
-        topbun_webcam = QGraphicsPixmapItem("/home/dek/Downloads/my_photo-1-crop.jpg")
-        topbun_webcam.setFlags(QtGui.QGraphicsItem.ItemIsMovable)
-        # lettuce = QGraphicsSvgItem("../../../assets/topbun.svg")
-        # lettuce.setFlags(QtGui.QGraphicsItem.ItemIsMovable)
+        pixmap = QtGui.QPixmap("my_photo-1-crop.jpg")
+        # topbun_webcam = QGraphicsPixmapItem(pixmap)
+        # topbun_webcam.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable)
+        # topbun_webcam.setScale(2)
+        # self.scene.addItem(topbun_webcam)
+
+        # lettuce = QGraphicsSvgItem("../../../assets/lettuce.svg")
+        # lettuce.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable)
         # lettuce.setScale(2)
-        self.scene.addItem(topbun_webcam)
+        # self.scene.addItem(lettuce)
 
-        self.image_widget = QtGui.QLabel(self)
-        self.image_widget.setFixedSize(1024,768)
+        self.image_widget = QtWidgets.QLabel(self)
+        self.image_widget.setFixedSize(WIDTH,HEIGHT)
 
-        self.layout = QtGui.QVBoxLayout()
+        self.icons = QtWidgets.QWidget(self)
+        self.iconsLayout = QtWidgets.QVBoxLayout()
+        self.icons.setLayout(self.iconsLayout)
+        self.topbun = QtSvg.QSvgWidget("../../../assets/topbun.svg")
+        self.lettuce = QtSvg.QSvgWidget("../../../assets/lettuce.svg")
+        self.tomato = QtSvg.QSvgWidget("../../../assets/tomato.svg")
+        self.cheese = QtSvg.QSvgWidget("../../../assets/cheese.svg")
+        self.patty = QtSvg.QSvgWidget("../../../assets/patty.svg")
+        self.bottombun = QtSvg.QSvgWidget("../../../assets/bottombun.svg")
+        self.iconsLayout.addWidget(self.topbun)
+        self.iconsLayout.addWidget(self.lettuce)
+        self.iconsLayout.addWidget(self.tomato)
+        self.iconsLayout.addWidget(self.cheese)
+        self.iconsLayout.addWidget(self.patty)
+        self.iconsLayout.addWidget(self.bottombun)
+
+        self.buttons = QtWidgets.QWidget(self)
+        self.buttonsLayout = QtWidgets.QHBoxLayout()
+        self.buttons.setLayout(self.buttonsLayout)
+        self.buttonA = QtWidgets.QPushButton("Classify")
+        self.buttonA.clicked.connect(self.buttonAClicked)
+        self.buttonsLayout.addWidget(self.buttonA)
+
+        self.layout = QtWidgets.QHBoxLayout(self)
+        self.layout.addWidget(self.icons)
+        # self.layout.addWidget(self.buttons)
         self.layout.addWidget(self.view)
-        self.layout.addWidget(self.image_widget)
+        # self.layout.addWidget(self.image_widget)
         self.setLayout(self.layout)
-        self.objdet = ObjectDetector()
+
+        # self.objdet = ObjectDetector()
         
 
+    def buttonAClicked(self, *args):
+        print args
+        self.classify()
+        
     def changed(self):
-        image = QtGui.QImage(QtCore.QSize(1024, 768), QtGui.QImage.Format_RGB888)
+        pass
+        # self.classify()
+        
+    def classify(self):
+        image = QtGui.QImage(QtCore.QSize(WIDTH, HEIGHT), QtGui.QImage.Format_RGB888)
         image.fill(QtCore.Qt.white)
 
         painter = QtGui.QPainter(image)
         self.scene.render(painter)
         painter.end()
-        bits = image.constBits()
-        img = np.fromstring(image.constBits(), dtype=np.uint8).reshape(768, 1024, 3)
-        # image = canny(img)
+        bits = image.constBits().asstring(HEIGHT*WIDTH*3)
+        img = np.fromstring(bits, dtype=np.uint8).reshape(HEIGHT, WIDTH, 3)
+        # ret = canny(img)        
+        # image = QtGui.QImage(ret.data, WIDTH, HEIGHT, QtGui.QImage.Format_RGB888)
 
         h, w, _ = img.shape
         
@@ -134,7 +177,7 @@ class Widget(QtGui.QWidget):
         
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
         
     widget = Widget()
     widget.show()

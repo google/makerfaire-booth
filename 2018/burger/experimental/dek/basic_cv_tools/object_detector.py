@@ -1,4 +1,3 @@
-from PIL import Image
 import tensorflow as tf
 import numpy as np
 import os
@@ -8,7 +7,7 @@ import sys
 sys.path.insert(0, '/home/dek/workspace/models/research')
 sys.path.insert(0, '/home/dek/workspace/models/research/object_detection')
 sys.path.insert(0, '/home/dek/workspace/models/research/object_detection/utils')
-from utils import label_map_util
+from object_detection.utils import label_map_util
 
 PATH_TO_CKPT="../train_object_detector/output_inference_graph/frozen_inference_graph.pb"
 PATH_TO_LABELS="../train_object_detector/data/burgers_label_map.pb.txt"
