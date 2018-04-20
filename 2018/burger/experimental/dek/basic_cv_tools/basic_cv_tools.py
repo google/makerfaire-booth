@@ -73,26 +73,29 @@ class QGraphicsView(QtWidgets.QGraphicsView):
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, e):
-        print "dEE"
         if e.mimeData().hasFormat('text/plain'):
-            print "Accept"
             e.accept()
         else:
             e.ignore() 
+
     def dragMoveEvent(self, e):
-        print "dME"
         if e.mimeData().hasFormat('text/plain'):
-            print "Accept"
             e.accept()
         else:
             e.ignore() 
 
     def dropEvent(self, e):
-        print "dro", e
+        print e
+        print e.pos()
+        print self.mapToScene(e.pos())
         path = e.mimeData().text()
         item = QGraphicsSvgItem(path)
         item.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable)
         item.setScale(2)
+        rect = item.boundingRect()
+        newPos = self.mapToScene(e.pos()) - rect.bottomRight()
+        print newPos
+        item.setPos(newPos)
         self.scene().addItem(item)
 
 class QSvgWidget(QtSvg.QSvgWidget):
@@ -169,7 +172,7 @@ class Widget(QtWidgets.QWidget):
         self.layout.addWidget(self.image_widget)
         self.setLayout(self.layout)
 
-        self.objdet = ObjectDetector()
+        # self.objdet = ObjectDetector()
         
     def topbun_clicked(self, *args):
         print args
@@ -179,7 +182,8 @@ class Widget(QtWidgets.QWidget):
         self.classify()
         
     def changed(self):
-        self.classify()
+        pass
+        # self.classify()
         
     def classify(self):
         image = QtGui.QImage(QtCore.QSize(WIDTH, HEIGHT), QtGui.QImage.Format_RGB888)
