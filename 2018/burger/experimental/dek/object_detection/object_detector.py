@@ -1,12 +1,17 @@
-from PIL import Image
 import tensorflow as tf
 import numpy as np
 import os
 import urllib
 import tarfile
 import sys
-sys.path.insert(0, 'utils')
-import label_map_util
+sys.path.insert(0, '/home/dek/workspace/models/research')
+sys.path.insert(0, '/home/dek/workspace/models/research/object_detection')
+sys.path.insert(0, '/home/dek/workspace/models/research/object_detection/utils')
+from object_detection.utils import label_map_util
+
+PATH_TO_CKPT="../train_object_detector/output_inference_graph/frozen_inference_graph.pb"
+PATH_TO_LABELS="../train_object_detector/data/burgers_label_map.pb.txt"
+NUM_CLASSES=6
 
 def load_image_into_numpy_array(image):
   (im_width, im_height) = image.size
@@ -15,26 +20,6 @@ def load_image_into_numpy_array(image):
 
 class ObjectDetector:
   def __init__(self):
-    # What model to download.
-    MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
-    MODEL_FILE = MODEL_NAME + '.tar.gz'
-    DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
-
-    # Path to frozen detection graph. This is the actual model that is used for the object detection.
-    PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
-
-    # List of the strings that is used to add correct label for each box.
-    PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
-
-    NUM_CLASSES = 90
-    opener = urllib.URLopener()
-    opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
-    tar_file = tarfile.open(MODEL_FILE)
-    for file in tar_file.getmembers():
-      file_name = os.path.basename(file.name)
-      if 'frozen_inference_graph.pb' in file_name:
-        tar_file.extract(file, os.getcwd())
-
     self.detection_graph = tf.Graph()
     with self.detection_graph.as_default():
       od_graph_def = tf.GraphDef()
@@ -95,14 +80,3 @@ class ObjectDetector:
       if 'detection_masks' in output_dict:
         output_dict['detection_masks'] = output_dict['detection_masks'][0]
       return output_dict
-
-if __name__ == '__main__':
-    objdet = ObjectDetector()
-    PATH_TO_TEST_IMAGES_DIR = 'test_images'
-    TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 3) ]
-    for image_path in TEST_IMAGE_PATHS:
-      image = Image.open(image_path)
-      image_np = load_image_into_numpy_array(image)
-      image_np_expanded = np.expand_dims(image_np, axis=0)
-      result = objdet.detect(image_np_expanded)
-      print image_path, result
