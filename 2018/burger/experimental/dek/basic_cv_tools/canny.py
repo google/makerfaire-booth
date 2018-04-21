@@ -1,4 +1,4 @@
-from PySide import QtGui
+from PyQt5 import QtGui
 import cv2
 
 def canny(img):
@@ -13,6 +13,6 @@ def canny(img):
         approx = cv2.approxPolyDP(c, 0.01 * peri, True)
         cv2.drawContours(img, [approx], -1, (0, 255, 0), 1)
 
-
-    return QtGui.QImage(img.data, 1024, 768, QtGui.QImage.Format_RGB888)
+    w, h, _ = img.shape
+    return QtGui.QImage(img.data, h, w, QtGui.QImage.Format_RGB888)
 

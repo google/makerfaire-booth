@@ -1,10 +1,8 @@
 import numpy as np
 import signal
 import sys
-#from PySide import QtGui, QtCore, QtSvg
 from PyQt5 import QtGui, QtCore, QtSvg, QtWidgets
-#from canny import canny
-from object_detector import ObjectDetector
+from canny import canny
 
 WIDTH=640
 HEIGHT=480
@@ -178,7 +176,6 @@ class Widget(QtWidgets.QWidget):
         self.layout.addWidget(self.image_widget)
         self.setLayout(self.layout)
 
-        self.objdet = ObjectDetector()
         
     def topbun_clicked(self, *args):
         print args
@@ -193,42 +190,13 @@ class Widget(QtWidgets.QWidget):
     def classify(self):
         image = QtGui.QImage(QtCore.QSize(WIDTH, HEIGHT), QtGui.QImage.Format_RGB888)
         image.fill(QtCore.Qt.white)
-
         painter = QtGui.QPainter(image)
         self.scene.render(painter)
         painter.end()
         bits = image.constBits().asstring(HEIGHT*WIDTH*3)
         img = np.fromstring(bits, dtype=np.uint8).reshape(HEIGHT, WIDTH, 3)
-        # ret = canny(img)        
-        # image = QtGui.QImage(ret.data, WIDTH, HEIGHT, QtGui.QImage.Format_RGB888)
-
-        h, w, _ = img.shape
-        
-        expand = np.expand_dims(img, axis=0)
-        result = self.objdet.detect(expand)
-        boxes = []
-        for i in range(result['num_detections']):
-            if result['detection_scores'][i] > 0.4:
-                class_ = result['detection_classes'][i]
-                box = result['detection_boxes'][i]
-                score = result['detection_scores'][i]
-                y1, x1 = box[0] * h, box[1] * w
-                y2, x2 = box[2] * h, box[3] * w
-                boxes.append((class_, score, x1, y1, x2, y2))
-
-        image = QtGui.QImage(img.data, w, h, QtGui.QImage.Format_RGB888)
+        image = canny(img)
         pixmap = QtGui.QPixmap.fromImage(image)
-        p = QtGui.QPainter()
-        p.begin(pixmap)
-        for item in boxes:
-            p.setPen(QtCore.Qt.red)
-            class_, score, x1, y1, x2, y2 = item
-            w = x2-x1
-            h = y2-y1
-            p.drawRect(x1, y1, w, h)
-            p.drawText(x1, y1, "%s: %5.2f" % (labels[class_], score))
-        p.end ()
-        
         self.image_widget.setPixmap(pixmap)
         
 if __name__ == "__main__":
