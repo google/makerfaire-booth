@@ -85,15 +85,12 @@ class QGraphicsView(QtWidgets.QGraphicsView):
             e.ignore() 
 
     def dropEvent(self, e):
-        print e
-        print e.pos()
-        print self.mapToScene(e.pos())
         path = e.mimeData().text()
         item = QGraphicsSvgItem(path)
         item.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable)
-        item.setScale(2)
+        item.setScale(1.5)
         rect = item.boundingRect()
-        newPos = self.mapToScene(e.pos()) - rect.bottomRight()
+        newPos = self.mapToScene(e.pos())# - QtCore.QPoint(rect.bottomRight()))
         print newPos
         item.setPos(newPos)
         self.scene().addItem(item)
@@ -108,6 +105,14 @@ class QSvgWidget(QtSvg.QSvgWidget):
             mimeData = QtCore.QMimeData()
             mimeData.setText(self.path)
             drag = QtGui.QDrag(self)
+            image = QtGui.QImage(self.sizeHint(), QtGui.QImage.Format_RGB888)
+            image.fill(QtCore.Qt.white)
+            painter = QtGui.QPainter(image)
+            self.render(painter)
+            painter.end()
+            pixmap = QtGui.QPixmap(self.sizeHint())
+            pixmap.convertFromImage(image)
+            drag.setPixmap(pixmap)
             drag.setMimeData(mimeData)
             dropAction = drag.exec_(QtCore.Qt.MoveAction)
             return
@@ -142,6 +147,7 @@ class Widget(QtWidgets.QWidget):
         self.image_widget.setFixedSize(WIDTH,HEIGHT)
 
         self.icons = QtWidgets.QWidget(self)
+        self.icons.setFixedSize(128, 6*64)
         self.iconsLayout = QtWidgets.QVBoxLayout()
         self.icons.setLayout(self.iconsLayout)
         
@@ -172,7 +178,7 @@ class Widget(QtWidgets.QWidget):
         self.layout.addWidget(self.image_widget)
         self.setLayout(self.layout)
 
-        # self.objdet = ObjectDetector()
+        self.objdet = ObjectDetector()
         
     def topbun_clicked(self, *args):
         print args
@@ -182,8 +188,7 @@ class Widget(QtWidgets.QWidget):
         self.classify()
         
     def changed(self):
-        pass
-        # self.classify()
+        self.classify()
         
     def classify(self):
         image = QtGui.QImage(QtCore.QSize(WIDTH, HEIGHT), QtGui.QImage.Format_RGB888)
