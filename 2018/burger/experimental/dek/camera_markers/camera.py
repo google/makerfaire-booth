@@ -78,10 +78,10 @@ class CameraReader(QtCore.QThread):
                     for i, corner in enumerate(corners):
                         d[short_ids[i]] = corner
                     try:
-                        ul = d[3][0][2]
-                        ur = d[2][0][3]
-                        lr = d[0][0][0]
-                        ll = d[1][0][1]
+                        ul = d[1][0][0]
+                        ur = d[0][0][0]
+                        lr = d[2][0][0]
+                        ll = d[3][0][0]
                     except:
                         image = QtGui.QImage(img.data, w, h, QtGui.QImage.Format_RGB888).rgbSwapped()
                         image2 = None
