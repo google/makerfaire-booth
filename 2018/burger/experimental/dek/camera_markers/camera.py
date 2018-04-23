@@ -27,7 +27,8 @@ class MainWindow(QtGui.QMainWindow):
         self.image_widget.setPixmap(p)
         if image2:
             pixmap2 = QtGui.QPixmap.fromImage(image2)
-            self.image2_widget.setPixmap(pixmap2)
+            p2 = pixmap2.scaledToWidth(1024)
+            self.image2_widget.setPixmap(p2)
     
     def camera(self):
         self.camera = CameraReader()
