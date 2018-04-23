@@ -69,43 +69,47 @@ class CameraReader(QtCore.QThread):
                         print "bad matrix"
 
                 d = {}
-                short_ids = [id_[0] for id_ in ids]
-                for i, corner in enumerate(corners):
-                    d[short_ids[i]] = corner
-                try:
-                    ul = d[3][0][2]
-                    ur = d[2][0][3]
-                    lr = d[0][0][0]
-                    ll = d[1][0][1]
-                except:
+                if ids is None:
                     image = QtGui.QImage(img.data, w, h, QtGui.QImage.Format_RGB888).rgbSwapped()
                     image2 = None
                 else:
-                    pts = np.array([ul, ur, lr, ll], np.int32)
-                    pts = pts.reshape((-1,1,2))
-                    cv2.polylines(img,[pts],True,(0,255,255))
-                    # rect = cv2.boundingRect(np.array([ul, ur, lr, ll]))
-                    # ul = rect[0], rect[1]
-                    # ur = rect[0] + rect[2], rect[1]
-                    # lr = rect[0] + rect[2], rect[1] + rect[3]
-                    # ll = rect[0], rect[1] + rect[3]
-                    # pts = np.array([ul, ur, lr, ll], np.int32)
-                    # pts = pts.reshape((-1,1,2))
-                    # cv2.polylines(img,[pts],True,(255,0,255))
+                    short_ids = [id_[0] for id_ in ids]
+                    for i, corner in enumerate(corners):
+                        d[short_ids[i]] = corner
+                    try:
+                        ul = d[3][0][2]
+                        ur = d[2][0][3]
+                        lr = d[0][0][0]
+                        ll = d[1][0][1]
+                    except:
+                        image = QtGui.QImage(img.data, w, h, QtGui.QImage.Format_RGB888).rgbSwapped()
+                        image2 = None
+                    else:
+                        pts = np.array([ul, ur, lr, ll], np.int32)
+                        pts = pts.reshape((-1,1,2))
+                        cv2.polylines(img,[pts],True,(0,255,255))
+                        # rect = cv2.boundingRect(np.array([ul, ur, lr, ll]))
+                        # ul = rect[0], rect[1]
+                        # ur = rect[0] + rect[2], rect[1]
+                        # lr = rect[0] + rect[2], rect[1] + rect[3]
+                        # ll = rect[0], rect[1] + rect[3]
+                        # pts = np.array([ul, ur, lr, ll], np.int32)
+                        # pts = pts.reshape((-1,1,2))
+                        # cv2.polylines(img,[pts],True,(255,0,255))
 
-                    # crop = img[rect[1]:rect[1]+rect[3],
-                    #            rect[0]:rect[0]+rect[2]]
+                        # crop = img[rect[1]:rect[1]+rect[3],
+                        #            rect[0]:rect[0]+rect[2]]
 
-                    # crop = np.ascontiguousarray(crop)
-                    # crop_h, crop_w, _ = crop.shape
-                    image = QtGui.QImage(img.data, w, h, QtGui.QImage.Format_RGB888).rgbSwapped()
-                    # image2 = QtGui.QImage(crop.data, crop_w, crop_h, 3*crop_w, QtGui.QImage.Format_RGB888).rgbSwapped()
+                        # crop = np.ascontiguousarray(crop)
+                        # crop_h, crop_w, _ = crop.shape
+                        image = QtGui.QImage(img.data, w, h, QtGui.QImage.Format_RGB888).rgbSwapped()
+                        # image2 = QtGui.QImage(crop.data, crop_w, crop_h, 3*crop_w, QtGui.QImage.Format_RGB888).rgbSwapped()
 
-                    destCorners = np.array([ [0, 0], [128, 0], [128, 128], [0, 128]], dtype=np.float32)
-                    srcCorners = np.array([ul, ur, lr, ll], dtype=np.float32)
-                    pt = cv2.getPerspectiveTransform(srcCorners, destCorners)
-                    result = cv2.warpPerspective(img, pt, (128, 128))
-                    image2 = QtGui.QImage(result.data, 128, 128, 3*128, QtGui.QImage.Format_RGB888).rgbSwapped()
+                        destCorners = np.array([ [0, 0], [128, 0], [128, 128], [0, 128]], dtype=np.float32)
+                        srcCorners = np.array([ul, ur, lr, ll], dtype=np.float32)
+                        pt = cv2.getPerspectiveTransform(srcCorners, destCorners)
+                        result = cv2.warpPerspective(img, pt, (128, 128))
+                        image2 = QtGui.QImage(result.data, 128, 128, 3*128, QtGui.QImage.Format_RGB888).rgbSwapped()
 
                 self.signal.emit(image, image2)
 
