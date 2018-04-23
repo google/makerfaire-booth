@@ -3,6 +3,7 @@ import signal
 import sys
 from PyQt5 import QtGui, QtCore, QtSvg, QtWidgets
 from canny import canny
+from object_detector import ObjectDetector
 
 WIDTH=640
 HEIGHT=480
@@ -176,6 +177,7 @@ class Widget(QtWidgets.QWidget):
         self.layout.addWidget(self.image_widget)
         self.setLayout(self.layout)
 
+        self.objdet = ObjectDetector()
         
     def topbun_clicked(self, *args):
         print args
@@ -195,8 +197,31 @@ class Widget(QtWidgets.QWidget):
         painter.end()
         bits = image.constBits().asstring(HEIGHT*WIDTH*3)
         img = np.fromstring(bits, dtype=np.uint8).reshape(HEIGHT, WIDTH, 3)
-        image = canny(img)
+        # image = canny(img)
+
+        expand = np.expand_dims(img, axis=0)
+        result = self.objdet.detect(expand)
+        boxes = []
+        for i in range(result['num_detections']):
+            if result['detection_scores'][i] > 0.4:
+                class_ = result['detection_classes'][i]
+                box = result['detection_boxes'][i]
+                score = result['detection_scores'][i]
+                y1, x1 = box[0] * HEIGHT, box[1] * WIDTH
+                y2, x2 = box[2] * HEIGHT, box[3] * WIDTH
+                boxes.append((class_, score, x1, y1, x2, y2))
+        
         pixmap = QtGui.QPixmap.fromImage(image)
+        p = QtGui.QPainter()
+        p.begin(pixmap)
+        for box in boxes:
+            p.setPen(QtCore.Qt.red)
+            class_, score, x1, y1, x2, y2 = box
+            w = x2-x1
+            h = y2-y1
+            p.drawRect(x1, y1, w, h)
+            p.drawText(x1, y1, "%s: %5.2f" % (labels[class_], score))
+        p.end ()
         self.image_widget.setPixmap(pixmap)
         
 if __name__ == "__main__":
