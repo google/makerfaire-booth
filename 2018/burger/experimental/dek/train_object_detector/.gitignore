@@ -2,3 +2,4 @@ data/*record
 eval/
 models/train
 output_inference_graph
+starting_checkpoint/
