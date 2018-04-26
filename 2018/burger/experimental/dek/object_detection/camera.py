@@ -11,16 +11,6 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 import cv2
 from object_detector import ObjectDetector
 
-# labels = {
-#     0: 'empty',
-#     1: 'topbun',
-#     2: 'lettuce',
-#     3: 'tomato',
-#     4: 'cheese',
-#     5: 'patty',
-#     6: 'bottombun'
-#     }
-
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
