@@ -7,7 +7,7 @@ import sys
 sys.path.insert(0, 'utils')
 import signal
 import functools
-from PySide import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 import cv2
 from object_detector import ObjectDetector
 
@@ -21,14 +21,14 @@ labels = {
     6: 'bottombun'
     }
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.central_widget = QtGui.QWidget(self)
-        self.central_layout = QtGui.QHBoxLayout()
+        self.central_widget = QtWidgets.QWidget(self)
+        self.central_layout = QtWidgets.QHBoxLayout()
         self.central_widget.setLayout(self.central_layout)
         self.setCentralWidget(self.central_widget)
-        self.image_widget = QtGui.QLabel(self)
+        self.image_widget = QtWidgets.QLabel(self)
         self.central_layout.addWidget(self.image_widget)
 
         self.camera()
@@ -54,12 +54,12 @@ class MainWindow(QtGui.QMainWindow):
         self.camera.signal.connect(self.imageTo)
 
 class CameraReader(QtCore.QThread):
-    signal = QtCore.Signal(QtGui.QImage, object)
+    signal = QtCore.pyqtSignal(QtGui.QImage, object)
     def __init__(self):
         super(CameraReader, self).__init__()
         self.cam = cv2.VideoCapture(0)
-        self.width = long(self.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
-        self.height = long(self.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.width = int(self.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.height = int(self.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.objdet = ObjectDetector()
 
     def run(self):
@@ -83,7 +83,7 @@ class CameraReader(QtCore.QThread):
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     widget = MainWindow()
     widget.show()
     app.exec_()
