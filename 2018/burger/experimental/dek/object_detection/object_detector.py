@@ -13,6 +13,10 @@ PATH_TO_CKPT="../train_object_detector/output_inference_graph/frozen_inference_g
 PATH_TO_LABELS="../train_object_detector/data/burgers_label_map.pb.txt"
 NUM_CLASSES=6
 
+# PATH_TO_CKPT="/home/dek/faster_rcnn_resnet101_coco_11_06_2017/frozen_inference_graph.pb"
+# PATH_TO_LABELS="/home/dek/workspace/models/research/object_detection/data/mscoco_label_map.pbtxt"
+# NUM_CLASSES=90
+
 def load_image_into_numpy_array(image):
   (im_width, im_height) = image.size
   return np.array(image.getdata()).reshape(
@@ -79,4 +83,4 @@ class ObjectDetector:
       output_dict['detection_scores'] = output_dict['detection_scores'][0]
       if 'detection_masks' in output_dict:
         output_dict['detection_masks'] = output_dict['detection_masks'][0]
-      return output_dict
+      return output_dict, self.category_index
