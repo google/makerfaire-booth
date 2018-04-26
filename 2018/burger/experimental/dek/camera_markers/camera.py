@@ -32,41 +32,43 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.camera()
         
-    def imageTo(self, image, image2, boxes):
+    def imageTo(self, image):
         pixmap = QtGui.QPixmap.fromImage(image)
         self.image_widget.setPixmap(pixmap)
-        if image2:
-            pixmap2 = QtGui.QPixmap.fromImage(image2)
-            p = QtGui.QPainter()
-            p.begin(pixmap2)
-            for box in boxes:
-                p.setPen(QtCore.Qt.red)
-                class_, score, x1, y1, x2, y2 = box
-                w = x2-x1
-                h = y2-y1
-                p.drawRect(x1, y1, w, h)
-                p.drawText(x1, y1, "%s: %5.2f" % (labels[class_], score))
-            p.end ()
-            self.image2_widget.setPixmap(pixmap2)
-    
+
+    def imageTo2(self, image2, boxes):
+        pixmap2 = QtGui.QPixmap.fromImage(image2)
+        p = QtGui.QPainter()
+        p.begin(pixmap2)
+        for box in boxes:
+            p.setPen(QtCore.Qt.red)
+            class_, score, x1, y1, x2, y2 = box
+            w = x2-x1
+            h = y2-y1
+            p.drawRect(x1, y1, w, h)
+            p.drawText(x1, y1, "%s: %5.2f" % (labels[class_], score))
+        p.end ()
+        self.image2_widget.setPixmap(pixmap2)
+
     def camera(self):
         self.camera = CameraReader()
         self.camera.start()
         self.camera.signal.connect(self.imageTo)
+        self.camera.signal2.connect(self.imageTo2)
 
 class CameraReader(QtCore.QThread):
-    signal = QtCore.pyqtSignal(QtGui.QImage, QtGui.QImage,object)
+    signal = QtCore.pyqtSignal(QtGui.QImage)
+    signal2 = QtCore.pyqtSignal(QtGui.QImage,object)
     def __init__(self):
         super(CameraReader, self).__init__()
         self.cam = cv2.VideoCapture(0)
         # self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         # self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-        self.width = long(self.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
-        self.height = long(self.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        print self.width, self.height
+        self.width = int(self.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.height = int(self.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_1000)
         self.parameters =  cv2.aruco.DetectorParameters_create()
-        rms, self.mtx, self.dist, rvecs, tvecs = pickle.load(open("calib.pkl"))
+        rms, self.mtx, self.dist, rvecs, tvecs = pickle.load(open("calib.pkl","rb"))
         self.objdet = ObjectDetector()
 
     def run(self):
@@ -89,29 +91,32 @@ class CameraReader(QtCore.QThread):
                     try:
                         cv2.aruco.drawAxis(img, newcameramtx, self.dist, rvec, tvec, 0.1)
                     except cv2.error:
-                        print "bad matrix"
-
+                        print( "bad matrix")
                 d = {}
                 boxes = []
-                image2 = QtGui.QImage(32, 32, QtGui.QImage.Format_RGB888)
+                image2 = QtGui.QImage(self.width, self.height, QtGui.QImage.Format_RGB888)
+                boxes = []
                 if ids is None:
-                    image = QtGui.QImage(img.data, w, h, QtGui.QImage.Format_RGB888).rgbSwapped()
+                    image = QtGui.QImage(img.data, w, h, w*3, QtGui.QImage.Format_RGB888).rgbSwapped()
+                    print("emit image")
+                    self.signal.emit(image)
                 else:
                     short_ids = [id_[0] for id_ in ids]
                     for i, corner in enumerate(corners):
                         d[short_ids[i]] = corner
                     try:
-                        ul = d[1][0][0]
-                        ur = d[0][0][0]
+                        ul = d[0][0][0]
+                        ur = d[1][0][0]
                         lr = d[2][0][0]
                         ll = d[3][0][0]
                     except:
-                        image = QtGui.QImage(img.data, w, h, QtGui.QImage.Format_RGB888).rgbSwapped()
+                        image = QtGui.QImage(img.data, w, h, w*3, QtGui.QImage.Format_RGB888).rgbSwapped()
+                        self.signal.emit(image)
                     else:
                         pts = np.array([ul, ur, lr, ll], np.int32)
                         pts = pts.reshape((-1,1,2))
                         cv2.polylines(img,[pts],True,(0,255,255))
-                        image = QtGui.QImage(img.data, w, h, QtGui.QImage.Format_RGB888).rgbSwapped()
+                        image = QtGui.QImage(img.data, w, h, w*3, QtGui.QImage.Format_RGB888).rgbSwapped()
 
                         warped_height = 640
                         orig_width = ur[0] - ul[0]
@@ -142,8 +147,9 @@ class CameraReader(QtCore.QThread):
                                 y1, x1 = box[0] * warped_height*2, box[1] * warped_width*2
                                 y2, x2 = box[2] * warped_height*2, box[3] * warped_width*2
                                 boxes.append((class_, score, x1, y1, x2, y2))
+                        self.signal2.emit(image2, boxes)
 
-                self.signal.emit(image, image2, boxes)
+
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)
