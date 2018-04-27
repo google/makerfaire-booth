@@ -58,11 +58,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
 class CameraReader(QtCore.QThread):
     signal = QtCore.pyqtSignal(QtGui.QImage)
-    signal2 = QtCore.pyqtSignal(QtGui.QImage,object)
+    signal2 = QtCore.pyqtSignal(QtGui.QImage, object)
     def __init__(self):
         super(CameraReader, self).__init__()
-        # self.cam = cv2.VideoCapture("/home/dek/my_video-1.mkv")
-        self.cam = cv2.VideoCapture(0)
+        self.cam = cv2.VideoCapture("/home/dek/my_video-2.mkv")
+        # self.cam = cv2.VideoCapture(0)
         # self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         # self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         self.width = int(self.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -104,16 +104,17 @@ class CameraReader(QtCore.QThread):
                     short_ids = [id_[0] for id_ in ids]
                     for i, corner in enumerate(corners):
                         d[short_ids[i]] = corner
-                    if 0 not in d or 2 not in d or 3 not in d or 4 not in d:
+                    if len(d.keys()) != 4:
+                        image = QtGui.QImage(img.data, w3, h3, w3*3, QtGui.QImage.Format_RGB888).rgbSwapped()
                         self.signal.emit(image)
                         continue
-                    ul = d[2][0][0]
-                    ur = d[0][0][1]
-                    lr = d[4][0][2]
-                    ll = d[3][0][3]
+                    ul = d[0][0][0]
+                    ur = d[1][0][0]
+                    lr = d[2][0][0]
+                    ll = d[3][0][0]
                     pts = np.array([ul, ur, lr, ll], np.int32)
                     pts = pts.reshape((-1,1,2))
-                    cv2.polylines(img,[pts],True,(0,255,255))
+                    cv2.polylines(img,[pts],True,(255,0,255))
                     image = QtGui.QImage(img.data, w3, h3, w3*3, QtGui.QImage.Format_RGB888).rgbSwapped()
                     self.signal.emit(image)
 
@@ -126,29 +127,20 @@ class CameraReader(QtCore.QThread):
                     srcCorners = np.array([ul, ur, lr, ll], dtype=np.float32)
                     pt = cv2.getPerspectiveTransform(srcCorners, destCorners)
                     warped = cv2.warpPerspective(img, pt, (warped_width, warped_height))
-                    warped_image = QtGui.QImage(warped.data, warped_width, warped_height, 3*warped_width, QtGui.QImage.Format_RGB888).rgbSwapped()
-                    image2 = QtGui.QImage(warped_width*2, warped_height*2, QtGui.QImage.Format_RGB888)
-
-                    image2.fill(QtCore.Qt.white);
-                    painter = QtGui.QPainter(image2)
-                    point = QtCore.QPoint(warped_width/2, warped_height/2)
-                    painter.drawImage(point, warped_image)
-                    painter.end()
-                    bits = image2.constBits().asstring(warped_height*2 * warped_width*2 * 3)
-                    img = np.fromstring(bits, dtype=np.uint8).reshape(warped_height*2, warped_width*2, 3)
-                    expand = np.expand_dims(img, axis=0)
+                    expand = np.expand_dims(warped, axis=0)
                     result = self.objdet.detect(expand)
                     for i in range(result['num_detections']):
-                        if result['detection_scores'][i] > 0.1:
+                        if result['detection_scores'][i] > 0.3:
                             class_ = result['detection_classes'][i]
                             box = result['detection_boxes'][i]
                             score = result['detection_scores'][i]
-                            y1, x1 = box[0] * warped_height*2, box[1] * warped_width*2
-                            y2, x2 = box[2] * warped_height*2, box[3] * warped_width*2
+                            y1, x1 = box[0] * warped_height, box[1] * warped_width
+                            y2, x2 = box[2] * warped_height, box[3] * warped_width
                             boxes.append((class_, score, x1, y1, x2, y2))
-                    self.signal2.emit(image2, boxes)
-            # else:
-            #     self.cam = cv2.VideoCapture("/home/dek/my_video-1.mkv")
+                    warped_image = QtGui.QImage(warped.data, warped_width, warped_height, 3*warped_width, QtGui.QImage.Format_RGB888).rgbSwapped()
+                    self.signal2.emit(warped_image, boxes)
+            else:
+                self.cam = cv2.VideoCapture("/home/dek/my_video-2.mkv")
                 
 
 
