@@ -3,8 +3,11 @@ import signal
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 NO_STATE=0
-MOVE=1
-RESIZE=2
+TOP_LEFT=1
+TOP_RIGHT=2
+BOTTOM_RIGHT=3
+BOTTOM_LEFT=4
+
 class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
     def __init__(self, *args, **kwargs):
         super(QGraphicsRectItem, self).__init__(*args, **kwargs)
@@ -14,20 +17,35 @@ class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
         self.state = NO_STATE
         
     def mousePressEvent(self, event):
-        print "item press", event.scenePos()
-        if QtGui.QVector2D(event.scenePos() - self.sceneBoundingRect().bottomRight()).length() < 10:
-            self.state = RESIZE
+        sp = event.scenePos()
+        if QtGui.QVector2D(sp - self.sceneBoundingRect().topLeft()).length() < 10:
+            self.state = TOP_LEFT
             self.start = event.scenePos()
-        else:
-            self.state = MOVE
+        elif QtGui.QVector2D(sp - self.sceneBoundingRect().topRight()).length() < 10:
+            self.state = TOP_RIGHT
+            self.start = event.scenePos()
+        elif QtGui.QVector2D(sp - self.sceneBoundingRect().bottomRight()).length() < 10:
+            self.state = BOTTOM_RIGHT
+            self.start = event.scenePos()
+        elif QtGui.QVector2D(sp - self.sceneBoundingRect().bottomLeft()).length() < 10:
+            self.state = BOTTOM_LEFT
+            self.start = event.scenePos()
+            
         super(QGraphicsRectItem, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        if self.state == RESIZE:
-            sp = event.scenePos()
+        sp = event.scenePos()
+        if self.state != NO_STATE:
             d = sp - self.start
             r = self.rect()
-            r.setBottomRight(sp)
+            if self.state == TOP_LEFT:
+                r.setTopLeft(sp)
+            elif self.state == TOP_RIGHT:
+                r.setTopRight(sp)
+            elif self.state == BOTTOM_RIGHT:
+                r.setBottomRight(sp)
+            elif self.state == BOTTOM_LEFT:
+                r.setBottomLeft(sp)
             self.setRect(r)
             self.start = event.scenePos()
             event.ignore()
@@ -35,7 +53,6 @@ class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
             super(QGraphicsRectItem, self).mouseMoveEvent(event)
         
     def mouseReleaseEvent(self, event):
-        print "item release"
         self.end = event.scenePos()
         self.state = NO_STATE
         super(QGraphicsRectItem, self).mouseReleaseEvent(event)
@@ -51,15 +68,11 @@ class QGraphicsScene(QtWidgets.QGraphicsScene):
         self.start = None
         
     def mousePressEvent(self, event):
-        print "blah press", event.scenePos()
         self.start = event.scenePos()
         super(QGraphicsScene, self).mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
-        print "blah release", event.scenePos()
-        if self.mouseGrabberItem():
-            print "there is a mouse grabber, not adding!"
-        else:
+        if not self.mouseGrabberItem():
             end = event.scenePos()
             print self.start, end
             r = QtCore.QRectF(self.start, end)
