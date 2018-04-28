@@ -18,16 +18,16 @@ class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
         
     def mousePressEvent(self, event):
         sp = event.scenePos()
-        if QtGui.QVector2D(sp - self.sceneBoundingRect().topLeft()).length() < 10:
+        if QtGui.QVector2D(sp - self.sceneBoundingRect().topLeft()).length() < 25:
             self.state = TOP_LEFT
             self.start = event.scenePos()
-        elif QtGui.QVector2D(sp - self.sceneBoundingRect().topRight()).length() < 10:
+        elif QtGui.QVector2D(sp - self.sceneBoundingRect().topRight()).length() < 25:
             self.state = TOP_RIGHT
             self.start = event.scenePos()
-        elif QtGui.QVector2D(sp - self.sceneBoundingRect().bottomRight()).length() < 10:
+        elif QtGui.QVector2D(sp - self.sceneBoundingRect().bottomRight()).length() < 25:
             self.state = BOTTOM_RIGHT
             self.start = event.scenePos()
-        elif QtGui.QVector2D(sp - self.sceneBoundingRect().bottomLeft()).length() < 10:
+        elif QtGui.QVector2D(sp - self.sceneBoundingRect().bottomLeft()).length() < 25:
             self.state = BOTTOM_LEFT
             self.start = event.scenePos()
             
@@ -75,10 +75,16 @@ class QGraphicsScene(QtWidgets.QGraphicsScene):
         if not self.mouseGrabberItem():
             end = event.scenePos()
             if self.start:
-                r = QtCore.QRectF(self.start, end)
-                print r
-                self.addItem(QGraphicsRectItem(r))
-                self.start = None
+                tlw = QtWidgets.qApp.topLevelWidgets()
+                text, okPressed = QtWidgets.QInputDialog.getText(tlw[0], "Set label","Label:", QtWidgets.QLineEdit.Normal, "")
+                if okPressed and text != '':
+                    r = QtCore.QRectF(self.start, end)
+                    box = QGraphicsRectItem(r)
+                    self.addItem(box)
+                    text = self.addSimpleText(text)
+                    text.setParentItem(box)
+                    text.setPos(self.start)
+                    self.start = None
         super(QGraphicsScene, self).mouseReleaseEvent(event)
         
 class MainWindow(QtWidgets.QMainWindow):
