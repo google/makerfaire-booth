@@ -17,48 +17,65 @@ class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
         super(QGraphicsRectItem, self).__init__(*args, **kwargs)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable | QtWidgets.QGraphicsItem.ItemSendsGeometryChanges)
         self.start = None
-        self.end = None
         self.state = NO_STATE
         
     def mousePressEvent(self, event):
-        sp = event.scenePos()
-        if QtGui.QVector2D(sp - self.sceneBoundingRect().topLeft()).length() < 25:
-            self.state = TOP_LEFT
-            self.start = event.scenePos()
-        elif QtGui.QVector2D(sp - self.sceneBoundingRect().topRight()).length() < 25:
-            self.state = TOP_RIGHT
-            self.start = event.scenePos()
-        elif QtGui.QVector2D(sp - self.sceneBoundingRect().bottomRight()).length() < 25:
-            self.state = BOTTOM_RIGHT
-            self.start = event.scenePos()
-        elif QtGui.QVector2D(sp - self.sceneBoundingRect().bottomLeft()).length() < 25:
-            self.state = BOTTOM_LEFT
-            self.start = event.scenePos()
+        if event.button() == QtCore.Qt.LeftButton:
+            if bool(event.modifiers() & QtCore.Qt.ControlModifier):
+                tlw = QtWidgets.qApp.topLevelWidgets()
+                for item in tlw:
+                    if isinstance(item, MainWindow):
+                        item.scene.removeItem(self)
+                        event.accept()
+                        return
+            else:
+                sp = event.scenePos()
+                if QtGui.QVector2D(sp - self.sceneBoundingRect().topLeft()).length() < 25:
+                    self.state = TOP_LEFT
+                    self.start = event.scenePos()
+                elif QtGui.QVector2D(sp - self.sceneBoundingRect().topRight()).length() < 25:
+                    self.state = TOP_RIGHT
+                    self.start = event.scenePos()
+                elif QtGui.QVector2D(sp - self.sceneBoundingRect().bottomRight()).length() < 25:
+                    self.state = BOTTOM_RIGHT
+                    self.start = event.scenePos()
+                elif QtGui.QVector2D(sp - self.sceneBoundingRect().bottomLeft()).length() < 25:
+                    self.state = BOTTOM_LEFT
+                    self.start = event.scenePos()
             
         super(QGraphicsRectItem, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        sp = event.scenePos()
-        if self.state != NO_STATE:
-            d = sp - self.start
-            r = self.rect()
-            if self.state == TOP_LEFT:
-                r.setTopLeft(sp)
-            elif self.state == TOP_RIGHT:
-                r.setTopRight(sp)
-            elif self.state == BOTTOM_RIGHT:
-                r.setBottomRight(sp)
-            elif self.state == BOTTOM_LEFT:
-                r.setBottomLeft(sp)
-            self.setRect(r)
-            self.start = event.scenePos()
+        if bool(event.modifiers() & QtCore.Qt.ControlModifier):
             event.ignore()
-        else:
-            super(QGraphicsRectItem, self).mouseMoveEvent(event)
+            return
+        
+        if (event.buttons() & QtCore.Qt.LeftButton):
+            sp = event.scenePos()
+            if self.state != NO_STATE:
+                d = sp - self.start
+                r = self.rect()
+                if self.state == TOP_LEFT:
+                    r.setTopLeft(sp)
+                elif self.state == TOP_RIGHT:
+                    r.setTopRight(sp)
+                elif self.state == BOTTOM_RIGHT:
+                    r.setBottomRight(sp)
+                elif self.state == BOTTOM_LEFT:
+                    r.setBottomLeft(sp)
+                self.setRect(r)
+                self.start = event.scenePos()
+                event.ignore()
+                return
+        super(QGraphicsRectItem, self).mouseMoveEvent(event)
         
     def mouseReleaseEvent(self, event):
-        self.end = event.scenePos()
-        self.state = NO_STATE
+        if event.button() == QtCore.Qt.LeftButton:
+            if bool(event.modifiers() & QtCore.Qt.ControlModifier):
+                event.accept()
+                return
+            else:
+                self.state = NO_STATE
         super(QGraphicsRectItem, self).mouseReleaseEvent(event)
         
 class QGraphicsView(QtWidgets.QGraphicsView):
@@ -76,16 +93,23 @@ class QGraphicsScene(QtWidgets.QGraphicsScene):
         super(QGraphicsScene, self).mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
-        if not self.mouseGrabberItem():
-            end = event.scenePos()
-            if self.start:
-                tlw = QtWidgets.qApp.topLevelWidgets()
-                label, okPressed = QtWidgets.QInputDialog.getItem(tlw[0], "Set label", 
-                                                 "Label:", items, 0, False)
-                if okPressed and label != '':
-                    r = QtCore.QRectF(self.start, end)
-                    self.addLabelRect(r, label)
-                    self.start = None
+        if event.button() == QtCore.Qt.LeftButton:
+            if bool(event.modifiers() & QtCore.Qt.ControlModifier):
+                event.accept
+                return
+            else:
+                if not self.mouseGrabberItem():
+                    end = event.scenePos()
+                    if self.start:
+                        tlw = QtWidgets.qApp.topLevelWidgets()
+                        for item in tlw:
+                            if isinstance(item, MainWindow):
+                                label, okPressed = QtWidgets.QInputDialog.getItem(tlw[0], "Set label", 
+                                                                 "Label:", items, 0, False)
+                                if okPressed and label != '':
+                                    r = QtCore.QRectF(self.start, end)
+                                    self.addLabelRect(r, label)
+                                    self.start = None
         super(QGraphicsScene, self).mouseReleaseEvent(event)
 
     def addLabelRect(self, rect, label):
@@ -140,12 +164,14 @@ class MainWindow(QtWidgets.QMainWindow):
         fileMenu.addAction(exitAction)
 
         self.currentItem = None
-        # self.loadImage("images/00001.png")
-        # r = QtCore.QRectF(QtCore.QPointF(50, 50), QtCore.QPointF(100, 100))
-        # self.scene.addLabelRect(r, "test")
-        # self.saveLabels()
+        self.video = None
 
+        # self.loadImage("images/00001.png")
         self.loadMovie("/home/dek/my_video-2.mkv")
+        r = QtCore.QRectF(QtCore.QPointF(50, 50), QtCore.QPointF(100, 100))
+        self.scene.addLabelRect(r, "test")
+        self.saveLabels()
+
 
     def forward(self, event):
         if self.video:
