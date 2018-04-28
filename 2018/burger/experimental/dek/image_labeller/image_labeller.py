@@ -74,11 +74,11 @@ class QGraphicsScene(QtWidgets.QGraphicsScene):
     def mouseReleaseEvent(self, event):
         if not self.mouseGrabberItem():
             end = event.scenePos()
-            print self.start, end
-            r = QtCore.QRectF(self.start, end)
-            print r
-            self.addItem(QGraphicsRectItem(r))
-            self.start = None
+            if self.start:
+                r = QtCore.QRectF(self.start, end)
+                print r
+                self.addItem(QGraphicsRectItem(r))
+                self.start = None
         super(QGraphicsScene, self).mouseReleaseEvent(event)
         
 class MainWindow(QtWidgets.QMainWindow):
