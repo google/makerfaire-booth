@@ -10,6 +10,8 @@ TOP_RIGHT=2
 BOTTOM_RIGHT=3
 BOTTOM_LEFT=4
 
+items = 'empty', 'topbun', 'lettuce', 'tomato', 'cheese', 'patty', 'bottombun'
+
 class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
     def __init__(self, *args, **kwargs):
         super(QGraphicsRectItem, self).__init__(*args, **kwargs)
@@ -78,7 +80,8 @@ class QGraphicsScene(QtWidgets.QGraphicsScene):
             end = event.scenePos()
             if self.start:
                 tlw = QtWidgets.qApp.topLevelWidgets()
-                label, okPressed = QtWidgets.QInputDialog.getText(tlw[0], "Set label","Label:", QtWidgets.QLineEdit.Normal, "")
+                label, okPressed = QtWidgets.QInputDialog.getItem(tlw[0], "Set label", 
+                                                 "Label:", items, 0, False)
                 if okPressed and label != '':
                     r = QtCore.QRectF(self.start, end)
                     self.addLabelRect(r, label)
