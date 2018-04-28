@@ -1,3 +1,4 @@
+import os
 import sys
 import signal
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -76,16 +77,19 @@ class QGraphicsScene(QtWidgets.QGraphicsScene):
             end = event.scenePos()
             if self.start:
                 tlw = QtWidgets.qApp.topLevelWidgets()
-                text, okPressed = QtWidgets.QInputDialog.getText(tlw[0], "Set label","Label:", QtWidgets.QLineEdit.Normal, "")
-                if okPressed and text != '':
+                label, okPressed = QtWidgets.QInputDialog.getText(tlw[0], "Set label","Label:", QtWidgets.QLineEdit.Normal, "")
+                if okPressed and label != '':
                     r = QtCore.QRectF(self.start, end)
-                    box = QGraphicsRectItem(r)
-                    self.addItem(box)
-                    text = self.addSimpleText(text)
-                    text.setParentItem(box)
-                    text.setPos(self.start)
+                    self.addLabelRect(r, label)
                     self.start = None
         super(QGraphicsScene, self).mouseReleaseEvent(event)
+
+    def addLabelRect(self, rect, label):
+        box = QGraphicsRectItem(rect)
+        self.addItem(box)
+        text = self.addSimpleText(label)
+        text.setParentItem(box)
+        text.setPos(rect.topLeft())
         
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -123,21 +127,45 @@ class MainWindow(QtWidgets.QMainWindow):
         loadImageAction = QtWidgets.QAction(QtGui.QIcon('loadImage.png'), '&Load Image', self)
         loadImageAction.setStatusTip('LoadImage')
         loadImageAction.triggered.connect(self.loadImage)
+        saveLabelsAction = QtWidgets.QAction(QtGui.QIcon('saveLabels.png'), '&Save labels', self)
+        saveLabelsAction.setStatusTip('SaveImage')
+        saveLabelsAction.triggered.connect(self.saveLabels)
 
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(loadImageAction)
+        fileMenu.addAction(saveLabelsAction)
         fileMenu.addAction(exitAction)
 
+        self.currentItem = None
+
+        
         self.loadImage("images/00001.png")
+        r = QtCore.QRectF(QtCore.QPointF(50, 50), QtCore.QPointF(100, 100))
+        self.scene.addLabelRect(r, "test")
+        self.saveLabels()
 
     def loadImage(self, filename=None):
         if not filename:
             filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')[0]
         image = QtGui.QImage(filename, 'ARGB32')
         pixmap = QtGui.QPixmap(image)
-        image_item = self.scene.addPixmap(pixmap)
+        if self.currentItem != None:
+            self.scene.removeItem(self.currentItem)
+        self.currentItem = self.scene.addPixmap(pixmap)
+        self.currentItem.filename = filename
         self.scene.setSceneRect(QtCore.QRectF(pixmap.rect()))
+
+    def saveLabels(self):
+        if self.currentItem:
+            filename = self.currentItem.filename
+            labels_filename = os.path.join("labels", os.path.basename(filename) + ".labels")
+            with open(labels_filename, "w") as f:
+                for item in self.scene.items():
+                    if isinstance(item, QGraphicsRectItem):
+                        c = list(item.rect().getCoords())
+                        label = item.childItems()[0].text()
+                        f.write("%f %f %f %f %s\n" % (c[0], c[1], c[2], c[3], label))
 
     def loadMovie(self):
         pass
