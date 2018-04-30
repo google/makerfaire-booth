@@ -227,8 +227,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 for item in self.scene.items():
                     if isinstance(item, QGraphicsRectItem):
                         c = list(item.rect().getCoords())
+                        p = item.pos()
+                        tl = item.rect().topLeft()
+                        br = item.rect().bottomRight()
+                        tlp = tl + p
+                        brp = br + p
                         label = item.childItems()[0].text()
-                        f.write("%f,%f,%f,%f,%s\n" % (c[0], c[1], c[2], c[3], label))
+                        f.write("%f,%f,%f,%f,%s\n" % (tlp.x(), tlp.y(), brp.x(), brp.y(), label))
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)
