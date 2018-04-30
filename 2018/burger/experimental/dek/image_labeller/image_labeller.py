@@ -1,3 +1,4 @@
+import glob
 import cv2
 import os
 import sys
@@ -150,55 +151,68 @@ class MainWindow(QtWidgets.QMainWindow):
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(QtWidgets.qApp.quit)
-        loadImageAction = QtWidgets.QAction(QtGui.QIcon('loadImage.png'), '&Load Image', self)
-        loadImageAction.setStatusTip('LoadImage')
-        loadImageAction.triggered.connect(self.loadImage)
         saveLabelsAction = QtWidgets.QAction(QtGui.QIcon('saveLabels.png'), '&Save labels', self)
         saveLabelsAction.setStatusTip('SaveImage')
         saveLabelsAction.triggered.connect(self.saveLabels)
 
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
-        fileMenu.addAction(loadImageAction)
         fileMenu.addAction(saveLabelsAction)
         fileMenu.addAction(exitAction)
 
         self.currentItem = None
+        self.index = None
         self.video = None
 
-        # self.loadImage("images/00001.png")
-        self.loadMovie("/home/dek/my_video-2.mkv")
-        r = QtCore.QRectF(QtCore.QPointF(50, 50), QtCore.QPointF(100, 100))
-        self.scene.addLabelRect(r, "test")
-        self.saveLabels()
+        g = glob.glob("/home/dek/movie/test.*.png")
+        g.sort()
+        self.loadImageFrames(g)
+        # r = QtCore.QRectF(QtCore.QPointF(50, 50), QtCore.QPointF(100, 100))
+        # self.scene.addLabelRect(r, "test")
+        # self.saveLabels()
 
 
     def forward(self, event):
-        if self.video:
+        if self.index is not None:
+            if self.index <= len(self.filenames):
+                self.index = self.index + 1
+                self.readImageFrame()
+        elif self.video:
             max_ = self.video.get(cv2.CAP_PROP_FRAME_COUNT)
             pos = self.video.get(cv2.CAP_PROP_POS_FRAMES)
             if pos < max_:
-                self.readFrame()
+                self.readMovieFrame()
         
     def backward(self, event):
-        if self.video:
+        if self.index is not None:
+            print self.index
+            if self.index > 0:
+                self.index = self.index - 1
+                self.readImageFrame()
+        elif self.video:
             pos = self.video.get(cv2.CAP_PROP_POS_FRAMES)
             if pos > 0:
                 self.video.set(cv2.CAP_PROP_POS_FRAMES, pos-2)
                 self.readFrame()
 
-    def loadImage(self, filename=None):
-        if not filename:
-            filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')[0]
+    def loadImageFrames(self, filenames=None):
+        if not filenames:
+            filenames = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Files')[0]
+        self.filenames = filenames
+        self.index = 0
+        self.readImageFrame()
+
+    def readImageFrame(self):
+        filename = self.filenames[self.index]
+        print "read", filename
         image = QtGui.QImage(filename, 'ARGB32')
         pixmap = QtGui.QPixmap(image)
         if self.currentItem != None:
-            self.video = None
             self.currentItem.setPixmap(pixmap)
         else:
             self.currentItem = self.scene.addPixmap(pixmap)
         self.currentItem.filename = filename
-
+        
     def saveLabels(self):
         if self.currentItem:
             filename = self.currentItem.filename
@@ -212,24 +226,6 @@ class MainWindow(QtWidgets.QMainWindow):
                         c = list(item.rect().getCoords())
                         label = item.childItems()[0].text()
                         f.write("%f %f %f %f %s\n" % (c[0], c[1], c[2], c[3], label))
-
-
-    def readFrame(self):
-        ret, img = self.video.read()
-        h, w, _ = img.shape
-        image = QtGui.QImage(img.data, w, h, QtGui.QImage.Format_RGB888).rgbSwapped()
-        pixmap = QtGui.QPixmap(image)
-        if self.currentItem != None:
-            self.currentItem.setPixmap(pixmap)
-        else:
-            self.currentItem = self.scene.addPixmap(pixmap)
-        
-    def loadMovie(self, filename=None):
-        if not filename:
-            filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')[0]
-        self.video = cv2.VideoCapture(filename)
-        self.readFrame()
-        self.currentItem.filename = filename
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)
