@@ -1,7 +1,9 @@
+import sys
+sys.path.insert(0, "../../../machine")
+from burger_elements import BurgerElement
 import glob
 import cv2
 import os
-import sys
 import signal
 from PyQt5 import QtGui, QtCore, QtWidgets, QtMultimedia, QtMultimediaWidgets
 
@@ -11,7 +13,8 @@ TOP_RIGHT=2
 BOTTOM_RIGHT=3
 BOTTOM_LEFT=4
 
-items = 'empty', 'topbun', 'lettuce', 'tomato', 'cheese', 'patty', 'bottombun'
+from burger_elements import BurgerElement
+items = [name for name in BurgerElement.__members__]
 
 class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
     def __init__(self, *args, **kwargs):
