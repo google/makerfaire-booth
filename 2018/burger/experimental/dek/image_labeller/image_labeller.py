@@ -201,14 +201,9 @@ class MainWindow(QtWidgets.QMainWindow):
             with open(labels_filename, "w") as f:
                 for item in self.scene.items():
                     if isinstance(item, QGraphicsRectItem):
-                        c = list(item.rect().getCoords())
                         p = item.pos()
-                        tl = item.rect().topLeft()
-                        br = item.rect().bottomRight()
-                        tlp = tl + p
-                        brp = br + p
                         label = item.childItems()[0].text()
-                        f.write("%f,%f,%f,%f,%s\n" % (tlp.x(), tlp.y(), brp.x(), brp.y(), label))
+                        f.write("%f,%f,%f,%f,%s\n" % (p.x(), p.y(), p.x()+item.rect().width(), p.y()+item.rect().height(), label))
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)

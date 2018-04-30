@@ -13,7 +13,7 @@ from burger_elements import BurgerElement
 
 
 flags = tf.app.flags
-flags.DEFINE_string('output_path', '', 'Path to output TFRecord')
+flags.DEFINE_string('output_path', 'label.records', 'Path to output TFRecord')
 FLAGS = flags.FLAGS
 layers = BurgerElement.__members__.keys()
 
