@@ -7,21 +7,17 @@ import os
 import signal
 from PyQt5 import QtGui, QtCore, QtWidgets, QtMultimedia, QtMultimediaWidgets
 
-NO_STATE=0
-TOP_LEFT=1
-TOP_RIGHT=2
-BOTTOM_RIGHT=3
-BOTTOM_LEFT=4
-
 from burger_elements import BurgerElement
 items = [name for name in BurgerElement.__members__]
+
+NO_STATE = 0
+RESIZE = 1
 
 class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
     def __init__(self, *args, **kwargs):
         super(QGraphicsRectItem, self).__init__(*args, **kwargs)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable | QtWidgets.QGraphicsItem.ItemSendsGeometryChanges)
         self.state = NO_STATE
-        
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             if bool(event.modifiers() & QtCore.Qt.ControlModifier):
@@ -33,15 +29,11 @@ class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
                         return
             else:
                 sp = event.scenePos()
-                if QtGui.QVector2D(sp - self.sceneBoundingRect().topLeft()).length() < 25:
-                    self.state = TOP_LEFT
-                elif QtGui.QVector2D(sp - self.sceneBoundingRect().topRight()).length() < 25:
-                    self.state = TOP_RIGHT
-                elif QtGui.QVector2D(sp - self.sceneBoundingRect().bottomRight()).length() < 25:
-                    self.state = BOTTOM_RIGHT
-                elif QtGui.QVector2D(sp - self.sceneBoundingRect().bottomLeft()).length() < 25:
-                    self.state = BOTTOM_LEFT
-            
+                if QtGui.QVector2D(sp - self.sceneBoundingRect().bottomRight()).length() < 25:
+                    self.state = RESIZE
+                    event.accept()
+                    return
+                
         super(QGraphicsRectItem, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
@@ -50,20 +42,12 @@ class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
             return
         
         if (event.buttons() & QtCore.Qt.LeftButton):
-            sp = event.scenePos()
-            if self.state != NO_STATE:
-                d = sp - event.buttonDownScenePos(QtCore.Qt.LeftButton)
+            if self.state == RESIZE:
                 r = self.rect()
-                if self.state == TOP_LEFT:
-                    r.setTopLeft(sp)
-                elif self.state == TOP_RIGHT:
-                    r.setTopRight(sp)
-                elif self.state == BOTTOM_RIGHT:
-                    r.setBottomRight(sp)
-                elif self.state == BOTTOM_LEFT:
-                    r.setBottomLeft(sp)
+                d = event.pos() - event.lastPos()
+                r.adjust(0, 0, d.x(), d.y())
                 self.setRect(r)
-                event.ignore()
+                event.accept()
                 return
         super(QGraphicsRectItem, self).mouseMoveEvent(event)
         
@@ -104,13 +88,14 @@ class QGraphicsScene(QtWidgets.QGraphicsScene):
                             label, okPressed = QtWidgets.QInputDialog.getItem(tlw[0], "Set label", 
                                                              "Label:", items, 0, False)
                             if okPressed and label != '':
-                                r = QtCore.QRectF(start, end)
-                                self.addLabelRect(r, label)
+                                self.addLabelRect(start, end, label)
         super(QGraphicsScene, self).mouseReleaseEvent(event)
 
-    def addLabelRect(self, rect, label):
+    def addLabelRect(self, start, end, label):
+        rect = QtCore.QRectF(QtCore.QPointF(0.,0.), end-start)
         box = QGraphicsRectItem(rect)
         self.addItem(box)
+        box.setPos(start)
         text = self.addSimpleText(label)
         text.setParentItem(box)
         text.setPos(rect.topLeft())
@@ -180,7 +165,6 @@ class MainWindow(QtWidgets.QMainWindow):
         
     def backward(self, event):
         if self.index is not None:
-            print self.index
             if self.index > 0:
                 self.index = self.index - 1
                 self.readImageFrame()
@@ -199,7 +183,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def readImageFrame(self):
         filename = self.filenames[self.index]
-        print "read", filename
         image = QtGui.QImage(filename, 'ARGB32')
         pixmap = QtGui.QPixmap(image)
         if self.currentItem != None:
