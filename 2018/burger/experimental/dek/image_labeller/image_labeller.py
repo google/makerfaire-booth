@@ -228,7 +228,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     if isinstance(item, QGraphicsRectItem):
                         c = list(item.rect().getCoords())
                         label = item.childItems()[0].text()
-                        f.write("%f %f %f %f %s\n" % (c[0], c[1], c[2], c[3], label))
+                        f.write("%f,%f,%f,%f,%s\n" % (c[0], c[1], c[2], c[3], label))
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)
