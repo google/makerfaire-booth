@@ -73,6 +73,7 @@ class CameraReader(QtCore.QThread):
         self.objdet = ObjectDetector()
 
     def run(self):
+        counter = 0
         while True:
             ret, img = self.cam.read()
             if ret == True:
@@ -127,10 +128,11 @@ class CameraReader(QtCore.QThread):
                     srcCorners = np.array([ul, ur, lr, ll], dtype=np.float32)
                     pt = cv2.getPerspectiveTransform(srcCorners, destCorners)
                     warped = cv2.warpPerspective(img, pt, (warped_width, warped_height))
+                    cv2.imwrite("rectified/%05d.png" % counter, warped)
                     expand = np.expand_dims(warped, axis=0)
                     result = self.objdet.detect(expand)
                     for i in range(result['num_detections']):
-                        if result['detection_scores'][i] > 0.3:
+                        if result['detection_scores'][i] > 0.5:
                             class_ = result['detection_classes'][i]
                             box = result['detection_boxes'][i]
                             score = result['detection_scores'][i]
@@ -139,7 +141,9 @@ class CameraReader(QtCore.QThread):
                             boxes.append((class_, score, x1, y1, x2, y2))
                     warped_image = QtGui.QImage(warped.data, warped_width, warped_height, 3*warped_width, QtGui.QImage.Format_RGB888).rgbSwapped()
                     self.signal2.emit(warped_image, boxes)
+                    counter += 1
             else:
+                sys.exit(0)
                 self.cam = cv2.VideoCapture("/home/dek/my_video-2.mkv")
                 
 
