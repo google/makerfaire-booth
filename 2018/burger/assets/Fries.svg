@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="33.5" height="50.731" viewBox="0 0 33.5 50.731">
+  <defs>
+    <style>
+      .cls-1 {
+        isolation: isolate;
+      }
+
+      .cls-2 {
+        fill: #e4ac3b;
+      }
+
+      .cls-3 {
+        fill: #f5d18a;
+      }
+
+      .cls-4 {
+        fill: #e4ad3a;
+      }
+
+      .cls-5 {
+        fill: #f7be4b;
+      }
+
+      .cls-6 {
+        fill: #f4d18a;
+      }
+
+      .cls-7 {
+        fill: #ef4359;
+      }
+
+      .cls-8 {
+        fill: #6d6d6c;
+        opacity: 0.15;
+        mix-blend-mode: multiply;
+      }
+    </style>
+  </defs>
+  <title>Fries</title>
+  <g class="cls-1">
+    <g id="Layer_2" data-name="Layer 2">
+      <g id="Layer_1-2" data-name="Layer 1">
+        <g>
+          <g id="Flat">
+            <g id="French-Fries">
+              <g id="Group">
+                <g id="Group-14">
+                  <polygon id="Rectangle-19-Copy-6" class="cls-2" points="14.544 11.7 18.591 12.413 13.972 38.581 9.925 37.868 14.544 11.7"/>
+                  <polygon id="Rectangle-19-Copy-8" class="cls-2" points="19.726 9.402 23.819 9.759 20.823 43.967 16.73 43.609 19.726 9.402"/>
+                  <rect id="Rectangle-19" class="cls-3" x="15.902" width="4.109" height="40.062"/>
+                  <polygon id="Rectangle-19-Copy-4" class="cls-4" points="27.097 8.002 30.958 9.406 20.321 38.6 16.459 37.197 27.097 8.002"/>
+                  <polygon id="Rectangle-19-Copy" class="cls-5" points="21.78 5.314 25.874 5.671 22.877 39.879 18.784 39.521 21.78 5.314"/>
+                  <polygon id="Rectangle-19-Copy-5" class="cls-6" points="29.454 4.923 33.5 5.636 27.531 39.452 23.484 38.74 29.454 4.923"/>
+                  <polygon id="Rectangle-19-Copy-2" class="cls-5" points="8.216 4.044 12.263 3.331 18.943 41.174 14.896 41.886 8.216 4.044"/>
+                  <polygon id="Rectangle-19-Copy-7" class="cls-2" points="4.923 9.279 8.892 8.217 18.251 43.106 14.282 44.168 4.923 9.279"/>
+                  <polygon id="Rectangle-19-Copy-3" class="cls-6" points="0 9.503 3.861 8.099 15.199 39.215 11.337 40.619 0 9.503"/>
+                </g>
+                <path id="Combined-Shape" class="cls-7" d="M24.5,17.231h7.429L28.21,50.486h-.084a62.474,62.474,0,0,0-10.647-.821,62.474,62.474,0,0,0-10.647.821h-.5L2.62,17.231h7.842a7.016,7.016,0,0,0,14.033,0Z"/>
+              </g>
+            </g>
+          </g>
+          <path class="cls-8" d="M33.5,5.881l-3.782-.713-.61,3.7-1.592-.62L25.76,13.4l.613-7.488-3.825-.358L22.2,9.794l-1.307-.122V.245H17.479V49.92c.348-.005.7-.011,1.049-.011a54.647,54.647,0,0,1,9.95.821h.078l3.471-33.255h-.44Z"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
