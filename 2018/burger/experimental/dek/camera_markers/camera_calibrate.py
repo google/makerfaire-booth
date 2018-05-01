@@ -3,30 +3,30 @@ import numpy as np
 import sys
 sys.path.insert(0, 'utils')
 import signal
-from PySide import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 import cv2
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.central_widget = QtGui.QWidget(self)
-        self.central_layout = QtGui.QHBoxLayout()
+        self.central_widget = QtWidgets.QWidget(self)
+        self.central_layout = QtWidgets.QHBoxLayout()
         self.central_widget.setLayout(self.central_layout)
         self.setCentralWidget(self.central_widget)
-        self.image_widget = QtGui.QLabel(self)
+        self.image_widget = QtWidgets.QLabel(self)
         self.central_layout.addWidget(self.image_widget)
         self.camera = CameraReader()
         self.camera.signal.connect(self.imageTo)
         self.camera.start()
-        self.button = QtGui.QPushButton(self, "Hello")
+        self.button = QtWidgets.QPushButton(None, "Hello")
         self.button.clicked.connect(self.camera.calibrate)
         self.central_layout.addWidget(self.button)
-        self.button2 = QtGui.QPushButton(self, "Consider")
+        self.button2 = QtWidgets.QPushButton(self, "Consider")
         self.button2.clicked.connect(self.camera.consider)
         self.central_layout.addWidget(self.button2)
 
     def imageTo(self, image):
-        pixmap = QtGui.QPixmap.fromImage(image)
+        pixmap = QtWidgets.QPixmap.fromImage(image)
         self.image_widget.setPixmap(pixmap);
 
 # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
@@ -34,7 +34,7 @@ objp = np.zeros((6*8,3), np.float32)
 objp[:,:2] = np.mgrid[0:8,0:6].T.reshape(-1,2)
 
 class CameraReader(QtCore.QThread):
-    signal = QtCore.Signal(QtGui.QImage)
+    signal = QtCore.pyqtSignal(QtGui.QImage)
     def __init__(self):
         super(CameraReader, self).__init__()
         self.cam = cv2.VideoCapture(0)
@@ -79,7 +79,7 @@ class CameraReader(QtCore.QThread):
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     widget = MainWindow()
     widget.show()
     app.exec_()
