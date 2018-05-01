@@ -40,7 +40,7 @@ def create_tf_example(filename, writer):
     xmaxs = []
     ymins = []
     ymaxs = []
-    image_filename = os.path.join("/home/dek/movie", os.path.basename(filename)[:-7])
+    image_filename = os.path.join("../camera_markers/rectified/", os.path.basename(filename)[:-7])
     im = Image.open(image_filename)
     arr = io.BytesIO()
     im.save(arr, format='PNG')

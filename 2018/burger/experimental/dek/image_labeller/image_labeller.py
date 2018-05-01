@@ -144,7 +144,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.index = None
         self.video = None
 
-        g = glob.glob("/home/dek/movie/test.*.png")
+        g = glob.glob("../camera_markers/rectified/*.png")
         g.sort()
         self.loadImageFrames(g)
         # r = QtCore.QRectF(QtCore.QPointF(50, 50), QtCore.QPointF(100, 100))
