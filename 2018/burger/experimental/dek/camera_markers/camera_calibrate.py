@@ -18,15 +18,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.camera = CameraReader()
         self.camera.signal.connect(self.imageTo)
         self.camera.start()
-        self.button = QtWidgets.QPushButton(None, "Hello")
+        self.button = QtWidgets.QPushButton("Hello", self)
         self.button.clicked.connect(self.camera.calibrate)
         self.central_layout.addWidget(self.button)
-        self.button2 = QtWidgets.QPushButton(self, "Consider")
+        self.button2 = QtWidgets.QPushButton("Consider", self)
         self.button2.clicked.connect(self.camera.consider)
         self.central_layout.addWidget(self.button2)
 
     def imageTo(self, image):
-        pixmap = QtWidgets.QPixmap.fromImage(image)
+        pixmap = QtGui.QPixmap.fromImage(image)
         self.image_widget.setPixmap(pixmap);
 
 # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
@@ -38,6 +38,8 @@ class CameraReader(QtCore.QThread):
     def __init__(self):
         super(CameraReader, self).__init__()
         self.cam = cv2.VideoCapture(0)
+        self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         self.width = int(self.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(self.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_1000)
