@@ -1,3 +1,4 @@
+import traceback
 import pickle
 import numpy as np
 import os
@@ -61,7 +62,8 @@ class CameraReader(QtCore.QThread):
     signal2 = QtCore.pyqtSignal(QtGui.QImage, object)
     def __init__(self):
         super(CameraReader, self).__init__()
-        self.cam = cv2.VideoCapture("/home/dek/my_video-2.mkv")
+        self.filename = "2018-05-01 11-19-54.mkv"
+        self.cam = cv2.VideoCapture(self.filename)
         # self.cam = cv2.VideoCapture(0)
         # self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         # self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
@@ -76,6 +78,7 @@ class CameraReader(QtCore.QThread):
         counter = 0
         while True:
             ret, img = self.cam.read()
+            print(ret)
             if ret == True:
                 h, w, _ = img.shape
                 newcameramtx, roi=cv2.getOptimalNewCameraMatrix(self.mtx, self.dist, (w,h), 1, (w,h))
@@ -89,7 +92,7 @@ class CameraReader(QtCore.QThread):
                 corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(img, self.aruco_dict, parameters=self.parameters)
                 cv2.aruco.drawDetectedMarkers(img, corners, ids)
                 for corner in corners:
-                    rvec, tvec = cv2.aruco.estimatePoseSingleMarkers(corner, 0.195, newcameramtx, self.dist)
+                    rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corner, 0.195, newcameramtx, self.dist)
                     try:
                         cv2.aruco.drawAxis(img, newcameramtx, self.dist, rvec, tvec, 0.1)
                     except cv2.error:
@@ -143,14 +146,22 @@ class CameraReader(QtCore.QThread):
                     self.signal2.emit(warped_image, boxes)
                     counter += 1
             else:
-                sys.exit(0)
-                self.cam = cv2.VideoCapture("/home/dek/my_video-2.mkv")
+                self.cam = cv2.VideoCapture(self.filename)
                 
 
-
+class QApplication(QtWidgets.QApplication):
+    def __init__(self, *args, **kwargs):
+        super(QApplication, self).__init__(*args, **kwargs)
+    def notify(self, obj, event):
+        try:
+            return QtWidgets.QApplication.notify(self, obj, event)
+        except Exception:
+            print(traceback.format_exception(*sys.exc_info()))
+            return False
+        
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     widget = MainWindow()
     widget.show()
     app.exec_()
