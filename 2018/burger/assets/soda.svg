@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   id="svg5955"
+   version="1.1"
+   viewBox="0 0 210 297"
+   height="297mm"
+   width="210mm">
+  <defs
+     id="defs5949">
+    <clipPath
+       id="clipPath930"
+       clipPathUnits="userSpaceOnUse">
+      <path
+         id="path928"
+         d="m 57.347,97.7013 h 18.0421 v -72.25 H 57.347 Z" />
+    </clipPath>
+  </defs>
+  <metadata
+     id="metadata5952">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1">
+    <g
+       transform="matrix(0.35277777,0,0,-0.35277777,6.5154932,3.3983652)"
+       id="g900">
+      <path
+         id="path902"
+         style="fill:#f03e65;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 0,0 c -0.082,-0.148 -0.128,-0.319 -0.128,-0.5 v -33.646 c 0,-0.574 0.467,-1.042 1.043,-1.042 0.574,0 1.042,0.466 1.042,1.042 V -0.899 L 8.518,5.66 c 0.406,0.407 0.407,1.068 0,1.475 -0.408,0.407 -1.068,0.407 -1.475,0 L 0.21,0.303 C 0.12,0.212 0.05,0.11 0,0" />
+    </g>
+    <g
+       transform="matrix(0.35277777,0,0,-0.35277777,5.0678692,7.2534502)"
+       id="g904">
+      <path
+         id="path906"
+         style="fill:#f1f4fb;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="M 0,0 C 0,0.362 0.294,0.656 0.657,0.656 H 9.184 C 9.547,0.656 9.841,0.361 9.841,0 V -1.314 H 0 Z" />
+    </g>
+    <g
+       transform="matrix(0.35277777,0,0,-0.35277777,1.3288842,10.651688)"
+       id="g908">
+      <path
+         id="path910"
+         style="fill:#f1f4fb;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 0,0 h 31.037 l -3.768,-42.687 c 0,0 -0.179,-1.563 -11.75,-1.563 -11.571,0 -11.749,1.563 -11.749,1.563 z" />
+    </g>
+    <g
+       transform="matrix(0.35277777,0,0,-0.35277777,12.011101,15.303768)"
+       id="g912">
+      <path
+         id="path914"
+         style="fill:#ef2953;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="M 0,0 0.757,13.187 H -30.28 l 2.427,-27.495 c 0,0 17.225,-8.629 26.373,2.158 z" />
+    </g>
+    <g
+       transform="matrix(0.35277777,0,0,-0.35277777,1.5959012,7.9379802)"
+       id="g916">
+      <path
+         id="path918"
+         style="fill:#cdd7e6;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 0,0 c 0,0.708 0.573,1.283 1.283,1.283 h 26.958 c 0.708,0 1.282,-0.575 1.282,-1.283 V -2 H 0 Z" />
+    </g>
+    <g
+       transform="matrix(0.35277777,0,0,-0.35277777,0.89101624,8.5708282)"
+       id="g920">
+      <path
+         id="path922"
+         style="fill:#f1f4fb;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 0,0 h 33.52 c 0.709,0 1.282,-0.574 1.282,-1.282 v -3.591 c 0,-0.708 -0.573,-1.282 -1.282,-1.282 H 0 c -0.708,0 -1.282,0.574 -1.282,1.282 v 3.591 C -1.282,-0.574 -0.708,0 0,0" />
+    </g>
+    <g
+       id="g924"
+       transform="matrix(0.35277777,0,0,-0.35277777,-13.42714,35.240506)">
+      <g
+         id="g926" />
+      <g
+         id="g938">
+        <g
+           style="opacity:0.25"
+           id="g936"
+           clip-path="url(#clipPath930)">
+          <g
+             id="g934"
+             transform="translate(74.1064,75.5991)">
+            <path
+               id="path932"
+               style="fill:#959494;fill-opacity:1;fill-rule:nonzero;stroke:none"
+               d="m 0,0 h -1.998 v 1.794 c 0,0.707 -0.574,1.283 -1.282,1.283 h -8.559 v 0.657 c 0,0.361 -0.294,0.656 -0.657,0.656 h -3.122 v 9.372 l 6.559,6.56 c 0.407,0.407 0.408,1.068 0,1.475 -0.407,0.407 -1.067,0.408 -1.474,0 l -6.227,-6.226 v -65.719 c 11.572,0 11.75,1.563 11.75,1.563 l 1.532,17.35 1.48,12.15 0.742,12.93 H 0 c 0.709,0 1.282,0.574 1.282,1.282 v 3.591 C 1.282,-0.574 0.709,0 0,0" />
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
