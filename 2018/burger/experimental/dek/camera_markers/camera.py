@@ -9,6 +9,8 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 import cv2
 from object_detector import ObjectDetector
 
+filename="/home/makerfaire/2018-05-01 11-19-54.mkv"
+
 labels = {
     0: 'empty',
     1: 'topbun',
@@ -62,11 +64,10 @@ class CameraReader(QtCore.QThread):
     signal2 = QtCore.pyqtSignal(QtGui.QImage, object)
     def __init__(self):
         super(CameraReader, self).__init__()
-        self.filename = "2018-05-01 11-19-54.mkv"
-        self.cam = cv2.VideoCapture(self.filename)
-        # self.cam = cv2.VideoCapture(0)
-        # self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        # self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        #self.cam = cv2.VideoCapture(filename)
+        self.cam = cv2.VideoCapture(0)
+        self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         self.width = int(self.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(self.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_1000)
@@ -89,12 +90,13 @@ class CameraReader(QtCore.QThread):
                 img = np.ascontiguousarray(dst, dst.dtype)
                 h3, w3, _ = img.shape
 
-                corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(img, self.aruco_dict, parameters=self.parameters)
-                cv2.aruco.drawDetectedMarkers(img, corners, ids)
+                img2 = img.copy()
+                corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(img2, self.aruco_dict, parameters=self.parameters)
+                cv2.aruco.drawDetectedMarkers(img2, corners, ids)
                 for corner in corners:
                     rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corner, 0.195, newcameramtx, self.dist)
                     try:
-                        cv2.aruco.drawAxis(img, newcameramtx, self.dist, rvec, tvec, 0.1)
+                        cv2.aruco.drawAxis(img2, newcameramtx, self.dist, rvec, tvec, 0.1)
                     except cv2.error:
                         print( "bad matrix")
                 d = {}
@@ -102,14 +104,14 @@ class CameraReader(QtCore.QThread):
                 image2 = QtGui.QImage(self.width, self.height, QtGui.QImage.Format_RGB888)
                 boxes = []
                 if ids is None:
-                    image = QtGui.QImage(img.data, w3, h3, w3*3, QtGui.QImage.Format_RGB888).rgbSwapped()
+                    image = QtGui.QImage(img2.data, w3, h3, w3*3, QtGui.QImage.Format_RGB888).rgbSwapped()
                     self.signal.emit(image)
                 else:
                     short_ids = [id_[0] for id_ in ids]
                     for i, corner in enumerate(corners):
                         d[short_ids[i]] = corner
                     if len(d.keys()) != 4:
-                        image = QtGui.QImage(img.data, w3, h3, w3*3, QtGui.QImage.Format_RGB888).rgbSwapped()
+                        image = QtGui.QImage(img2.data, w3, h3, w3*3, QtGui.QImage.Format_RGB888).rgbSwapped()
                         self.signal.emit(image)
                         continue
                     ul = d[0][0][0]
@@ -119,7 +121,7 @@ class CameraReader(QtCore.QThread):
                     pts = np.array([ul, ur, lr, ll], np.int32)
                     pts = pts.reshape((-1,1,2))
                     cv2.polylines(img,[pts],True,(255,0,255))
-                    image = QtGui.QImage(img.data, w3, h3, w3*3, QtGui.QImage.Format_RGB888).rgbSwapped()
+                    image = QtGui.QImage(img2.data, w3, h3, w3*3, QtGui.QImage.Format_RGB888).rgbSwapped()
                     self.signal.emit(image)
 
                     warped_height = 480
@@ -131,7 +133,7 @@ class CameraReader(QtCore.QThread):
                     srcCorners = np.array([ul, ur, lr, ll], dtype=np.float32)
                     pt = cv2.getPerspectiveTransform(srcCorners, destCorners)
                     warped = cv2.warpPerspective(img, pt, (warped_width, warped_height))
-                    cv2.imwrite("rectified/%05d.png" % counter, warped)
+#                    cv2.imwrite("rectified/%05d.png" % counter, warped)
                     expand = np.expand_dims(warped, axis=0)
                     result = self.objdet.detect(expand)
                     for i in range(result['num_detections']):
@@ -145,8 +147,8 @@ class CameraReader(QtCore.QThread):
                     warped_image = QtGui.QImage(warped.data, warped_width, warped_height, 3*warped_width, QtGui.QImage.Format_RGB888).rgbSwapped()
                     self.signal2.emit(warped_image, boxes)
                     counter += 1
-            else:
-                self.cam = cv2.VideoCapture(self.filename)
+#            else:
+#                self.cam = cv2.VideoCapture(filename)
                 
 
 class QApplication(QtWidgets.QApplication):
