@@ -5,10 +5,10 @@ import os
 import sys
 sys.path.insert(0, 'utils')
 import signal
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg
 import cv2
 from object_detector import ObjectDetector
-
+from render_burger import BurgerRenderer
 filename="z:/cut.mkv"
 
 labels = {
@@ -21,6 +21,18 @@ labels = {
     6: 'bottombun'
     }
 
+WARPED_HEIGHT=720
+ratio = 0.4
+WARPED_WIDTH = int(round(WARPED_HEIGHT * ratio))
+
+def intersection(a,b):
+    x = max(a[0], b[0])
+    y = max(a[1], b[1])
+    w = min(a[0]+a[2], b[0]+b[2]) - x
+    h = min(a[1]+a[3], b[1]+b[3]) - y
+    if w<0 or h<0: return False
+    return True
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -29,14 +41,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_widget.setLayout(self.central_layout)
         self.setCentralWidget(self.central_widget)
         self.image_widget = QtWidgets.QLabel(self)
+        self.image_widget.setFixedSize(1280, 720)
         self.central_layout.addWidget(self.image_widget)
         self.image2_widget = QtWidgets.QLabel(self)
+        self.image2_widget.setFixedSize(WARPED_WIDTH, WARPED_HEIGHT)
         self.central_layout.addWidget(self.image2_widget)
+        self.image3_widget = QtWidgets.QLabel(self)
+        self.image3_widget.setFixedSize(1280, 720)
+        self.central_layout.addWidget(self.image3_widget)
         
+        # self.cam = cv2.VideoCapture(0)
+        # self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        # self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         self.cam = cv2.VideoCapture(filename)
-        #self.cam = cv2.VideoCapture(0)
-        self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         self.width = int(self.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(self.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_1000)
@@ -56,6 +73,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def imageTo2(self, image2, boxes):
         pixmap2 = QtGui.QPixmap.fromImage(image2)
+        boxes = self.analyzeBoxes(boxes)
         p = QtGui.QPainter()
         p.begin(pixmap2)
         for box in boxes:
@@ -63,11 +81,47 @@ class MainWindow(QtWidgets.QMainWindow):
             class_, score, x1, y1, x2, y2 = box
             w = x2-x1
             h = y2-y1
-            p.drawRect(x1, y1, w, h)
+            p.drawRect(QtCore.QRect(QtCore.QPoint(x1, y1), QtCore.QSize(w, h)))
             p.drawText(x1, y1, "%s: %5.2f" % (labels[class_], score))
-        p.end ()
+        p.end()
         self.image2_widget.setPixmap(pixmap2)
 
+    def analyzeBoxes(self, boxes):
+        all_intersections = []
+        for i in range(len(boxes)):
+            first = boxes[i]
+            first_rect = QtCore.QRectF(QtCore.QPointF(first[2], first[3]), QtCore.QPointF(first[4], first[5]))
+            intersections = []
+            for j in range(i+1, len(boxes)):
+                second = boxes[j]
+                second_rect = QtCore.QRectF(QtCore.QPointF(second[2], second[3]), QtCore.QPointF(second[4], second[5]))
+                if first_rect.intersects(second_rect):
+                    intersections.append((first, second))
+            if intersections != []:
+                all_intersections.append(intersections)
+
+        if len(all_intersections):
+            nonoverlapping_boxes = set(boxes)
+            for intersections in all_intersections:
+                for intersection in intersections:
+                    first, second = intersection
+                    if first[1] > second[1]:
+                        if second in nonoverlapping_boxes:
+                            nonoverlapping_boxes.remove(second)
+                    else:
+                        if first in nonoverlapping_boxes:
+                            nonoverlapping_boxes.remove(first)
+
+            boxes = nonoverlapping_boxes
+
+        ordered_boxes = sorted(nonoverlapping_boxes, key=lambda x: x[3])
+        classes_ = [box[0] for box in ordered_boxes]
+        burger_classifier = BurgerRenderer(classes_, 720, 720)
+        image = burger_classifier.image
+        pixmap3 = QtGui.QPixmap.fromImage(image)
+        self.image3_widget.setPixmap(pixmap3)
+        return ordered_boxes
+        
     def camera(self):
         ret, img = self.cam.read()
         if ret == True:
@@ -114,33 +168,29 @@ class MainWindow(QtWidgets.QMainWindow):
                 image = QtGui.QImage(img2.data, w3, h3, w3*3, QtGui.QImage.Format_RGB888).rgbSwapped()
                 self.imageTo(image)
 
-                warped_height = 480
                 orig_width = ur[0] - ul[0]
                 orig_height = ll[1] - ul[1]
                 # ratio = orig_width / float(orig_height)
-                ratio = 0.4
-                warped_width = int(round(warped_height * ratio))
-                destCorners = np.array([ [0, 0], [warped_width, 0], [warped_width, warped_height], [0, warped_height]], dtype=np.float32)
+                destCorners = np.array([ [0, 0], [WARPED_WIDTH, 0], [WARPED_WIDTH, WARPED_HEIGHT], [0, WARPED_HEIGHT]], dtype=np.float32)
                 srcCorners = np.array([ul, ur, lr, ll], dtype=np.float32)
                 pt = cv2.getPerspectiveTransform(srcCorners, destCorners)
-                warped = cv2.warpPerspective(img, pt, (warped_width, warped_height))
+                warped = cv2.warpPerspective(img, pt, (WARPED_WIDTH, WARPED_HEIGHT))
                 cv2.imwrite("rectified/%05d.png" % self.counter, warped)
                 expand = np.expand_dims(warped, axis=0)
                 result = self.objdet.detect(expand)
                 for i in range(result['num_detections']):
-                    if result['detection_scores'][i] > 0.5:
+                    if result['detection_scores'][i] > 0.1:
                         class_ = result['detection_classes'][i]
                         box = result['detection_boxes'][i]
                         score = result['detection_scores'][i]
-                        y1, x1 = box[0] * warped_height, box[1] * warped_width
-                        y2, x2 = box[2] * warped_height, box[3] * warped_width
+                        y1, x1 = box[0] * WARPED_HEIGHT, box[1] * WARPED_WIDTH
+                        y2, x2 = box[2] * WARPED_HEIGHT, box[3] * WARPED_WIDTH
                         boxes.append((class_, score, x1, y1, x2, y2))
-                warped_image = QtGui.QImage(warped.data, warped_width, warped_height, 3*warped_width, QtGui.QImage.Format_RGB888).rgbSwapped()
+                warped_image = QtGui.QImage(warped.data, WARPED_WIDTH, WARPED_HEIGHT, 3*WARPED_WIDTH, QtGui.QImage.Format_RGB888).rgbSwapped()
                 self.imageTo2(warped_image, boxes)
                 self.counter += 1
         else:
-           sys.exit(0)
-#                self.cam = cv2.VideoCapture(filename)
+            self.cam = cv2.VideoCapture(filename)
                 
 
 class QApplication(QtWidgets.QApplication):
