@@ -9,6 +9,8 @@ from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg
 import cv2
 from object_detector import ObjectDetector
 from render_burger import BurgerRenderer
+from classify_burger import BurgerClassifier, img_to_array
+
 filename="z:/cut.mkv"
 
 labels = {
@@ -66,6 +68,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.start(0) 
 
         self.counter = 0
+        self.burger_classifier = BurgerClassifier()
 
     def imageTo(self, image):
         pixmap = QtGui.QPixmap.fromImage(image)
@@ -116,8 +119,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         ordered_boxes = sorted(nonoverlapping_boxes, key=lambda x: x[3])
         classes_ = [box[0] for box in ordered_boxes]
-        burger_classifier = BurgerRenderer(classes_, 720, 720)
-        image = burger_classifier.image
+        burger_renderer = BurgerRenderer(classes_, 720, 720)
+        image = burger_renderer.image
+        image_128 = burger_renderer.image.scaled(128, 128).convertToFormat(QtGui.QImage.Format_RGB888)
+        bits = image_128.constBits().asstring(128*128*3)
+        img = np.fromstring(bits, dtype=np.uint8).reshape(128, 128, 3)
+
+        array = img_to_array(img)
+        result = self.burger_classifier.classify(array)[0]
+        print(result)
         pixmap3 = QtGui.QPixmap.fromImage(image)
         self.image3_widget.setPixmap(pixmap3)
         return ordered_boxes
