@@ -9,7 +9,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 import cv2
 from object_detector import ObjectDetector
 
-filename="/home/makerfaire/2018-05-01 11-19-54.mkv"
+filename="z:/cut.mkv"
 
 labels = {
     0: 'empty',
@@ -64,8 +64,8 @@ class CameraReader(QtCore.QThread):
     signal2 = QtCore.pyqtSignal(QtGui.QImage, object)
     def __init__(self):
         super(CameraReader, self).__init__()
-        #self.cam = cv2.VideoCapture(filename)
-        self.cam = cv2.VideoCapture(0)
+        self.cam = cv2.VideoCapture(filename)
+        #self.cam = cv2.VideoCapture(0)
         self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         self.width = int(self.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -127,13 +127,14 @@ class CameraReader(QtCore.QThread):
                     warped_height = 480
                     orig_width = ur[0] - ul[0]
                     orig_height = ll[1] - ul[1]
-                    ratio = orig_width / float(orig_height)
+                    # ratio = orig_width / float(orig_height)
+                    ratio = 0.4
                     warped_width = int(round(warped_height * ratio))
                     destCorners = np.array([ [0, 0], [warped_width, 0], [warped_width, warped_height], [0, warped_height]], dtype=np.float32)
                     srcCorners = np.array([ul, ur, lr, ll], dtype=np.float32)
                     pt = cv2.getPerspectiveTransform(srcCorners, destCorners)
                     warped = cv2.warpPerspective(img, pt, (warped_width, warped_height))
-#                    cv2.imwrite("rectified/%05d.png" % counter, warped)
+                    cv2.imwrite("rectified/%05d.png" % counter, warped)
                     expand = np.expand_dims(warped, axis=0)
                     result = self.objdet.detect(expand)
                     for i in range(result['num_detections']):
@@ -147,7 +148,8 @@ class CameraReader(QtCore.QThread):
                     warped_image = QtGui.QImage(warped.data, warped_width, warped_height, 3*warped_width, QtGui.QImage.Format_RGB888).rgbSwapped()
                     self.signal2.emit(warped_image, boxes)
                     counter += 1
-#            else:
+            else:
+               sys.exit(0)
 #                self.cam = cv2.VideoCapture(filename)
                 
 
