@@ -4,12 +4,14 @@ import numpy as np
 import os
 import sys
 sys.path.insert(0, 'utils')
+sys.path.insert(0, '../../../machine')
 import signal
 from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg
 import cv2
 from object_detector import ObjectDetector
 from render_burger import BurgerRenderer
 from classify_burger import BurgerClassifier, img_to_array
+from label_burger import label_burger
 
 filename="z:/cut.mkv"
 
@@ -103,8 +105,8 @@ class MainWindow(QtWidgets.QMainWindow):
             if intersections != []:
                 all_intersections.append(intersections)
 
+        nonoverlapping_boxes = set(boxes)
         if len(all_intersections):
-            nonoverlapping_boxes = set(boxes)
             for intersections in all_intersections:
                 for intersection in intersections:
                     first, second = intersection
@@ -127,7 +129,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         array = img_to_array(img)
         result = self.burger_classifier.classify(array)[0]
-        print(result)
+        label = label_burger(classes_)
+        prediction = result[0] > 0.5
+        print("Result: ", prediction, label, prediction == label)
         pixmap3 = QtGui.QPixmap.fromImage(image)
         self.image3_widget.setPixmap(pixmap3)
         return ordered_boxes
@@ -189,7 +193,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 expand = np.expand_dims(warped, axis=0)
                 result = self.objdet.detect(expand)
                 for i in range(result['num_detections']):
-                    if result['detection_scores'][i] > 0.1:
+                    if result['detection_scores'][i] > 0.5:
                         class_ = result['detection_classes'][i]
                         box = result['detection_boxes'][i]
                         score = result['detection_scores'][i]
