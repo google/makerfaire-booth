@@ -589,7 +589,7 @@ function vote(wrapper, choice) {
     request.onreadystatechange = function() {
 	if(request.readyState === 4) {
 	    if(request.status === 200) {
-		console.log("celebration!");
+		console.log("celebration!", request.responseText);
 	    } else {
 		console.log("sadness!", request.status, request.statusText);
 	    }
