@@ -6,8 +6,8 @@ c = conn.cursor()
 
 try:
     c.execute('''CREATE TABLE votes (burger CHARACTER(6), vote BOOLEAN)''')
-except sqlite3.OperationalError, e:
-    print "failed to create table", e
+except sqlite3.OperationalError as e:
+    print("failed to create table", e)
     pass
 
 class VoteHandler(tornado.web.RequestHandler):
@@ -18,7 +18,11 @@ class VoteHandler(tornado.web.RequestHandler):
                                             
     def get(self):
         burger = self.get_argument('burger', '000000')
-        vote = bool(self.get_argument('vote', 'True'))
+        vote = bool(self.get_argument('vote', 'true') == 'true')
         c.execute("INSERT INTO votes VALUES (?, ?)", (burger, vote))
         conn.commit()
+        c.execute("SELECT output FROM labels WHERE burger = ?", (burger,))
+        label = bool(c.fetchone()[0])
+        
+        self.write("Burger: %s Vote: %s Label: %s Correct: %s" % (burger, vote, label, vote==label))
 
