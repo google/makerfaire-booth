@@ -56,3 +56,4 @@ while True:
     all_['prob'] = probs[:, 0]
     sorted_all = all_.sort_values('prob', axis=0)
 
+    print(sorted_all[sorted_all.output == False])
