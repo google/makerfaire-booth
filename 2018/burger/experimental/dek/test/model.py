@@ -18,6 +18,8 @@ def print_eval(y, prediction):
     print("FP:", fp)
     print("TN:", tn)
     print("FN:", fn)
+    print("FPR:", fp/float(fp+tn))
+    print("FNR:", fn/float(fn+tp))
 
 def main():
     enc = OneHotEncoder(n_values=[7,7,7,7,7,7])
@@ -28,8 +30,6 @@ def main():
 
     sample = all_.sample()
     while True:
-        print(sample)
-
         X = sample.drop(['output'], axis=1)
         y = sample['output']
 
