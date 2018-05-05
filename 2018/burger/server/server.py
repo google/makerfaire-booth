@@ -3,6 +3,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 import vote
+import burger
 
 
 
@@ -13,6 +14,7 @@ class IndexHandler(tornado.web.RequestHandler):
 urls = [
     (r"/", IndexHandler),
     (r"/vote", vote.VoteHandler),
+    (r"/burger", burger.BurgerHandler),
 ]
 
 settings = dict({
