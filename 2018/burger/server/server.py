@@ -26,6 +26,5 @@ if __name__ == "__main__":
     app = tornado.web.Application(urls, **settings)
     http_server = tornado.httpserver.HTTPServer(app)
 
-    http_server.bind(8888)
-    http_server.start(10)
+    http_server.listen(8888)
     tornado.ioloop.IOLoop.current().start()
