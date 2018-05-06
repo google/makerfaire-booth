@@ -25,109 +25,6 @@ const layer_names_enum = Object.freeze({
     "bottombun":6
 });
 
-const valid_burgers = [
-    [0,0,0,1,5,6],
-    [0,0,1,2,5,6],
-    [0,0,1,3,5,6],
-    [0,0,1,4,5,6],
-    [0,0,1,5,2,6],
-    [0,0,1,5,3,6],
-    [0,1,2,3,5,6],
-    [0,1,2,4,5,6],
-    [0,1,2,5,2,6],
-    [0,1,2,5,3,6],
-    [0,1,3,2,5,6],
-    [0,1,3,4,5,6],
-    [0,1,3,5,2,6],
-    [0,1,3,5,3,6],
-    [0,1,4,2,5,6],
-    [0,1,4,3,5,6],
-    [0,1,4,5,2,6],
-    [0,1,4,5,3,6],
-    [0,1,5,2,3,6],
-    [0,1,5,2,5,6],
-    [0,1,5,3,2,6],
-    [0,1,5,3,5,6],
-    [0,1,5,4,5,6],
-    [1,2,3,2,5,6],
-    [1,2,3,4,5,6],
-    [1,2,3,5,2,6],
-    [1,2,3,5,3,6],
-    [1,2,4,2,5,6],
-    [1,2,4,3,5,6],
-    [1,2,4,5,2,6],
-    [1,2,4,5,3,6],
-    [1,2,5,2,3,6],
-    [1,2,5,2,5,6],
-    [1,2,5,3,2,6],
-    [1,2,5,3,5,6],
-    [1,2,5,4,5,6],
-    [1,3,2,3,5,6],
-    [1,3,2,4,5,6],
-    [1,3,2,5,2,6],
-    [1,3,2,5,3,6],
-    [1,3,4,2,5,6],
-    [1,3,4,3,5,6],
-    [1,3,4,5,2,6],
-    [1,3,4,5,3,6],
-    [1,3,5,2,3,6],
-    [1,3,5,2,5,6],
-    [1,3,5,3,2,6],
-    [1,3,5,3,5,6],
-    [1,3,5,4,5,6],
-    [1,4,2,3,5,6],
-    [1,4,2,4,5,6],
-    [1,4,2,5,2,6],
-    [1,4,2,5,3,6],
-    [1,4,3,2,5,6],
-    [1,4,3,4,5,6],
-    [1,4,3,5,2,6],
-    [1,4,3,5,3,6],
-    [1,4,5,2,3,6],
-    [1,4,5,2,5,6],
-    [1,4,5,3,2,6],
-    [1,4,5,3,5,6],
-    [1,4,5,4,5,6],
-    [1,5,2,3,2,6],
-    [1,5,2,3,5,6],
-    [1,5,2,4,5,6],
-    [1,5,2,5,2,6],
-    [1,5,2,5,3,6],
-    [1,5,3,2,3,6],
-    [1,5,3,2,5,6],
-    [1,5,3,4,5,6],
-    [1,5,3,5,2,6],
-    [1,5,3,5,3,6],
-    [1,5,4,2,5,6],
-    [1,5,4,3,5,6],
-    [1,5,4,5,2,6],
-    [1,5,4,5,3,6]
-];
-
-
-
-function create_random_layers() {
-    var layers = [];
-    var empty_layers = Math.floor(Math.random() * (MAX_BURGERS-1));
-    for (i = 0; i < empty_layers; i++) {
-	layers.push("empty");
-    }
-    for (i = empty_layers; i < MAX_BURGERS; i++) {
-	layers.push(layers_enum[Math.floor(Math.random() * 6)+1]);
-    }
-    return layers;
-}
-
-
-function create_valid_layers() {
-    var layers_idx = valid_burgers[Math.floor(Math.random() * valid_burgers.length)];
-    var layers = [];
-    for (i = 0; i < layers_idx.length; i++) {
-	layers.push(layers_enum[layers_idx[i]]);
-    }
-    return layers;
-}
-
 function create_chute(name, center_x, height) {
     var svgNS = 'http://www.w3.org/2000/svg';
     var chute = document.createElementNS(svgNS, "svg");
@@ -248,14 +145,16 @@ function create_burger(layers, side) {
     return wrapper;
 }
 
-
-function start_burger_drop_animation(side) {
-    if (Math.random() < 0.5) {
-	var layers = create_random_layers();
-    } else {
-	var layers = create_valid_layers();
+function layer_idx_to_layers(layers_idx) {
+    var layers = [];
+    for (i = 0; i < layers_idx.length; i++) {
+	layers.push(layers_enum[layers_idx[i]]);
     }
+    return layers;
 
+}
+function burger_drop_animation(layers, side) {
+    console.log("Create burger", layers);
     var wrapper = create_burger(layers, side);
     document.body.appendChild(wrapper);
 
@@ -271,6 +170,26 @@ function start_burger_drop_animation(side) {
 	wait_for_keypress(wrapper);
     }
     player.play();
+}
+
+function start_burger_drop_animation(side) {
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+	if(request.readyState === 4) {
+	    if(request.status === 200) {
+		var layers_idx;
+		layers_idx = request.response["burger"];
+	    } else {
+		console.log("sadness!", request.status, request.statusText);
+		layers_idx = [1,2,3,4,5,6];
+	    }
+	    burger_drop_animation(layer_idx_to_layers(layers_idx), side);
+	}
+	
+    }
+    request.responseType = 'json';
+    request.open('GET', 'http://gork:8888/burger');
+    request.send();
 }
 
 function create_animation_trash_burger(element_name, data, wrapper) {
