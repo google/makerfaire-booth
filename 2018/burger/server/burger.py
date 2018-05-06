@@ -18,8 +18,12 @@ class BurgerHandler(tornado.web.RequestHandler):
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
                                             
     def get(self):
-        if random.random > 0.5:
+        is_burger = None
+        if random.random() > 0.5:
+            is_burger = True
             burger = ','.join(burgers.sample().index.values[0])
         else:
+            is_burger = False
             burger = ','.join(notburgers.sample().index.values[0])
-        self.write('{ "burger": [%s] }' % burger)
+        true_label = str(is_burger).lower()
+        self.write('{ "burger": [%s], "true_label": %s }' % (burger, true_label))
