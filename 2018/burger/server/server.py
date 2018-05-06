@@ -5,6 +5,8 @@ import tornado.web
 import vote
 import burger
 
+import sqlite3
+connection = sqlite3.connect('server.db')
 
 
 class IndexHandler(tornado.web.RequestHandler):
@@ -13,8 +15,8 @@ class IndexHandler(tornado.web.RequestHandler):
 
 urls = [
     (r"/", IndexHandler),
-    (r"/vote", vote.VoteHandler),
-    (r"/burger", burger.BurgerHandler),
+    (r"/vote", vote.VoteHandler, dict(connection=connection)),
+    (r"/burger", burger.BurgerHandler, dict(connection=connection)),
 ]
 
 settings = dict({
