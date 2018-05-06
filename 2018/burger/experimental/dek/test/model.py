@@ -1,5 +1,6 @@
 from __future__ import print_function
 import pandas
+import numpy
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import accuracy_score
@@ -27,39 +28,51 @@ def main():
     cursor = conn.cursor()
     all_ = pandas.read_sql_query('SELECT layers.burger, labels.output, layers.layer0, layers.layer1, layers.layer2, layers.layer3, layers.layer4, layers.layer5 FROM layers,labels WHERE layers.burger = labels.burger', conn, index_col='burger')
     
+    X = all_.drop(['output'], axis=1)
+    y = all_['output']
 
-    sample = all_.sample()
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
+    
+    clf = MLPClassifier(solver='adam',  activation='relu',
+                        hidden_layer_sizes=(32,32),
+                        verbose=False,
+                        max_iter=10000,
+                        tol=1e-9,
+                        random_state=1)
+    sample = X_train.sample(1).join(y_train)
+    classes = numpy.unique(y)
     while True:
-        X = sample.drop(['output'], axis=1)
-        y = sample['output']
+        sample_X_train = sample.drop(['output'], axis=1)
+        sample_y_train = sample['output']
+        sample_X_train_categoricals = sample_X_train[column_names]
+        tX_sample_train_categoricals = enc.fit_transform(sample_X_train_categoricals)
+        clf.partial_fit(tX_sample_train_categoricals, sample_y_train.as_matrix().astype(int), classes=classes)
 
-        X_categoricals = X[column_names]
-        tX_categoricals = enc.fit_transform(X_categoricals)
-        clf = MLPClassifier(solver='adam',  activation='relu',
-                            hidden_layer_sizes=(32,32),
-                            verbose=False,
-                            max_iter=10000,
-                            tol=1e-9,
-                            random_state=1)
-        clf.fit(tX_categoricals, y.as_matrix().astype(int))
-
-        X = all_.drop(['output'], axis=1)
-        y = all_['output']
-        X_categoricals = X[column_names]
-        tX_categoricals = enc.fit_transform(X_categoricals)
-        prediction = clf.predict(tX_categoricals)
-        print_eval(y, prediction)
-        probs = clf.predict_proba(tX_categoricals)
-        # Store the probabilities
-        all_copy = all_.copy()
-        all_copy['prob_notburger'] = probs[:,0]
-        all_copy['prob_burger'] = probs[:,1]
-
-        mispredicted = all_copy[all_copy.output != prediction]
-        worst_burger = mispredicted.nlargest(1, "prob_burger", keep='first').drop(['prob_burger', 'prob_notburger'], axis=1)
-        worst_notburger = mispredicted.nsmallest(1, "prob_burger", keep='last').drop(['prob_burger', 'prob_notburger'], axis=1)
+        X_test_categoricals = X_test[column_names]
+        tX_test_categoricals = enc.fit_transform(X_test_categoricals)
+        prediction = clf.predict(tX_test_categoricals)
+        print_eval(y_test, prediction)
         
+        X_train_categoricals = X_train[column_names]
+        tX_train_categoricals = enc.fit_transform(X_train_categoricals)
+        probs = clf.predict_proba(tX_train_categoricals)
+        # Store the probabilities
+        X_train_copy = X_train.copy()
+        X_train_copy['prob_notburger'] = probs[:,0]
+        X_train_copy['prob_burger'] = probs[:,1]
+
+        X_train_categoricals = X_train_copy[column_names]
+        tX_train_categoricals = enc.fit_transform(X_train_categoricals)
+        prediction = clf.predict(tX_train_categoricals)
+
+        # Take worst mispredicted items and retrain
+        mispredicted = X_train_copy[y_train != prediction]
+        worst_burger = mispredicted.nlargest(1, "prob_burger", keep='first').drop(['prob_burger', 'prob_notburger'], axis=1).join(y_train)
+        worst_notburger = mispredicted.nsmallest(1, "prob_burger", keep='last').drop(['prob_burger', 'prob_notburger'], axis=1).join(y_train)
+
+        ol = len(sample)
         sample = sample.append(worst_burger)
         sample = sample.append(worst_notburger)
+        print(ol,len(sample))
 if __name__ == '__main__':
     main()
