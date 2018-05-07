@@ -1,3 +1,4 @@
+import os
 import pickle
 import pandas
 import tornado.httpserver
@@ -14,13 +15,16 @@ test_burgers = pandas.read_hdf('split.h5', 'test')
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write('ok')
+        self.redirect("/static/index.html")
+
 
 urls = [
     (r"/", IndexHandler),
     (r"/vote", vote.VoteHandler, dict(clf=clf, burgers=train_burgers)),
     (r"/validate", validate.ValidateHandler, dict(clf=clf, burgers=test_burgers)),
     (r"/burger", burger.BurgerHandler),
+    (r"/static/assets/(.*)",tornado.web.StaticFileHandler, {"path": "../assets"}),
+    (r"/static/(.*)",tornado.web.StaticFileHandler, {"path": "./static"}),
 ]
 
 settings = dict({

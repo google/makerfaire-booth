@@ -136,7 +136,7 @@ function create_burger(layers, side) {
     	svg.setAttributeNS(null, 'class', layers[i]);
 	if (layers[i] != 'empty') {
     	    var use = document.createElementNS(svgNS, 'use');
-	    var href = '../assets/' + layers[i] + '.svg#g10';
+	    var href = '/static/assets/' + layers[i] + '.svg#g10';
     	    use.setAttributeNS(null, 'href', href);
     	    svg.appendChild(use);
 	}
@@ -188,7 +188,7 @@ function start_burger_drop_animation(side) {
 	
     }
     request.responseType = 'json';
-    request.open('GET', 'http://gork:8888/burger');
+    request.open('GET', '/burger');
     request.send();
 }
 
@@ -377,7 +377,7 @@ function vote(wrapper, choice) {
 		}
 		
 		request2.responseType = 'json';
-		request2.open('GET', 'http://gork:8888/validate');
+		request2.open('GET', '/validate');
 		request2.send();
 
 	    } else {
@@ -386,7 +386,7 @@ function vote(wrapper, choice) {
 	}
     }
     request.responseType = 'json';
-    request.open('GET', 'http://gork:8888/vote?burger=' + burger + '&vote=' + choice);
+    request.open('GET', '/vote?burger=' + burger + '&vote=' + choice);
     request.send();
 }
 
