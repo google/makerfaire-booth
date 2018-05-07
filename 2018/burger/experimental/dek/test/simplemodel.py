@@ -7,7 +7,6 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, roc_auc_score
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report
 column_names = ['layer0', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5']
 import sqlite3
