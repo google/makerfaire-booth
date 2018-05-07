@@ -356,6 +356,7 @@ function element_to_burger(wrapper) {
     }
     return burger.join('');
 }
+
 function vote(wrapper, choice) {
     var request = new XMLHttpRequest();
 
@@ -364,13 +365,27 @@ function vote(wrapper, choice) {
     request.onreadystatechange = function() {
 	if(request.readyState === 4) {
 	    if(request.status === 200) {
-		console.log("celebration!", request.responseText);
+		console.log("celebration!");
+		var request2 = new XMLHttpRequest();
+		request2.onreadystatechange = function() {
+		    if(request2.readyState === 4) {
+			if(request2.status === 200) {
+			    console.log("validation!");
+			    document.getElementById("status").innerHTML = JSON.stringify(request2.response);
+			}
+		    }
+		}
+		
+		request2.responseType = 'json';
+		request2.open('GET', 'http://gork:8888/validate');
+		request2.send();
+
 	    } else {
-		console.log("sadness!", request.status, request.statusText);
+		console.log("sadness!", request.status, request.statusText, request.responseText);
 	    }
 	}
     }
-
+    request.responseType = 'json';
     request.open('GET', 'http://gork:8888/vote?burger=' + burger + '&vote=' + choice);
     request.send();
 }
