@@ -26,7 +26,7 @@ for key, value in labels.items():
     if value == 'empty':
         renderers[value] = None
     else:
-        renderers[value] = QtSvg.QSvgRenderer("../../../assets/%s.svg" % value)
+        renderers[value] = QtSvg.QSvgRenderer("../assets/%s.svg" % value)
 
 class BurgerRenderer(object):
     def __init__(self, burger, width, height):
