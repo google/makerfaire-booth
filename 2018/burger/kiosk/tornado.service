@@ -1,0 +1,15 @@
+[Unit]
+Description=Tornado web server for burger
+After=network.target
+
+[Service]
+User=makerfaire
+Group=makerfaire
+Type=simple
+WorkingDirectory=/home/makerfaire/makerfaire-booth/2018/burger/server
+ExecStart=/usr/bin/python server.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

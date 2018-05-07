@@ -1,6 +1,7 @@
 [Unit]
 Description=Direct X login for user %i
-After=x@vt7.service systemd-user-sessions.service
+After=x@vt7.service systemd-user-sessions.service tornado.service
+Requires=tornado.service
 Wants=x@vt7.service
 Conflicts=getty@tty7.service
 #After=network.target network-online.target nss-lookup.target
