@@ -1,11 +1,16 @@
+import pickle
+import pandas
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
 import vote
 import burger
-import pandas
-import sqlite3
+import validate
+
+clf = pickle.load(open("clf.pkl", "rb"))
+train_burgers = pandas.read_hdf('split.h5', 'train')
+test_burgers = pandas.read_hdf('split.h5', 'test')
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
@@ -13,7 +18,8 @@ class IndexHandler(tornado.web.RequestHandler):
 
 urls = [
     (r"/", IndexHandler),
-    (r"/vote", vote.VoteHandler),
+    (r"/vote", vote.VoteHandler, dict(clf=clf, burgers=train_burgers)),
+    (r"/validate", validate.ValidateHandler, dict(clf=clf, burgers=test_burgers)),
     (r"/burger", burger.BurgerHandler),
 ]
 

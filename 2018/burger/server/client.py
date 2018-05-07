@@ -1,9 +1,9 @@
 import pandas
 import requests
 
-burgers = pandas.read_hdf('../machine/data.h5', 'df')
+burgers = pandas.read_hdf('split.h5', 'train')
 
-while True:
+def do_request():
     r = requests.get('http://gork:8888/burger')
     if r.status_code == 200:
         j = r.json()
@@ -14,19 +14,29 @@ while True:
         print(vote)
         r2 = requests.get('http://gork:8888/vote?vote=%s&burger=%s' % (vote, burger))
         print(r2.status_code)
-        print(r2.text)
-        response = r2.json()
-        print(response['burger'])
-        print(response['classification_report'])
-        tp = response["tp"]
-        fp = response["fp"]
-        tn = response["tn"]
-        fn = response["fn"]
+        if r2.status_code == 200:
+            r3 = requests.get('http://gork:8888/validate')
+            print(r3.status_code)
+            if r3.status_code == 200:
+                print(r3.text)
+                response = r3.json()
+                print(response['classification_report'])
+                tp = response["tp"]
+                fp = response["fp"]
+                tn = response["tn"]
+                fn = response["fn"]
+                
+                print("TP:", tp)
+                print("FP:", fp)
+                print("TN:", tn)
+                print("FN:", fn)
+                print("FPR:", fp/float(fp+tn))
+                print("FNR:", fn/float(fn+tp))
+        else:
+            print("Failed:",r2.status_code,r2.text)
+def main():
+    while True:
+        do_request()
 
-        print("TP:", tp)
-        print("FP:", fp)
-        print("TN:", tn)
-        print("FN:", fn)
-        print("FPR:", fp/float(fp+tn))
-        print("FNR:", fn/float(fn+tp))
-
+if __name__ == '__main__':
+    main()

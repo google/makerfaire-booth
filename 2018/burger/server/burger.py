@@ -1,12 +1,11 @@
 from __future__ import print_function
 from constants import column_names
 import pandas
-import sqlite3
 import tornado.web
 import random
 import sys
 
-data = pandas.read_hdf('../machine/data.h5', 'df')
+data = pandas.read_hdf('split.h5', 'train')
 burgers = data[data.output == 1]
 notburgers = data[data.output == 0]
 
