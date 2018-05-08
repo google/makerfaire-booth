@@ -25,10 +25,10 @@ const layer_names_enum = Object.freeze({
     "bottombun":6
 });
 
-function create_chute(name, center_x, height) {
+function create_chute(center_x, height) {
     var svgNS = 'http://www.w3.org/2000/svg';
     var chute = document.createElementNS(svgNS, "svg");
-    chute.setAttributeNS(null, 'id', 'chute_' + name);
+    chute.setAttributeNS(null, 'id', 'chute');
     chute.setAttributeNS(null, 'class', 'chute');
     document.body.appendChild(chute);
 
@@ -70,7 +70,6 @@ function create_conveyor(width, height) {
 
 function create_animation_burger_drop(element_name, data, wrapper) {
     var element = wrapper.children.namedItem(element_name);
-    var side = wrapper.getAttribute('id');
     var body = document.getElementsByTagName("BODY")[0];
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
@@ -84,7 +83,7 @@ function create_animation_burger_drop(element_name, data, wrapper) {
 	delay: data.delay,
     }
 
-    var target = side == 'left' ? 256 : width-256;
+    var target = 256;
 
     var keyframes = [
 	{ transform: 'translateX(' + target + 'px) translateY(' + data.initialY + ')', opacity: 1},
@@ -111,8 +110,6 @@ function create_layer_height_offsets(spacing=BURGER_LAYER_SPACING) {
     return animation;
 }
 
-
-
 function create_group(wrapper, f) {
     var burgerOffsets = create_layer_height_offsets();
     var kEffects = [];
@@ -124,11 +121,11 @@ function create_group(wrapper, f) {
     return group;
 }
 
-function create_burger(layers, side) {
+function create_burger(layers) {
     var svgNS = 'http://www.w3.org/2000/svg';
     var wrapper = document.createElement("div");
     wrapper.setAttribute('class', "wrapper");
-    wrapper.setAttribute('id', side);
+    wrapper.setAttribute('id', 'chute');
     for (i = 0; i < layers.length; i++) {
     	var svg = document.createElementNS(svgNS, "svg");
     	svg.setAttributeNS(null, 'viewBox', '0 0 71.25 40');
@@ -153,9 +150,9 @@ function layer_idx_to_layers(layers_idx) {
     return layers;
 
 }
-function burger_drop_animation(layers, side) {
+function burger_drop_animation(layers) {
     console.log("Create burger", layers);
-    var wrapper = create_burger(layers, side);
+    var wrapper = create_burger(layers);
     document.body.appendChild(wrapper);
 
     var burgerOffsets = create_layer_height_offsets();
@@ -172,7 +169,7 @@ function burger_drop_animation(layers, side) {
     player.play();
 }
 
-function start_burger_drop_animation(side) {
+function start_burger_drop_animation() {
     var request = new XMLHttpRequest();
     request.onreadystatechange = function() {
 	if(request.readyState === 4) {
@@ -183,7 +180,7 @@ function start_burger_drop_animation(side) {
 		console.log("sadness!", request.status, request.statusText);
 		layers_idx = [1,2,3,4,5,6];
 	    }
-	    burger_drop_animation(layer_idx_to_layers(layers_idx), side);
+	    burger_drop_animation(layer_idx_to_layers(layers_idx));
 	}
 	
     }
@@ -194,7 +191,6 @@ function start_burger_drop_animation(side) {
 
 function create_animation_trash_burger(element_name, data, wrapper) {
     var element = wrapper.children.namedItem(element_name);
-    var side = wrapper.getAttribute('id');
     var body = document.getElementsByTagName("BODY")[0];
     width = body.getBoundingClientRect().width;
     height = body.getBoundingClientRect().height;
@@ -206,7 +202,7 @@ function create_animation_trash_burger(element_name, data, wrapper) {
 	direction: "normal",
 	fill: "forwards",
     }
-    var target = side == 'left' ? 256 : width-256;
+    var target = 256;
     var keyframes = [
 	{ transform: 'translateX(' + target + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
 	{ transform: 'translateX(' + target + 'px) translateY(' + data.finalY + ')', opacity: 1},
@@ -216,7 +212,6 @@ function create_animation_trash_burger(element_name, data, wrapper) {
 
 function create_animation_convey_burger_to_middle(element_name, data, wrapper) {
     var element = wrapper.children.namedItem(element_name);
-    var side = wrapper.getAttribute('id');
     var body = document.getElementsByTagName("BODY")[0];
     width = body.getBoundingClientRect().width;
     height = body.getBoundingClientRect().height;
@@ -228,7 +223,7 @@ function create_animation_convey_burger_to_middle(element_name, data, wrapper) {
 	direction: "normal",
 	fill: "forwards",
     }
-    var target = side == 'left' ? 256 : width-256;
+    var target = 256;
     var keyframes = [
 	{ transform: 'translateX(' + target + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
 	{ transform: 'translateX(' + width/2 + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
@@ -239,7 +234,6 @@ function create_animation_convey_burger_to_middle(element_name, data, wrapper) {
 
 function create_animation_smoosh_burger(element_name, data1, data2, wrapper) {
     var element = wrapper.children.namedItem(element_name);
-    var side = wrapper.getAttribute('id');
     var body = document.getElementsByTagName("BODY")[0];
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
@@ -253,7 +247,7 @@ function create_animation_smoosh_burger(element_name, data1, data2, wrapper) {
 	delay: data1.delay,
     }
 
-    var target = side == 'left' ? 256 : width-256;
+    var target = 256;
 
     var keyframes = [
 	{ transform: 'translateX(' + target + 'px) translateY(' + data1.conveyorY + ')', opacity: 1},
@@ -272,10 +266,9 @@ function start_animation_convey_burger_to_middle(wrapper) {
     var group = new GroupEffect(kEffects);
     var player = new Animation(group, document.timeline);
     player.onfinish = function() {
-	var side = wrapper.getAttribute('id');
 	wrapper.setAttribute('id', 'elevator');
 	start_burger_elevator_animation(wrapper);
-	start_burger_drop_animation(side);
+	start_burger_drop_animation();
     }
     player.play();
 }
@@ -342,9 +335,8 @@ function start_animation_trash_burger(wrapper) {
     var group = new GroupEffect(kEffects);
     var player = new Animation(group, document.timeline);
     player.onfinish = function() {
-	var side = wrapper.getAttribute('id');
     	wrapper.remove();
-    	start_burger_drop_animation(side);
+    	start_burger_drop_animation();
     }
     player.play();
 }
@@ -357,6 +349,34 @@ function element_to_burger(wrapper) {
     return burger.join('');
 }
 
+function updateStatus(request) {
+    document.getElementById("fp").innerHTML = request.response["fp"];
+    document.getElementById("tp").innerHTML = request.response["tp"];
+    document.getElementById("tn").innerHTML = request.response["tn"];
+    document.getElementById("fn").innerHTML = request.response["fn"];
+    document.getElementById("iterations").innerHTML = request.response["n_iter"];
+    document.getElementById("accuracy").innerHTML = (request.response["accuracy"] * 100.).toFixed(2);
+    document.getElementById("burger_precision").innerHTML = request.response["p"][1].toFixed();
+    document.getElementById("notburger_precision").innerHTML = request.response["p"][1].toFixed(2);
+    document.getElementById("burger_recall").innerHTML = request.response["p"][0].toFixed(2);
+    document.getElementById("notburger_recall").innerHTML = request.response["p"][0].toFixed(2);
+}
+
+function requestStatus() {
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+	if(request.readyState === 4) {
+	    if(request.status === 200) {
+		updateStatus(request);
+	    }
+	}
+    }
+    
+    request.responseType = 'json';
+    request.open('GET', '/validate');
+    request.send();
+}
+
 function vote(wrapper, choice) {
     var request = new XMLHttpRequest();
 
@@ -366,20 +386,7 @@ function vote(wrapper, choice) {
 	if(request.readyState === 4) {
 	    if(request.status === 200) {
 		console.log("celebration!");
-		var request2 = new XMLHttpRequest();
-		request2.onreadystatechange = function() {
-		    if(request2.readyState === 4) {
-			if(request2.status === 200) {
-			    console.log("validation!");
-			    document.getElementById("status").innerHTML = JSON.stringify(request2.response);
-			}
-		    }
-		}
-		
-		request2.responseType = 'json';
-		request2.open('GET', '/validate');
-		request2.send();
-
+		requestStatus();
 	    } else {
 		console.log("sadness!", request.status, request.statusText, request.responseText);
 	    }
@@ -391,7 +398,6 @@ function vote(wrapper, choice) {
 }
 
 function after_keypress(wrapper, isBurger) {
-    var side = wrapper.getAttribute('id');
     if (isBurger) {
 	vote(wrapper, true);
 	start_animation_smoosh_burger(wrapper);
@@ -403,27 +409,15 @@ function after_keypress(wrapper, isBurger) {
 
 function wait_for_keypress(wrapper) {
     var yesCode, noCode;
-    function keydownHandlerLeft(e) {
+    function keydownHandler(e) {
 	var yesCode = "Z".charCodeAt(0);
 	var noCode = "X".charCodeAt(0);
 	if (e.keyCode == yesCode || e.keyCode == noCode) {
-	    document.removeEventListener('keydown', keydownHandlerLeft, false);
+	    document.removeEventListener('keydown', keydownHandler, false);
 	    after_keypress(wrapper, e.keyCode == yesCode);
 	}
     }
-    function keydownHandlerRight(e) {
-	var yesCode = "M".charCodeAt(0);
-	var noCode = "N".charCodeAt(0);
-	if (e.keyCode == yesCode || e.keyCode == noCode) {
-	    document.removeEventListener('keydown', keydownHandlerRight, false);
-	    after_keypress(wrapper, e.keyCode == yesCode);
-	}
-    }
-    var side = wrapper.getAttribute('id');
-    if (side == 'left')
-	document.addEventListener('keydown', keydownHandlerLeft, false);
-    else if (side == 'right')
-	document.addEventListener('keydown', keydownHandlerRight, false);
+    document.addEventListener('keydown', keydownHandler, false);
 }
 
 const body = document.getElementsByTagName('body')[0];
@@ -431,8 +425,7 @@ body.onload = function() {
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
     create_conveyor(width, height-100);
-    create_chute('left', 256, height-100);
-    create_chute('right', width-256, height-100);
-    start_burger_drop_animation('left');
-    start_burger_drop_animation('right');
+    create_chute(256, height-100);
+    requestStatus();
+    start_burger_drop_animation();
 };
