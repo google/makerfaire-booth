@@ -18,9 +18,10 @@ y_train = burgers['output']
 classes = numpy.unique(y_train)
 
 class VoteHandler(tornado.web.RequestHandler):
-    def initialize(self, clf, burgers):
+    def initialize(self, clf, burgers, connection):
         self.clf = clf
         self.burgers = burgers
+        self.connection = connection
 
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
@@ -31,6 +32,10 @@ class VoteHandler(tornado.web.RequestHandler):
         burger = self.get_argument('burger')
         vote_arg = self.get_argument('vote')
         vote = vote_arg == 'true' or vote_arg == 'True'
+
+        self.connection.cursor().execute("INSERT INTO votes VALUES (?, ?)", (burger, vote))
+        self.connection.commit()
+        
         try:
             burger_df = burgers.loc[str(burger)]
         except KeyError:
