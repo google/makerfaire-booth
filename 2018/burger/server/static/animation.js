@@ -349,6 +349,34 @@ function element_to_burger(wrapper) {
     return burger.join('');
 }
 
+function updateStatus(request) {
+    document.getElementById("fp").innerHTML = request.response["fp"];
+    document.getElementById("tp").innerHTML = request.response["tp"];
+    document.getElementById("tn").innerHTML = request.response["tn"];
+    document.getElementById("fn").innerHTML = request.response["fn"];
+    document.getElementById("iterations").innerHTML = request.response["n_iter"];
+    document.getElementById("accuracy").innerHTML = (request.response["accuracy"] * 100.).toFixed(2);
+    document.getElementById("burger_precision").innerHTML = request.response["p"][1].toFixed();
+    document.getElementById("notburger_precision").innerHTML = request.response["p"][1].toFixed(2);
+    document.getElementById("burger_recall").innerHTML = request.response["p"][0].toFixed(2);
+    document.getElementById("notburger_recall").innerHTML = request.response["p"][0].toFixed(2);
+}
+
+function requestStatus() {
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+	if(request.readyState === 4) {
+	    if(request.status === 200) {
+		updateStatus(request);
+	    }
+	}
+    }
+    
+    request.responseType = 'json';
+    request.open('GET', '/validate');
+    request.send();
+}
+
 function vote(wrapper, choice) {
     var request = new XMLHttpRequest();
 
@@ -358,20 +386,7 @@ function vote(wrapper, choice) {
 	if(request.readyState === 4) {
 	    if(request.status === 200) {
 		console.log("celebration!");
-		var request2 = new XMLHttpRequest();
-		request2.onreadystatechange = function() {
-		    if(request2.readyState === 4) {
-			if(request2.status === 200) {
-			    console.log("validation!");
-			    document.getElementById("status").innerHTML = JSON.stringify(request2.response);
-			}
-		    }
-		}
-		
-		request2.responseType = 'json';
-		request2.open('GET', '/validate');
-		request2.send();
-
+		requestStatus();
 	    } else {
 		console.log("sadness!", request.status, request.statusText, request.responseText);
 	    }
@@ -411,5 +426,6 @@ body.onload = function() {
     var height = body.getBoundingClientRect().height;
     create_conveyor(width, height-100);
     create_chute(256, height-100);
+    requestStatus();
     start_burger_drop_animation();
 };
