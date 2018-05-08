@@ -1,4 +1,6 @@
 from __future__ import print_function
+import os
+import pickle
 import pandas
 import numpy
 from sklearn.neural_network import MLPClassifier
@@ -8,7 +10,6 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 column_names = ['layer0', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5']
-import sqlite3
 
 def print_eval(y, prediction):
     print(accuracy_score(y, prediction))
@@ -25,12 +26,10 @@ def print_eval(y, prediction):
 
 def main():
     enc = OneHotEncoder(n_values=[7,7,7,7,7,7])
-    conn = sqlite3.connect('server.db')
-    cursor = conn.cursor()
-    all_ = pandas.read_sql_query('SELECT layers.burger, labels.output, layers.layer0, layers.layer1, layers.layer2, layers.layer3, layers.layer4, layers.layer5 FROM layers,labels WHERE layers.burger = labels.burger', conn, index_col='burger')
+    burgers = pandas.read_hdf('../../../machine/data.h5', 'df')
     
-    X = all_.drop(['output'], axis=1)
-    y = all_['output']
+    X = burgers.drop(['output'], axis=1)
+    y = burgers['output']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
     
@@ -55,7 +54,7 @@ def main():
         tX_sample_train_categoricals = enc.fit_transform(sample_X_train_categoricals)
         clf.partial_fit(tX_sample_train_categoricals, sample_y_train.as_matrix().astype(int), classes=classes)
 
-        if (i % 100) == 0:
+        if (i % 5) == 0:
             print(i)
             X_test_categoricals = X_test[column_names]
             tX_test_categoricals = enc.fit_transform(X_test_categoricals)
@@ -76,6 +75,10 @@ def main():
         tX_train_categoricals = enc.fit_transform(X_train_categoricals)
         prediction = clf.predict(tX_train_categoricals)
 
+        
+        pickle.dump(clf, open("clf.pkl.tmp", "wb"))
+        os.rename("clf.pkl.tmp", "clf.pkl")
+        
         # # # Take worst mispredicted items and retrain
         # mispredicted = X_train_copy[y_train != prediction]
         # worst_burger = mispredicted.nlargest(1, "prob_burger", keep='first').drop(['prob_burger', 'prob_notburger'], axis=1).join(y_train)
