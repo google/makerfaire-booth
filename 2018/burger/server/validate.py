@@ -36,6 +36,7 @@ class ValidateHandler(tornado.web.RequestHandler):
         p, r, f1, s = precision_recall_fscore_support(self.y_test, prediction)
         response = {
             "loss":self.clf.loss_,
+            "n_iter":self.clf.n_iter_,
             "accuracy": accuracy,
             "p": list(p),
             "r": list(r),
