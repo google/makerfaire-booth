@@ -58,7 +58,13 @@ module Front() {
 }
 
 module Back() {
-  F(gInsideHeightBack, gBackCornerTabs);
+  difference() {
+    F(gInsideHeightBack, gBackCornerTabs);
+    for(y=[25,70]) translate([gInsideWidth/2-25,y]) circle(d=24,$fn=128);
+    hull() {
+      for(y=[0,4]) translate([-60,y]) circle(d=4,$fn=32);
+    }
+  }
 }
 
 module Side() {
@@ -114,14 +120,19 @@ module Top() {
         translate([-w/2,0]) rotate([0,0,90]) generic_finger_positive(gMaterialThick, gBitSize, side_ev);
     }
     scale([1,-1]) translate([-w/2-gMaterialThick,-gMaterialThick])
-      generic_finger_negative(gMaterialThick, gBitSize, ev);
+      generic_finger_negative(gMaterialThick, gBitSize, ev, hole=false);
     translate([-w/2-gMaterialThick,h])
-      generic_finger_negative(gMaterialThick, gBitSize, ev);
+      generic_finger_negative(gMaterialThick, gBitSize, ev, hole=false);
     for(x_scale=[1,-1]) scale([x_scale,1])
       translate([-w/2,0]) rotate([0,0,90]) generic_finger_negative(gMaterialThick, gBitSize, side_ev);
 
     // button holes
-    for(x=[sp/2, 3*sp/2, -sp/2, -3*sp/2]) translate([x,h/2]) circle(d=24,$fn=128);
+    for(x=[sp,-sp]) translate([x,h/2]) circle(d=24,$fn=128);
+    // fixup extra tabs
+    for(x_scale=[1,-1]) scale([x_scale,1]) {
+      translate([w/2,h]) square([gMaterialThick, gMaterialThick]);
+      translate([w/2,0]) square([gMaterialThick, gMaterialThick]);
+    }
   }
 }
 
@@ -188,3 +199,7 @@ All();
 //Side();
 //Top();
 //Front();
+
+//translate([8,-260]) Side();
+//translate([222,-93]) rotate([0,0,180]) Side();
+//rotate([0,0,90]) Back();
