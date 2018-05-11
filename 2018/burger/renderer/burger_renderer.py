@@ -2,7 +2,6 @@ import numpy as np
 import signal
 import sys
 from PyQt5 import QtGui, QtCore, QtSvg, QtWidgets
-# from image_recognizer import ImageRecognizer
 
 WIDTH=128
 HEIGHT=128
