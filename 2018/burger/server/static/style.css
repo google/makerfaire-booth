@@ -6,12 +6,8 @@ html, body {
     overflow: hidden
 }
 
-.chute {
-    position:fixed; top:0; left:0; height:100%; width:100%;
-}
-
-.conveyor {
-    position:fixed; top:0; left:0; height:100%; width:100%;
+.burger_machine {
+    position:fixed; top:0%; left:200px; height:40%; width:40%;
 }
 
 #layer1, #layer2, #layer3, #layer4, #layer5, #layer6, #layer7, #layer8 {
@@ -33,7 +29,7 @@ html, body {
     border-style:solid;
     position:absolute;
     top:100px;
-    left:100px;
+    right:100px;
 }
 
 #confusion_matrix th,tr,td {
