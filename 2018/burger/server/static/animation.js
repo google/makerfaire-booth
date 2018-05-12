@@ -4,7 +4,7 @@ const BASE_INITIAL_Y = -300;
 const BASE_FINAL_Y = 600;
 const BASE_ELEVATOR_FINAL_Y = 0;
 const BASE_CONVEYOR_Y = 710;
-const X_TARGET = 570;
+const X_TARGET = 550;
 
 const layers_enum = Object.freeze({
     0: "empty",
@@ -105,45 +105,6 @@ function layer_idx_to_layers(layers_idx) {
     }
     return layers;
 
-}
-
-function burger_drop_animation(layers) {
-    console.log("Create burger", layers);
-    var wrapper = create_burger(layers);
-    document.body.appendChild(wrapper);
-
-    var burgerOffsets = create_layer_height_offsets();
-    var kEffects = [];
-    for (let bf of burgerOffsets) {
-	var kf = create_animation_burger_drop(bf[0], bf[1], wrapper);
-	kEffects.push(kf);
-    }
-    var group = new GroupEffect(kEffects);
-    var player = new Animation(group, document.timeline);
-    player.onfinish = function() {
-	wait_for_keypress(wrapper);
-    }
-    player.play();
-}
-
-function start_burger_drop_animation() {
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-	if(request.readyState === 4) {
-	    if(request.status === 200) {
-		var layers_idx;
-		layers_idx = request.response["burger"];
-	    } else {
-		console.log("sadness!", request.status, request.statusText);
-		layers_idx = [1,2,3,4,5,6];
-	    }
-	    burger_drop_animation(layer_idx_to_layers(layers_idx));
-	}
-	
-    }
-    request.responseType = 'json';
-    request.open('GET', '/burger');
-    request.send();
 }
 
 function create_animation_trash_burger(element_name, data, wrapper) {
@@ -294,14 +255,6 @@ function start_animation_trash_burger(wrapper) {
     player.play();
 }
 
-function element_to_burger(wrapper) {
-    var burger = [];
-    for (let node of wrapper.childNodes) {
-	burger.push(layer_names_enum[node.getAttribute('class')])
-    }
-    return burger.join('');
-}
-
 function updateStatus(request) {
     document.getElementById("fp").innerHTML = request.response["fp"];
     document.getElementById("tp").innerHTML = request.response["tp"];
@@ -328,6 +281,14 @@ function requestStatus() {
     request.responseType = 'json';
     request.open('GET', '/validate');
     request.send();
+}
+
+function element_to_burger(wrapper) {
+    var burger = [];
+    for (let node of wrapper.childNodes) {
+	burger.push(layer_names_enum[node.getAttribute('class')])
+    }
+    return burger.join('');
 }
 
 function vote(wrapper, choice) {
@@ -371,6 +332,45 @@ function wait_for_keypress(wrapper) {
 	}
     }
     document.addEventListener('keydown', keydownHandler, false);
+}
+
+function burger_drop_animation(layers) {
+    console.log("Create burger", layers);
+    var wrapper = create_burger(layers);
+    document.body.appendChild(wrapper);
+
+    var burgerOffsets = create_layer_height_offsets();
+    var kEffects = [];
+    for (let bf of burgerOffsets) {
+	var kf = create_animation_burger_drop(bf[0], bf[1], wrapper);
+	kEffects.push(kf);
+    }
+    var group = new GroupEffect(kEffects);
+    var player = new Animation(group, document.timeline);
+    player.onfinish = function() {
+	wait_for_keypress(wrapper);
+    }
+    player.play();
+}
+
+function start_burger_drop_animation() {
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+	if(request.readyState === 4) {
+	    if(request.status === 200) {
+		var layers_idx;
+		layers_idx = request.response["burger"];
+	    } else {
+		console.log("sadness!", request.status, request.statusText);
+		layers_idx = [1,2,3,4,5,6];
+	    }
+	    burger_drop_animation(layer_idx_to_layers(layers_idx));
+	}
+	
+    }
+    request.responseType = 'json';
+    request.open('GET', '/burger');
+    request.send();
 }
 
 const body = document.getElementsByTagName('body')[0];
