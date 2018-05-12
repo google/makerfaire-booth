@@ -9,8 +9,8 @@ sys.path.insert(0, '/home/dek/workspace/models/research/object_detection')
 sys.path.insert(0, '/home/dek/workspace/models/research/object_detection/utils')
 from object_detection.utils import label_map_util
 
-PATH_TO_CKPT="../train_object_detector/output_inference_graph/frozen_inference_graph.pb"
-PATH_TO_LABELS="../train_object_detector/data/burgers_label_map.pb.txt"
+PATH_TO_CKPT="../../../train_object_detector/output_inference_graph/frozen_inference_graph.pb"
+PATH_TO_LABELS="../../../train_object_detector/data/burgers_label_map.pb.txt"
 NUM_CLASSES=6
 
 def load_image_into_numpy_array(image):

@@ -30,13 +30,15 @@ def render_layer(layer, rot, tx, ty, scale):
     image.fill(QtGui.QColor(0, 0, 0, 0))
     painter = QtGui.QPainter(image)
     renderer = renderers[layer]
-    vertical_offset = renderer.viewBox().height()
-    painter.translate(WIDTH/2, HEIGHT/2)
+    vertical_offset = renderer.viewBox().height()/2
+    horizontal_offset = renderer.viewBox().width()/2
+    painter.translate(WIDTH/2 - horizontal_offset, HEIGHT/2 - vertical_offset)
+    painter.translate(horizontal_offset, vertical_offset)
     painter.rotate(rot)
+    painter.translate(tx, ty)
     painter.scale(scale, scale)
-    painter.translate(-WIDTH/2, -HEIGHT/2)
-    painter.translate(0, HEIGHT/ASPECT_RATIO/2)
-    bounds = QtCore.QRectF(0, 0, WIDTH, HEIGHT/ASPECT_RATIO - vertical_offset/2.)
+    painter.translate(-horizontal_offset, -vertical_offset)
+    bounds = QtCore.QRectF(renderer.viewBox())
     renderers[layer].render(painter, bounds)
     painter.end()
 
@@ -50,8 +52,17 @@ def get_opaque_bbox(image):
     bbox = np.min(x[1]), np.min(x[0]), np.max(x[1]), np.max(x[0])
     return bbox
 
+def image_as_png(image):
+    ba = QtCore.QByteArray()
+    buf = QtCore.QBuffer(ba);
+    buf.open(QtCore.QIODevice.WriteOnly);
+    image.save(buf, "PNG")
+    return ba.data()
 
 if __name__ == '__main__':
     app = QtGui.QGuiApplication(sys.argv)
     image = render_layer(labels[1], 0, 0, 0, 1)
+    image.save("image.png")
     print get_opaque_bbox(image)
+    bytes = image_as_png(image)
+    open("test.png", "wb").write(bytes)
