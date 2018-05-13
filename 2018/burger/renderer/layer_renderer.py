@@ -23,7 +23,7 @@ for key, value in labels.items():
     if value == 'empty':
         renderers[value] = None
     else:
-        renderers[value] = QtSvg.QSvgRenderer("../assets/%s.svg" % value)
+        renderers[value] = QtSvg.QSvgRenderer("../static/assets/%s.svg" % value)
 
 def render_layer(layer, rot, tx, ty, scale):
     image = QtGui.QImage(QtCore.QSize(WIDTH, HEIGHT), QtGui.QImage.Format_ARGB32)
@@ -63,6 +63,5 @@ if __name__ == '__main__':
     app = QtGui.QGuiApplication(sys.argv)
     image = render_layer(labels[1], 0, 0, 0, 1)
     image.save("image.png")
-    print get_opaque_bbox(image)
     bytes = image_as_png(image)
     open("test.png", "wb").write(bytes)
