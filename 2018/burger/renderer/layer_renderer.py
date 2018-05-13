@@ -3,19 +3,14 @@ import numpy as np
 import signal
 import sys
 from PyQt5 import QtGui, QtCore, QtSvg, QtWidgets
+from burger_elements import BurgerElement
+labels = {}
+for layer, id_ in BurgerElement.__members__.items():
+    labels[id_.value] = layer
 
 WIDTH=256
 HEIGHT=256
 ASPECT_RATIO = 1.85
-labels = {
-    0: 'empty',
-    1: 'topbun',
-    2: 'lettuce',
-    3: 'tomato',
-    4: 'cheese',
-    5: 'patty',
-    6: 'bottombun'
-    }
 
 renderers = {}
 
