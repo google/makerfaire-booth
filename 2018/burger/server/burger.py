@@ -1,9 +1,10 @@
 from __future__ import print_function
+import sys
+sys.path.insert(0, "../constants")
 from constants import column_names
 import pandas
 import tornado.web
 import random
-import sys
 
 data = pandas.read_hdf('split.h5', 'train')
 burgers = data[data.output == 1]

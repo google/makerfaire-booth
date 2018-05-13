@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, "../constants")
 from constants import MAX_BURGER_HEIGHT
 from burger_elements import BurgerElement
 def label_burger(burger, debug=False):

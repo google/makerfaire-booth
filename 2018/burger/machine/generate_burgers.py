@@ -4,6 +4,8 @@ import pandas
 import itertools
 from enum import Enum, unique
 
+import sys
+sys.path.insert(0, "../constants")
 from constants import MAX_BURGER_HEIGHT, column_names
 from burger_elements import BurgerElement
 from label_burger import label_burger
