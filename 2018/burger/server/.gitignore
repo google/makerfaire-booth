@@ -1,5 +1,3 @@
 clf.pkl
 server.db
 split.h5
-*.pyc
-__pycache__/
