@@ -30,7 +30,7 @@ df = pandas.DataFrame(data=burgers,
 
 labels = [label_burger(burger) for burger in burgers]
 df['output'] = labels
-df.to_csv('data.csv', index_label='id')
+df.to_csv('../data/data.csv', index_label='id')
 
 #TODO(dek): put this in burger_features
 c = dict([(burger, count(burger)) for burger in burgers])
@@ -47,7 +47,7 @@ df['topbun_count'] = [topbun_getter(c[burger]) for burger in burgers]
 df['bottombun_count'] = [bottombun_getter(c[burger]) for burger in burgers]
 df['patty_count'] = [patty_getter(c[burger]) for burger in burgers]
 
-df.to_hdf('data.h5', 'df', format='fixed')
+df.to_hdf('../data/data.h5', 'df', format='fixed')
 
 pos = df[df.output == True]
-pos.to_csv('pos.csv')
+pos.to_csv('../data/pos.csv')
