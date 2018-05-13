@@ -6,6 +6,12 @@ def label_burger(burger, debug=False):
   if len(burger) != MAX_BURGER_HEIGHT:
     if debug: print("Burger is wrong size")
     return False
+  for i in range(len(burger)):
+    if (burger[i] == BurgerElement.shoe.value or
+        burger[i] == BurgerElement.banana.value or
+        burger[i] == BurgerElement.book.value):
+       if debug: print("Cannot have shoe, banana, or book")
+       return False
   topbun_pos = None
   for i in range(len(burger)):
     layer = burger[i]

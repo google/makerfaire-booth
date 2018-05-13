@@ -9,3 +9,6 @@ class BurgerElement(Enum):
   cheese = 4
   patty = 5
   bottombun = 6
+  banana = 7
+  book = 8
+  shoe = 9
