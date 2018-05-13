@@ -1,3 +1,4 @@
+from __future__ import print_function
 import random
 import itertools
 import os
@@ -10,9 +11,10 @@ import tensorflow as tf
 import cairo
 import random
 from object_detection.utils import dataset_util
-sys.path.insert(0, "..")
-from machine.burger_elements import BurgerElement
-from renderer.layer_renderer import render_layer, get_opaque_bbox, image_as_png
+sys.path.insert(0, "../constants")
+sys.path.insert(0, "../renderer")
+from burger_elements import BurgerElement
+from layer_renderer import render_layer, get_opaque_bbox, image_as_png
 
 flags = tf.app.flags
 flags.DEFINE_string('train_output_path', '', 'Path to output TFRecord')
@@ -58,13 +60,13 @@ def get_example(layer, rot, tx, ty, scale):
     if numpy.any(x==255):
       return None
 
-    bytes = image_as_png(image)
+    img_bytes = image_as_png(image)
 
     example = {
       'width': image.width(),
       'height': image.height(),
       'filename': 'arbitrary',
-      'encoded_image_data': bytes,
+      'encoded_image_data': img_bytes,
       'image_format': 'png',
       'bbox': bbox,
       'class_text': layer,
@@ -93,15 +95,15 @@ def create_tf_example(example, writer):
   tf_example = tf.train.Example(features=tf.train.Features(feature={
       'image/height': dataset_util.int64_feature(height),
       'image/width': dataset_util.int64_feature(width),
-      'image/filename': dataset_util.bytes_feature(filename),
-      'image/source_id': dataset_util.bytes_feature(filename),
+      'image/filename': dataset_util.bytes_feature(bytes(filename, "utf-8")),
+      'image/source_id': dataset_util.bytes_feature(bytes(filename, "utf-8")),
       'image/encoded': dataset_util.bytes_feature(encoded_image_data),
-      'image/format': dataset_util.bytes_feature(image_format),
+      'image/format': dataset_util.bytes_feature(bytes(image_format, "utf-8")),
       'image/object/bbox/xmin': dataset_util.float_list_feature(xmins),
       'image/object/bbox/xmax': dataset_util.float_list_feature(xmaxs),
       'image/object/bbox/ymin': dataset_util.float_list_feature(ymins),
       'image/object/bbox/ymax': dataset_util.float_list_feature(ymaxs),
-      'image/object/class/text': dataset_util.bytes_list_feature(classes_text),
+      'image/object/class/text': dataset_util.bytes_list_feature([bytes(t, "utf-8") for t in classes_text]),
       'image/object/class/label': dataset_util.int64_list_feature(classes),
   }))
   writer.write(tf_example.SerializeToString())
@@ -112,11 +114,11 @@ def main(_):
 
 
   rots, txs, tys, scales = get_orientations()
-  all = list(itertools.product(layers[1:], rots, txs, tys, scales))
+  all = list(itertools.product(list(layers)[1:], rots, txs, tys, scales))
   random.shuffle(all)
   for i, ev in enumerate(all):
     if (i % 1000) == 0:
-      print i, i/float(len(all))*100.
+      print(i, i/float(len(all))*100.)
     layer, rot, tx, ty, scale = ev
     
     example = get_example(layer, rot, tx, ty, scale)
