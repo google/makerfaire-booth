@@ -4,7 +4,7 @@ import tensorflow as tf
 
 
 example = tf.train.Example()
-for record in tf.python_io.tf_record_iterator("data/burgers_eval.record"):
+for record in tf.python_io.tf_record_iterator("../data/burgers_eval.record"):
     example.ParseFromString(record)
     f = example.features.feature
     height = f['image/height'].int64_list.value[0]
