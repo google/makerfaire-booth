@@ -3,9 +3,9 @@ const BURGER_LAYER_SPACING = 40;
 const BASE_INITIAL_Y = -300;
 const BASE_FINAL_Y = 600;
 const BASE_ELEVATOR_FINAL_Y = 0;
-const BASE_CHUTE_Y = 400;
-const BASE_CONVEYOR_Y = 835;
-const X_TARGET = 400;
+const BASE_CHUTE_Y = 450;
+const BASE_CONVEYOR_Y = 865;
+const X_TARGET = 625;
 
 const layers_enum = Object.freeze({
     0: "empty",
