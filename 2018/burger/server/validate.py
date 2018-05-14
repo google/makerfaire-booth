@@ -1,16 +1,15 @@
 import json
 import tornado.web
 import pandas
-from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.metrics import precision_recall_fscore_support
 import model
 
-
 column_names = ['layer0', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5']
-enc = OneHotEncoder(n_values=[7,7,7,7,7,7])
+from one_hot import get_one_hot
+enc = get_one_hot()
 
 
 

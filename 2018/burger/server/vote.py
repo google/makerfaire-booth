@@ -8,10 +8,10 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 import model
-
+from one_hot import get_one_hot
+enc = get_one_hot()
 
 column_names = ['layer0', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5']
-enc = OneHotEncoder(n_values=[7,7,7,7,7,7])
 burgers = pandas.read_hdf('split.h5', 'train')
 X_train = burgers.drop(['output'], axis=1)
 y_train = burgers['output']

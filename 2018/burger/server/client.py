@@ -3,8 +3,9 @@ import requests
 
 burgers = pandas.read_hdf('split.h5', 'train')
 
+HOSTNAME='localhost'
 def do_request():
-    r = requests.get('http://gork:8888/burger')
+    r = requests.get('http://' + HOSTNAME + ':8888/burger')
     if r.status_code == 200:
         j = r.json()
         burger = j['burger']
@@ -12,15 +13,14 @@ def do_request():
         burger = ''.join([str(layer) for layer in burger])
         vote = burgers.loc[burger].output
         print(vote)
-        r2 = requests.get('http://gork:8888/vote?vote=%s&burger=%s' % (vote, burger))
+        r2 = requests.get('http://' + HOSTNAME + ':8888/vote?vote=%s&burger=%s' % (vote, burger))
         print(r2.status_code)
         if r2.status_code == 200:
-            r3 = requests.get('http://gork:8888/validate')
+            r3 = requests.get('http://' + HOSTNAME + ':8888/validate')
             print(r3.status_code)
             if r3.status_code == 200:
                 print(r3.text)
                 response = r3.json()
-                print(response['classification_report'])
                 tp = response["tp"]
                 fp = response["fp"]
                 tn = response["tn"]

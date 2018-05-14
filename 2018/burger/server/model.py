@@ -1,13 +1,14 @@
+import random
+import numpy
 import pickle
 import pandas
 import os
 from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_recall_fscore_support
 from sklearn.model_selection import train_test_split
 column_names = ['layer0', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5']
-enc = OneHotEncoder(n_values=[7,7,7,7,7,7])
+from one_hot import get_one_hot
+enc = get_one_hot()
     
 def print_eval(y, prediction):
     print(accuracy_score(y, prediction))
@@ -23,7 +24,7 @@ def print_eval(y, prediction):
     print("FNR:", fn/float(fn+tp))
 
 def main():
-    burgers = pandas.read_hdf('../machine/data.h5', 'df')
+    burgers = pandas.read_hdf('../data/data.h5', 'df')
     X = burgers.drop(['output'], axis=1)
     y = burgers['output']
 
@@ -35,12 +36,12 @@ def main():
 
     clf = MLPClassifier(solver='adam',
                         activation='relu',
-                        hidden_layer_sizes=64,
+                        hidden_layer_sizes=(128,128),
                         verbose=True,
-                        max_iter=100,
-                        tol=1e-4,
+                        max_iter=1000,
+                        tol=1e-8,
                         random_state=1)
-    pickle.dump(clf, open("clf.pkl", "wb"))
+    # pickle.dump(clf, open("clf.pkl", "wb"))
 
 if __name__ == '__main__':
     main()
