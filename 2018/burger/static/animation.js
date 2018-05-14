@@ -1,11 +1,12 @@
 const MAX_BURGERS = 6;
 const BURGER_LAYER_SPACING = 40;
 const BASE_INITIAL_Y = -300;
-const BASE_FINAL_Y = 600;
+const BASE_FINAL_Y = 1000;
 const BASE_ELEVATOR_FINAL_Y = 0;
 const BASE_CHUTE_Y = 450;
 const BASE_CONVEYOR_Y = 865;
 const X_TARGET = 625;
+const TRASH_X_TARGET = 100;
 
 const layers_enum = Object.freeze({
     0: "empty",
@@ -31,7 +32,6 @@ const layer_names_enum = Object.freeze({
     "banana":7,
     "book":8,
     "shoe":9,
-    
 });
 
 function create_layer_height_offsets(spacing=BURGER_LAYER_SPACING) {
@@ -93,43 +93,6 @@ function layer_idx_to_layers(layers_idx) {
 
 }
 
-
-function create_animation_convey_burger_to_middle(element_name, data, wrapper) {
-    var element = wrapper.children.namedItem(element_name);
-    var body = document.getElementsByTagName("BODY")[0];
-    width = body.getBoundingClientRect().width;
-    height = body.getBoundingClientRect().height;
-
-    var timings = {
-	duration: 500,
-	iterations: 1,
-	easing: "linear",
-	direction: "normal",
-	fill: "forwards",
-    }
-        var keyframes = [
-	{ transform: 'translateX(' + X_TARGET + 'px) translateY(' + data.chuteY + ')', opacity: 1},
-	{ transform: 'translateX(' + width/2 + 'px) translateY(' + data.chuteY + ')', opacity: 1},
-    ];
-    return new KeyframeEffect(element, keyframes, timings);
-}
-
-function start_animation_convey_burger_to_middle(wrapper) {
-    var burgerOffsets2 = create_layer_height_offsets(BURGER_LAYER_SPACING/2);
-    var kEffects = [];
-    for (let bf of burgerOffsets2) {
-	var kf = create_animation_convey_burger_to_middle(bf[0], bf[1], wrapper);
-	kEffects.push(kf);
-    }
-    var group = new GroupEffect(kEffects);
-    var player = new Animation(group, document.timeline);
-    player.onfinish = function() {
-	wrapper.setAttribute('id', 'elevator');
-	start_burger_elevator_animation(wrapper);
-	start_burger_drop_animation();
-    }
-    player.play();
-}
 
 function create_animation_elevator(element_name, data, wrapper) {
     var element = wrapper.children.namedItem(element_name);
@@ -222,6 +185,81 @@ function vote(wrapper, choice) {
     request.send();
 }
 
+
+
+function create_animation_convey_burger_to_middle(element_name, data, wrapper) {
+    var element = wrapper.children.namedItem(element_name);
+    var body = document.getElementsByTagName("BODY")[0];
+    width = body.getBoundingClientRect().width;
+    height = body.getBoundingClientRect().height;
+
+    var timings = {
+	duration: 500,
+	iterations: 1,
+	easing: "linear",
+	direction: "normal",
+	fill: "forwards",
+    }
+        var keyframes = [
+	{ transform: 'translateX(' + X_TARGET + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + width/2 + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+    ];
+    return new KeyframeEffect(element, keyframes, timings);
+}
+
+function start_animation_convey_burger_to_middle(wrapper) {
+    var burgerOffsets2 = create_layer_height_offsets(BURGER_LAYER_SPACING/2);
+    var kEffects = [];
+    for (let bf of burgerOffsets2) {
+	var kf = create_animation_convey_burger_to_middle(bf[0], bf[1], wrapper);
+	kEffects.push(kf);
+    }
+    var group = new GroupEffect(kEffects);
+    var player = new Animation(group, document.timeline);
+    player.onfinish = function() {
+	wrapper.setAttribute('id', 'elevator');
+	// start_burger_elevator_animation(wrapper);
+	// start_burger_drop_animation();
+    }
+    player.play();
+}
+
+function create_animation_convey_burger_to_trash(element_name, data, wrapper) {
+    var element = wrapper.children.namedItem(element_name);
+    var body = document.getElementsByTagName("BODY")[0];
+    width = body.getBoundingClientRect().width;
+    height = body.getBoundingClientRect().height;
+
+    var timings = {
+	duration: 500,
+	iterations: 1,
+	easing: "linear",
+	direction: "normal",
+	fill: "forwards",
+    }
+        var keyframes = [
+	{ transform: 'translateX(' + X_TARGET + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + TRASH_X_TARGET + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+    ];
+    return new KeyframeEffect(element, keyframes, timings);
+}
+
+function start_animation_convey_burger_to_trash(wrapper) {
+    var burgerOffsets = create_layer_height_offsets(BURGER_LAYER_SPACING/2);
+    var kEffects = [];
+    for (let bf of burgerOffsets) {
+	var kf = create_animation_convey_burger_to_trash(bf[0], bf[1], wrapper);
+	kEffects.push(kf);
+    }
+    var group = new GroupEffect(kEffects);
+    var player = new Animation(group, document.timeline);
+    player.onfinish = function() {
+    	// wrapper.remove();
+    	// start_burger_drop_animation();
+    }
+    player.play();
+}
+
 function create_burger_drop_to_conveyor_animation(element_name, data, wrapper) {
     var element = wrapper.children.namedItem(element_name);
     var body = document.getElementsByTagName("BODY")[0];
@@ -241,8 +279,14 @@ function create_burger_drop_to_conveyor_animation(element_name, data, wrapper) {
     ];
     return new KeyframeEffect(element, keyframes, timings);
 }
+function start_animation_convey_burger_to_fate(wrapper, isBurger) {
+    if (isBurger) 
+	start_animation_convey_burger_to_middle(wrapper);
+    else 
+	start_animation_convey_burger_to_trash(wrapper);
+}
 
-function start_burger_drop_to_conveyor_animation(wrapper) {
+function start_burger_drop_to_conveyor_animation(wrapper, isBurger) {
     var burgerOffsets2 = create_layer_height_offsets(BURGER_LAYER_SPACING/2);
     var kEffects = [];
     for (let bf of burgerOffsets2) {
@@ -254,6 +298,7 @@ function start_burger_drop_to_conveyor_animation(wrapper) {
     player.onfinish = function() {
     	// wrapper.remove();
 	// document.body.appendChild(wrapper);
+	start_animation_convey_burger_to_fate(wrapper, isBurger);
     }
     player.play();
 }
@@ -281,7 +326,7 @@ function create_animation_smoosh_burger(element_name, data1, data2, wrapper) {
     return new KeyframeEffect(element, keyframes, timings);
 }
 
-function start_animation_smoosh_burger(wrapper) {
+function start_animation_smoosh_burger(wrapper, isBurger) {
     var burgerOffsets = create_layer_height_offsets();
     var burgerOffsets2 = create_layer_height_offsets(BURGER_LAYER_SPACING/2);
     var kEffects = [];
@@ -293,55 +338,14 @@ function start_animation_smoosh_burger(wrapper) {
 
     var player = new Animation(group, document.timeline);
     player.onfinish = function() {
-	start_burger_drop_to_conveyor_animation(wrapper);
-    }
-    player.play();
-}
-
-function create_animation_trash_burger(element_name, data, wrapper) {
-    var element = wrapper.children.namedItem(element_name);
-    var body = document.getElementsByTagName("BODY")[0];
-    width = body.getBoundingClientRect().width;
-    height = body.getBoundingClientRect().height;
-
-    var timings = {
-	duration: 500,
-	iterations: 1,
-	easing: "linear",
-	direction: "normal",
-	fill: "forwards",
-    }
-        var keyframes = [
-	{ transform: 'translateX(' + X_TARGET + 'px) translateY(' + data.chuteY + ')', opacity: 1},
-	{ transform: 'translateX(' + X_TARGET + 'px) translateY(' + data.finalY + ')', opacity: 1},
-    ];
-    return new KeyframeEffect(element, keyframes, timings);
-}
-
-function start_animation_trash_burger(wrapper) {
-    var burgerOffsets = create_layer_height_offsets();
-    var kEffects = [];
-    for (let bf of burgerOffsets) {
-	var kf = create_animation_trash_burger(bf[0], bf[1], wrapper);
-	kEffects.push(kf);
-    }
-    var group = new GroupEffect(kEffects);
-    var player = new Animation(group, document.timeline);
-    player.onfinish = function() {
-    	wrapper.remove();
-    	start_burger_drop_animation();
+	start_burger_drop_to_conveyor_animation(wrapper, isBurger);
     }
     player.play();
 }
 
 function after_keypress(wrapper, isBurger) {
-    if (isBurger) {
-	vote(wrapper, true);
-	start_animation_smoosh_burger(wrapper);
-    } else {
-	vote(wrapper, false);
-	start_animation_trash_burger(wrapper);
-    }
+    vote(wrapper, isBurger);
+    start_animation_smoosh_burger(wrapper, isBurger);
 }
 
 function wait_for_keypress(wrapper) {
