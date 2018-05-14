@@ -1,10 +1,10 @@
 const MAX_BURGERS = 6;
-const BURGER_LAYER_SPACING = 80;
+const BURGER_LAYER_SPACING = 60;
 const BASE_INITIAL_Y = -300;
 const BASE_FINAL_Y = 600;
 const BASE_ELEVATOR_FINAL_Y = 0;
 const BASE_CHUTE_Y = 710
-const X_TARGET = 550;
+const X_TARGET = 400;
 
 const layers_enum = Object.freeze({
     0: "empty",
@@ -13,7 +13,10 @@ const layers_enum = Object.freeze({
     3: "tomato",
     4: "cheese",
     5: "patty",
-    6: "bottombun"
+    6: "bottombun",
+    7: "banana",
+    8: "book",
+    9: "shoe",
 });
 
 const layer_names_enum = Object.freeze({
@@ -23,7 +26,11 @@ const layer_names_enum = Object.freeze({
     "tomato":3,
     "cheese":4,
     "patty":5,
-    "bottombun":6
+    "bottombun":6,
+    "banana":7,
+    "book":8,
+    "shoe":9,
+    
 });
 
 function create_layer_height_offsets(spacing=BURGER_LAYER_SPACING) {
@@ -377,6 +384,5 @@ const body = document.getElementsByTagName('body')[0];
 body.onload = function() {
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
-    requestStatus();
     start_burger_drop_animation();
 };
