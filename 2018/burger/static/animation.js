@@ -217,9 +217,10 @@ function start_animation_convey_burger_to_middle(wrapper) {
     var group = new GroupEffect(kEffects);
     var player = new Animation(group, document.timeline);
     player.onfinish = function() {
-	wrapper.setAttribute('id', 'elevator');
+	// wrapper.setAttribute('id', 'elevator');
 	// start_burger_elevator_animation(wrapper);
-	// start_burger_drop_animation();
+    	wrapper.remove();
+	start_burger_drop_animation();
     }
     player.play();
 }
@@ -254,8 +255,8 @@ function start_animation_convey_burger_to_trash(wrapper) {
     var group = new GroupEffect(kEffects);
     var player = new Animation(group, document.timeline);
     player.onfinish = function() {
-    	// wrapper.remove();
-    	// start_burger_drop_animation();
+    	wrapper.remove();
+    	start_burger_drop_animation();
     }
     player.play();
 }
