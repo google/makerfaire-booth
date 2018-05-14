@@ -4,6 +4,7 @@ const BASE_INITIAL_Y = -300;
 const BASE_FINAL_Y = 600;
 const BASE_ELEVATOR_FINAL_Y = 0;
 const BASE_CHUTE_Y = 400;
+const BASE_CONVEYOR_Y = 835;
 const X_TARGET = 400;
 
 const layers_enum = Object.freeze({
@@ -43,6 +44,7 @@ function create_layer_height_offsets(spacing=BURGER_LAYER_SPACING) {
 	    delay: i*100,
 	    initialY: (BASE_INITIAL_Y - i * spacing) + 'px',
 	    chuteY: (BASE_CHUTE_Y - i * spacing) + 'px',
+	    conveyorY: (BASE_CONVEYOR_Y - i * spacing) + 'px',
 	    finalY: (BASE_FINAL_Y - i * spacing) + 'px',
 	    elevatorFinalY: (BASE_ELEVATOR_FINAL_Y - i * spacing) + 'px',
 	}]);
@@ -209,7 +211,7 @@ function vote(wrapper, choice) {
 	if(request.readyState === 4) {
 	    if(request.status === 200) {
 		console.log("celebration!");
-		requestStatus();
+		// requestStatus();
 	    } else {
 		console.log("sadness!", request.status, request.statusText, request.responseText);
 	    }
@@ -220,6 +222,41 @@ function vote(wrapper, choice) {
     request.send();
 }
 
+function create_burger_drop_to_conveyor_animation(element_name, data, wrapper) {
+    var element = wrapper.children.namedItem(element_name);
+    var body = document.getElementsByTagName("BODY")[0];
+    width = body.getBoundingClientRect().width;
+    height = body.getBoundingClientRect().height;
+
+    var timings = {
+	duration: 1000,
+	iterations: 1,
+	easing: "linear",
+	direction: "normal",
+	fill: "forwards",
+    }
+    var keyframes = [
+	{ transform: 'translateX(' + X_TARGET + 'px) translateY(' + data.chuteY + ')', opacity: 1},
+	{ transform: 'translateX(' + X_TARGET + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+    ];
+    return new KeyframeEffect(element, keyframes, timings);
+}
+
+function start_burger_drop_to_conveyor_animation(wrapper) {
+    var burgerOffsets2 = create_layer_height_offsets(BURGER_LAYER_SPACING/2);
+    var kEffects = [];
+    for (let bf of burgerOffsets2) {
+	var kf = create_burger_drop_to_conveyor_animation(bf[0], bf[1], wrapper);
+	kEffects.push(kf);
+    }
+    var group = new GroupEffect(kEffects);
+    var player = new Animation(group, document.timeline);
+    player.onfinish = function() {
+    	// wrapper.remove();
+	// document.body.appendChild(wrapper);
+    }
+    player.play();
+}
 
 function create_animation_smoosh_burger(element_name, data1, data2, wrapper) {
     var element = wrapper.children.namedItem(element_name);
@@ -256,7 +293,7 @@ function start_animation_smoosh_burger(wrapper) {
 
     var player = new Animation(group, document.timeline);
     player.onfinish = function() {
-	start_animation_convey_burger_to_middle(wrapper);
+	start_burger_drop_to_conveyor_animation(wrapper);
     }
     player.play();
 }
@@ -344,7 +381,7 @@ function create_animation_burger_drop(element_name, data, wrapper) {
 function create_burger_drop_animation(layers) {
     console.log("Create burger", layers);
     var wrapper = create_burger(layers);
-    document.body.appendChild(wrapper);
+    document.body.insertBefore(wrapper, document.getElementById("burger_machine"));
 
     var burgerOffsets = create_layer_height_offsets();
     var kEffects = [];
@@ -384,5 +421,6 @@ const body = document.getElementsByTagName('body')[0];
 body.onload = function() {
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
+    // requestStatus();
     start_burger_drop_animation();
 };
