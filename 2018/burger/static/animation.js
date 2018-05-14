@@ -1,9 +1,9 @@
 const MAX_BURGERS = 6;
-const BURGER_LAYER_SPACING = 60;
+const BURGER_LAYER_SPACING = 40;
 const BASE_INITIAL_Y = -300;
 const BASE_FINAL_Y = 600;
 const BASE_ELEVATOR_FINAL_Y = 0;
-const BASE_CHUTE_Y = 710
+const BASE_CHUTE_Y = 400;
 const X_TARGET = 400;
 
 const layers_enum = Object.freeze({
