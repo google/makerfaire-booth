@@ -27,36 +27,62 @@
 	<use href="/static/assets/burger_machine.svg#layer3">
       </svg>
     </div>
-    <div class="status">
-      Iterations: <div id="iterations"></div>
-      Accuracy: <div id="accuracy"></div>
-      <div id="confusion_matrix">
-    	<table>
-    	  <tr>
-    	    <th></th><th>Predicted: NO</th><th>Predicted: YES</th>
-    	  </tr>
-    	  <tr>
-    	    <th>Actual: NO</th><td id="tn"></td><td id="fp"></td>
-    	  </tr>
-    	  <tr>
-    	    <th>Actual: YES</th><td id="fn"></td><td id="tp"></td>
-    	  </tr>
-    	</table>
-      </div>
-      <div id="precision_recall">
-    	<table>
-    	  <tr>
-    	    <th></th><th>Precision</th><th>Recall</th>
-    	  </tr>
-    	  <tr>
-    	    <th>Burger</th><td id="burger_precision"></td><td id="burger_recall"></td>
-    	  </tr>
-    	  <tr>
-    	    <th>Not Burger</th><td id="notburger_precision"></td><td id="notburger_recall"></td>
-    	  </tr>
-    	</table>
-      </div>
+    <div class="sidebar">
+      <h1>How does Supervised Machine Learning Work?</h1>
+
+      <div>The MakeFaire voters are generating labels used to train the
+	Learner</div>
+
+      <div>Model: the mathematical system that makes predictions</div>
+
+      <div>Examples: items used to train the learner.  Every burger you see
+	is an example.</div>
+      
+      <div>Features: signals from the examples used by the model to form
+	predictions (in this case: the layers of the burger are the
+	features)</div>
+      
+      <div>Parameters: variables that are learned to convert example
+	features into predictions</div>
+      
+      <div>Labels: answers given by users that say whether an example is a
+	burger or not</div>
+      
+      <div>Learner: the system that adjusts the parameters by looking at
+	differences in predictions versus actual outcome for the training
+	examples</div>
     </div>
-  </body>
+
+<div class="status">
+  Iterations: <div id="iterations"></div>
+  Accuracy: <div id="accuracy"></div>
+  <div id="confusion_matrix">
+    <table>
+      <tr>
+    	<th></th><th>Predicted: NO</th><th>Predicted: YES</th>
+      </tr>
+      <tr>
+    	<th>Actual: NO</th><td id="tn"></td><td id="fp"></td>
+      </tr>
+      <tr>
+    	<th>Actual: YES</th><td id="fn"></td><td id="tp"></td>
+      </tr>
+    </table>
+  </div>
+  <div id="precision_recall">
+    <table>
+      <tr>
+    	<th></th><th>Precision</th><th>Recall</th>
+      </tr>
+      <tr>
+    	<th>Burger</th><td id="burger_precision"></td><td id="burger_recall"></td>
+      </tr>
+      <tr>
+    	<th>Not Burger</th><td id="notburger_precision"></td><td id="notburger_recall"></td>
+      </tr>
+    </table>
+  </div>
+</div>
+</body>
 
 </html>

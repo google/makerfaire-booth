@@ -14,6 +14,10 @@ body {
     position:fixed; top:0%; left:475px; height:50%; width:50%;
 }
 
+.sidebar {
+    position:fixed; top:10%; left:10%; height:40em; width:40em;
+}
+
 #layer1, #layer2, #layer3, #layer4, #layer5, #layer6, #layer7, #layer8 {
     height: 70px;
     width: auto;
