@@ -25,7 +25,6 @@ urls = [
     (r"/vote", vote.VoteHandler, dict(clf=clf, burgers=train_burgers, connection=connection)),
     (r"/validate", validate.ValidateHandler, dict(clf=clf, burgers=test_burgers)),
     (r"/burger", burger.BurgerHandler),
-    (r"/static/(.*)",tornado.web.StaticFileHandler, {"path": "../static"}),
 ]
 
 settings = dict({

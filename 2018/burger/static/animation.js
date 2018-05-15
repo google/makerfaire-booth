@@ -76,7 +76,7 @@ function create_burger(layers) {
     	svg.setAttributeNS(null, 'class', layers[i]);
 	if (layers[i] != 'empty') {
     	    var use = document.createElementNS(svgNS, 'use');
-	    var href = '/static/assets/' + layers[i] + '.svg#g10';
+	    var href = '/assets/' + layers[i] + '.svg#g10';
     	    use.setAttributeNS(null, 'href', href);
     	    svg.appendChild(use);
 	}
