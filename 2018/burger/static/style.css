@@ -11,7 +11,7 @@ body {
 }
 
 .burger_machine, .conveyor_belts, .lights {
-    position:fixed; top:0%; left:200px; height:50%; width:50%;
+    position:fixed; top:0%; left:475px; height:50%; width:50%;
 }
 
 

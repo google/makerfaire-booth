@@ -5,8 +5,9 @@ const BASE_FINAL_Y = 1500;
 const BASE_ELEVATOR_FINAL_Y = 0;
 const BASE_CHUTE_Y = 450;
 const BASE_CONVEYOR_Y = 870;
-const X_TARGET = 630;
+const X_TARGET = 905;
 const TRASH_X_TARGET = 160;
+const GOOD_X_TARGET = 1300;
 
 const layers_enum = Object.freeze({
     0: "empty",
@@ -165,8 +166,8 @@ function create_animation_elevator(element_name, data, wrapper) {
 	fill: "forwards",
     }
     var keyframes = [
-	{ transform: 'translateX(' + width/2 + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
-	{ transform: 'translateX(' + width/2 + 'px) translateY(' + data.elevatorFinalY + ')', opacity: 1},
+	{ transform: 'translateX(' + GOOD_X_TARGET + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + GOOD_X_TARGET + 'px) translateY(' + data.elevatorFinalY + ')', opacity: 1},
     ];
     return new KeyframeEffect(element, keyframes, timings);
 }
@@ -202,7 +203,7 @@ function create_animation_convey_burger_to_middle(element_name, data, wrapper) {
     }
         var keyframes = [
 	{ transform: 'translateX(' + X_TARGET + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
-	{ transform: 'translateX(' + width/2 + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+	{ transform: 'translateX(' + GOOD_X_TARGET + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
     ];
     return new KeyframeEffect(element, keyframes, timings);
 }
