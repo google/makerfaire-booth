@@ -18,8 +18,7 @@ y_train = burgers['output']
 classes = numpy.unique(y_train)
 
 class VoteHandler(tornado.web.RequestHandler):
-    def initialize(self, clf, burgers, connection):
-        self.clf = clf
+    def initialize(self, burgers, connection):
         self.burgers = burgers
         self.connection = connection
 
@@ -42,15 +41,6 @@ class VoteHandler(tornado.web.RequestHandler):
             self.send_error(404)
             return
         
-        sample_X_train = burger_df.drop(["output"])
-        sample_y_train = burger_df["output"]
-        sample_X_train_categoricals = sample_X_train[column_names]
-        sample_tX_train_categoricals = enc.fit_transform(
-            sample_X_train_categoricals.values.reshape(1, -1))
-        self.clf.partial_fit(sample_tX_train_categoricals,
-                             [int(sample_y_train)],
-                             classes=classes)
-        pickle.dump(self.clf, open("clf.pkl", "wb"))
 
         self.write('{ "burger": "%s", "vote": %s, "label": %s }' %
                    (burger, "true" if vote else "false", burgers.loc[burger].output))
