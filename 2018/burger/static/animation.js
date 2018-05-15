@@ -329,8 +329,6 @@ function start_burger_drop_to_conveyor_animation(wrapper, isBurger) {
     var group = new GroupEffect(kEffects);
     var player = new Animation(group, document.timeline);
     player.onfinish = function() {
-    	// wrapper.remove();
-	// document.body.appendChild(wrapper);
 	start_animation_convey_burger_to_fate(wrapper, isBurger);
     }
     player.play();
