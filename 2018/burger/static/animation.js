@@ -1,12 +1,12 @@
 const MAX_BURGERS = 6;
 const BURGER_LAYER_SPACING = 40;
 const BASE_INITIAL_Y = -300;
-const BASE_FINAL_Y = 1000;
+const BASE_FINAL_Y = 1500;
 const BASE_ELEVATOR_FINAL_Y = 0;
 const BASE_CHUTE_Y = 450;
 const BASE_CONVEYOR_Y = 865;
-const X_TARGET = 625;
-const TRASH_X_TARGET = 100;
+const X_TARGET = 630;
+const TRASH_X_TARGET = 160;
 
 const layers_enum = Object.freeze({
     0: "empty",
@@ -185,8 +185,6 @@ function vote(wrapper, choice) {
     request.send();
 }
 
-
-
 function create_animation_convey_burger_to_middle(element_name, data, wrapper) {
     var element = wrapper.children.namedItem(element_name);
     var body = document.getElementsByTagName("BODY")[0];
@@ -225,6 +223,42 @@ function start_animation_convey_burger_to_middle(wrapper) {
     player.play();
 }
 
+function create_animation_convey_burger_to_trash_2(element_name, data, wrapper) {
+    var element = wrapper.children.namedItem(element_name);
+    var body = document.getElementsByTagName("BODY")[0];
+    width = body.getBoundingClientRect().width;
+    height = body.getBoundingClientRect().height;
+
+    var timings = {
+	duration: 500,
+	iterations: 1,
+	easing: "linear",
+	direction: "normal",
+	fill: "forwards",
+    }
+        var keyframes = [
+	    { transform: 'translateX(' + TRASH_X_TARGET + 'px) translateY(' + data.conveyorY + ')', opacity: 1},
+	    { transform: 'translateX(' + TRASH_X_TARGET + 'px) translateY(' + data.finalY + ')', opacity: 1},
+    ];
+    return new KeyframeEffect(element, keyframes, timings);
+}
+
+function start_animation_convey_burger_to_trash_2(wrapper) {
+    var burgerOffsets = create_layer_height_offsets(BURGER_LAYER_SPACING/2);
+    var kEffects = [];
+    for (let bf of burgerOffsets) {
+	var kf = create_animation_convey_burger_to_trash_2(bf[0], bf[1], wrapper);
+	kEffects.push(kf);
+    }
+    var group = new GroupEffect(kEffects);
+    var player = new Animation(group, document.timeline);
+    player.onfinish = function() {
+    	wrapper.remove();
+    	start_burger_drop_animation();
+    }
+    player.play();
+}
+
 function create_animation_convey_burger_to_trash(element_name, data, wrapper) {
     var element = wrapper.children.namedItem(element_name);
     var body = document.getElementsByTagName("BODY")[0];
@@ -255,8 +289,7 @@ function start_animation_convey_burger_to_trash(wrapper) {
     var group = new GroupEffect(kEffects);
     var player = new Animation(group, document.timeline);
     player.onfinish = function() {
-    	wrapper.remove();
-    	start_burger_drop_animation();
+    	start_animation_convey_burger_to_trash_2(wrapper);
     }
     player.play();
 }
