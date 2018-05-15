@@ -118,7 +118,7 @@ function requestStatus() {
     }
     
     request.responseType = 'json';
-    request.open('GET', '/validate');
+    request.open('GET', ':8888/validate');
     request.send();
 }
 
@@ -449,7 +449,7 @@ function start_burger_drop_animation() {
 	
     }
     request.responseType = 'json';
-    request.open('GET', '/burger');
+    request.open('GET', 'http://' + window.location.hostname + ':8888/burger');
     request.send();
 }
 
