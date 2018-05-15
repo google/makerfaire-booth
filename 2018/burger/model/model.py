@@ -43,6 +43,38 @@ def main():
                         random_state=1)
     # pickle.dump(clf, open("clf.pkl", "wb"))
 
+def update(clf, ):
+    sample_X_train = burger_df.drop(["output"])
+    sample_y_train = burger_df["output"]
+    sample_X_train_categoricals = sample_X_train[column_names]
+    sample_tX_train_categoricals = enc.fit_transform(
+        sample_X_train_categoricals.values.reshape(1, -1))
+    self.clf.partial_fit(sample_tX_train_categoricals,
+                         [int(sample_y_train)],
+                         classes=classes)
+    pickle.dump(self.clf, open("clf.pkl", "wb"))
+
+def report(clf, ):
+    X_test_categoricals = self.X_test[column_names]
+    tX_test_categoricals = enc.fit_transform(X_test_categoricals)
+    prediction = self.clf.predict(tX_test_categoricals)
+    accuracy = accuracy_score(self.y_test, prediction)
+    cf = confusion_matrix(self.y_test, prediction)
+    tp, fp, tn, fn = cf[1][1], cf[0][1], cf[0][0], cf[1][0]
+    p, r, f1, s = precision_recall_fscore_support(self.y_test, prediction)
+    response = {
+        "loss":self.clf.loss_,
+        "n_iter":self.clf.n_iter_,
+        "accuracy": accuracy,
+        "p": list(p),
+        "r": list(r),
+        "tp": int(tp),
+        "fp": int(fp),
+        "tn": int(tn),
+        "fn": int(fn)
+    }
+    self.write(json.dumps(response))
+    
 if __name__ == '__main__':
     main()
     
