@@ -14,7 +14,7 @@
    viewBox="0 0 210 297"
    version="1.1"
    id="svg15377"
-   inkscape:version="0.92.1 r15371"
+   inkscape:version="0.92.2pre0 (973e216, 2017-07-25)"
    sodipodi:docname="burger_machine.svg">
   <defs
      id="defs15371">
@@ -1667,15 +1667,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="4"
-     inkscape:cx="464.98174"
-     inkscape:cy="480.73395"
+     inkscape:cx="433.60674"
+     inkscape:cy="820.23395"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="3840"
-     inkscape:window-height="2097"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-height="2099"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata15374">
@@ -3289,12 +3289,12 @@
        id="path3346"
        inkscape:connector-curvature="0" />
     <path
-       d="m 133.96839,74.404861 v 0 c -0.70732,0 -1.28588,-0.578554 -1.28588,-1.285875 V 49.832479 c 0,-0.70732 0.57856,-1.285875 1.28588,-1.285875 0.70732,0 1.28587,0.578555 1.28587,1.285875 v 23.286507 c 0,0.707321 -0.57855,1.285875 -1.28587,1.285875"
+       d="m 84.028286,74.140278 v 0 c -0.70732,0 -1.28588,-0.578554 -1.28588,-1.285875 V 49.567896 c 0,-0.70732 0.57856,-1.285875 1.28588,-1.285875 0.70732,0 1.28587,0.578555 1.28587,1.285875 v 23.286507 c 0,0.707321 -0.57855,1.285875 -1.28587,1.285875"
        style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775"
        id="path4178"
        inkscape:connector-curvature="0" />
     <path
-       d="m 130.1333,74.594692 h -0.20637 c -0.65052,0 -1.18286,-0.532342 -1.18286,-1.182863 V 63.022523 c 0,-0.650169 0.53234,-1.182511 1.18286,-1.182511 h 0.20637 c 0.65053,0 1.18287,0.532342 1.18287,1.182511 v 10.389306 c 0,0.650521 -0.53234,1.182863 -1.18287,1.182863"
+       d="m 88.792154,74.065525 h -0.20637 c -0.65052,0 -1.18286,-0.532342 -1.18286,-1.182863 V 62.493356 c 0,-0.650169 0.53234,-1.182511 1.18286,-1.182511 h 0.20637 c 0.65053,0 1.18287,0.532342 1.18287,1.182511 v 10.389306 c 0,0.650521 -0.53234,1.182863 -1.18287,1.182863"
        style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775"
        id="path4182"
        inkscape:connector-curvature="0" />
