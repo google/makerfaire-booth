@@ -3,15 +3,17 @@ html, body {
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden
+    overflow: hidden;
 }
 
-.burger_machine {
+body {
+    background-color: gainsboro;
+}
+
+.burger_machine, .conveyor_belts, .lights {
     position:fixed; top:0%; left:200px; height:50%; width:50%;
 }
-.conveyor_belts {
-    position:fixed; top:0%; left:200px; height:50%; width:50%;
-}
+
 
 #layer1, #layer2, #layer3, #layer4, #layer5, #layer6, #layer7, #layer8 {
     height: 70px;

@@ -4,7 +4,7 @@ const BASE_INITIAL_Y = -300;
 const BASE_FINAL_Y = 1500;
 const BASE_ELEVATOR_FINAL_Y = 0;
 const BASE_CHUTE_Y = 450;
-const BASE_CONVEYOR_Y = 865;
+const BASE_CONVEYOR_Y = 870;
 const X_TARGET = 630;
 const TRASH_X_TARGET = 160;
 
@@ -457,5 +457,6 @@ body.onload = function() {
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
     // requestStatus();
+
     start_burger_drop_animation();
 };
