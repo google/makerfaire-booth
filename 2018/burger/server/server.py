@@ -9,10 +9,10 @@ import sqlite3
 import vote
 import burger
 
-clf = pickle.load(open("clf.pkl", "rb"))
-train_burgers = pandas.read_hdf('split.h5', 'train')
-test_burgers = pandas.read_hdf('split.h5', 'test')
-connection = sqlite3.connect('server.db')
+clf = pickle.load(open("../data/clf.pkl", "rb"))
+train_burgers = pandas.read_hdf('../data/split.h5', 'train')
+test_burgers = pandas.read_hdf('../data/split.h5', 'test')
+connection = sqlite3.connect('../data/server.db')
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
@@ -21,8 +21,8 @@ class IndexHandler(tornado.web.RequestHandler):
 
 urls = [
     (r"/", IndexHandler),
-    (r"/vote", vote.VoteHandler, dict(clf=clf, burgers=train_burgers, connection=connection)),
-    (r"/burger", burger.BurgerHandler),
+    (r"/vote", vote.VoteHandler, dict(connection=connection)),
+    (r"/burger", burger.BurgerHandler, dict(burgers=train_burgers)),
 ]
 
 settings = dict({
