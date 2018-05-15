@@ -1666,9 +1666,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4"
-     inkscape:cx="433.60674"
-     inkscape:cy="820.23395"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="391.10674"
+     inkscape:cy="619.73395"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -3285,7 +3285,7 @@
     </g>
     <path
        d="M 137.26651,105.90634 H 81.096522 V 41.389978 h 56.169988 z"
-       style="opacity:0.5;fill:#ffff4d;fill-opacity:0.45728646;fill-rule:nonzero;stroke:none;stroke-width:0.35277775"
+       style="opacity:0.5;fill:#ffffff;fill-opacity:0.15454546;fill-rule:nonzero;stroke:none;stroke-width:0.35277775"
        id="path3346"
        inkscape:connector-curvature="0" />
     <path
