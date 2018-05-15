@@ -146,7 +146,7 @@ function vote(wrapper, choice) {
 	}
     }
     request.responseType = 'json';
-    request.open('GET', '/vote?burger=' + burger + '&vote=' + choice);
+    request.open('GET', 'http://' + window.location.hostname + ':8888/vote?burger=' + burger + '&vote=' + choice);
     request.send();
 }
 
