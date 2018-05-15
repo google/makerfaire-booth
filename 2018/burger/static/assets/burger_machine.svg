@@ -1670,7 +1670,7 @@
      inkscape:cx="391.10674"
      inkscape:cy="619.73395"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showgrid="false"
      inkscape:window-width="3840"
      inkscape:window-height="2099"
@@ -2052,7 +2052,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <rect
-       style="opacity:1;vector-effect:none;fill:#58a246;fill-opacity:0.42713569;stroke:none;stroke-width:0.35972211;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;vector-effect:none;fill:#c9c9c9;fill-opacity:0.22727273;stroke:none;stroke-width:0.35972211;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect833"
        width="75.222801"
        height="34.25024"
