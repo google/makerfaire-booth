@@ -29,10 +29,10 @@ def main():
     y = burgers['output']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
-    if os.path.exists('split.h5'):
-        os.remove('split.h5')
-    X_train.join(y_train).to_hdf('split.h5', 'train', format='fixed')
-    X_test.join(y_test).to_hdf('split.h5', 'test', format='fixed')
+    if os.path.exists('../data/split.h5'):
+        os.remove('../data/split.h5')
+    X_train.join(y_train).to_hdf('../data/split.h5', 'train', format='fixed')
+    X_test.join(y_test).to_hdf('../data/split.h5', 'test', format='fixed')
 
     clf = MLPClassifier(solver='adam',
                         activation='relu',

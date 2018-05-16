@@ -65,19 +65,20 @@ class Model:
         self.X_test = test.drop(['output'], axis=1)
         self.y_test = test['output']
         self.all_train = self.X_train.join(self.y_train)
+        self.X_test_categoricals = self.X_test[column_names]
+        self.tX_test_categoricals = enc.fit_transform(self.X_test_categoricals)
 
         pos_train = self.all_train[self.all_train.output == True]
         neg_train = self.all_train[self.all_train.output == False]
         ratio = 1000
         train = pos_train.append(neg_train.sample(len(pos_train)*ratio))
-        for i in range(len(train)):
-            one = train.sample(ratio)
+        for i in range(10):
+            one = train.sample(len(train))
             train_X = one.drop(['output'], axis=1)
             train_y = one['output']
             train_X_categoricals = train_X[column_names]
             self.update(train_X_categoricals, train_y)
-            if (i%100) == 0:
-                print(self.report())
+        print(self.report())
     
 
     def update(self, X, y):
@@ -90,9 +91,7 @@ class Model:
         pickle.dump(self.clf, open(TRAINED_MODEL_FILENAME, "wb"))
 
     def report(self):
-        X_test_categoricals = self.X_test[column_names]
-        tX_test_categoricals = enc.fit_transform(X_test_categoricals)
-        prediction = self.clf.predict(tX_test_categoricals)
+        prediction = self.clf.predict(self.tX_test_categoricals)
         accuracy = accuracy_score(self.y_test, prediction)
         cf = confusion_matrix(self.y_test, prediction)
         tp, fp, tn, fn = cf[1][1], cf[0][1], cf[0][0], cf[1][0]
@@ -120,7 +119,13 @@ if __name__ == '__main__':
         pickle.dump(clf, open(UNTRAINED_MODEL_FILENAME, "wb"))
         
     m = Model()
-    print(m.report())
-    m.update(numpy.array([[1,2,3,4,5,6],[6,6,6,6,6,6]]), [1, 0])
-    print(m.report())
-p
+
+    while True:
+        burger = m.all_train.sample(1000)
+        m.update(burger[column_names], burger['output'].astype('int'))
+        print(m.report())
+
+    # print(m.report())
+    # m.update(numpy.array([[1,2,3,4,5,6]]), numpy.array([1]))
+    # print(m.report())
+    # m.update(numpy.array([[6,6,6,6,6,6]]), numpy.array([0]))
