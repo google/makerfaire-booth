@@ -1,8 +1,12 @@
+import pandas
+import json
 import tornado.web
 
 class VoteHandler(tornado.web.RequestHandler):
-    def initialize(self, connection):
+    def initialize(self, connection, burgers, model):
         self.connection = connection
+        self.burgers = burgers
+        self.model = model
 
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
@@ -16,6 +20,26 @@ class VoteHandler(tornado.web.RequestHandler):
 
         self.connection.cursor().execute("INSERT INTO votes (burger, vote) VALUES (?, ?)", (burger, vote))
         self.connection.commit()
+
+        self.model.update([list(burger)], [vote])
+        # results = self.model.report()
+
+        response = {
+            "burger": burger,
+            "vote": vote,
+            }
+        self.write("OK")
+        # response.update(results)
+
+        # predictions = self.model.predict(self.burgers)
+        # df = pandas.DataFrame(predictions[:,1], columns=['prob_burger'], index=self.burgers.index.values).join(self.burgers.output)
+        # import pdb; pdb.set_trace()
+        # response['predictions'] = list(predictions[:,1])
+        # self.write(json.dumps(response))
         
-        self.write('{ "burger": "%s", "vote": %s }' %
-                   (burger, "true" if vote else "false"))
+        # clf = pickle.load(open("../data/trained.pkl", "rb"))
+        # s = [list(item) for item in self.burgers.index.values]
+        # ts = enc.fit_transform(s)
+        # p = clf.predict_proba(ts)
+        # self.burgers['p_burger'] = p[:,1]
+        # import pdb; pdb.set_trace()

@@ -7,12 +7,16 @@ import tornado.web
 import sqlite3                           
 import vote
 import burger
-import predict
-import rank
+import sys
+sys.path.insert(0, '../model')
+from model import Model
+
+model = Model()
 
 train_burgers = pandas.read_hdf('../data/split.h5', 'train')
 test_burgers = pandas.read_hdf('../data/split.h5', 'test')
 connection = sqlite3.connect('../data/server.db')
+burgers = train_burgers.append(test_burgers)
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
@@ -21,10 +25,8 @@ class IndexHandler(tornado.web.RequestHandler):
 
 urls = [
     (r"/", IndexHandler),
-    (r"/vote", vote.VoteHandler, dict(connection=connection)),
+    (r"/vote", vote.VoteHandler, dict(connection=connection, burgers=burgers, model=model)),
     (r"/burger", burger.BurgerHandler, dict(burgers=train_burgers)),
-    (r"/predict", predict.PredictHandler),
-    (r"/rank", rank.RankHandler, dict(burgers=train_burgers.append(test_burgers)))
 ]
 
 settings = dict({

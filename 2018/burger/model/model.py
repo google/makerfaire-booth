@@ -90,8 +90,13 @@ class Model:
         X_categoricals = enc.fit_transform(
             X)
         self.clf.partial_fit(X_categoricals,
-                             y.astype(int),
+                             numpy.array(y).astype(int),
                              classes=classes)
+    def predict(self, X):
+        X_categoricals = enc.fit_transform(
+            X[column_names])
+        return self.clf.predict_proba(X_categoricals)
+        
     def dump(self):
         o = tempfile.NamedTemporaryFile(delete=False, dir=os.path.dirname(TRAINED_MODEL_FILENAME))
         pickle.dump(self.clf, o)
