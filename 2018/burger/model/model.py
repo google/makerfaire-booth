@@ -1,3 +1,4 @@
+import tempfile
 import warnings
 import time
 import random
@@ -19,6 +20,7 @@ from one_hot import get_one_hot
 enc = get_one_hot()
 
 UNTRAINED_MODEL_FILENAME="../data/clf.pkl"
+TRAINED_MODEL_FILENAME="../data/trained.pkl"
 SPLIT_FILENAME = '../data/split.h5'
 
 burgers = pandas.read_hdf('../data/data.h5', 'df')
@@ -68,6 +70,7 @@ class Model:
         self.X_test_categoricals = self.X_test[column_names]
         self.tX_test_categoricals = enc.fit_transform(self.X_test_categoricals)
 
+    def pretrain(self):
         pos_train = self.all_train[self.all_train.output == True]
         neg_train = self.all_train[self.all_train.output == False]
         ratio = 1000
@@ -88,7 +91,10 @@ class Model:
                              y.astype(int),
                              classes=classes)
     def dump(self):
-        pickle.dump(self.clf, open(TRAINED_MODEL_FILENAME, "wb"))
+        o = tempfile.NamedTemporaryFile(delete=False, dir=os.path.dirname(TRAINED_MODEL_FILENAME))
+        pickle.dump(self.clf, o)
+        o.close()
+        os.rename(o.name, TRAINED_MODEL_FILENAME)
 
     def report(self):
         prediction = self.clf.predict(self.tX_test_categoricals)
@@ -108,7 +114,6 @@ class Model:
             "fn": int(fn)
         }
         return response
-        # self.write(json.dumps(response))
 
 if __name__ == '__main__':
     if not os.path.exists(UNTRAINED_MODEL_FILENAME):
@@ -119,11 +124,12 @@ if __name__ == '__main__':
         pickle.dump(clf, open(UNTRAINED_MODEL_FILENAME, "wb"))
         
     m = Model()
-
-    while True:
-        burger = m.all_train.sample(1000)
-        m.update(burger[column_names], burger['output'].astype('int'))
-        print(m.report())
+    m.pretrain()
+    m.dump()    
+    # while True:
+    #     burger = m.all_train.sample(1000)
+    #     m.update(burger[column_names], burger['output'].astype('int'))
+    #     print(m.report())
 
     # print(m.report())
     # m.update(numpy.array([[1,2,3,4,5,6]]), numpy.array([1]))
