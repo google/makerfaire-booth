@@ -1,7 +1,7 @@
 import pandas
 import requests
 
-burgers = pandas.read_hdf('split.h5', 'train')
+burgers = pandas.read_hdf('../data/split.h5', 'train')
 
 HOSTNAME='localhost'
 def do_request():
