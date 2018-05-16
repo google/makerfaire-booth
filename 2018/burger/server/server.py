@@ -1,5 +1,4 @@
 import os
-import pickle
 import pandas
 import tornado.httpserver
 import tornado.ioloop
@@ -8,8 +7,9 @@ import tornado.web
 import sqlite3                           
 import vote
 import burger
+import predict
+import rank
 
-clf = pickle.load(open("../data/clf.pkl", "rb"))
 train_burgers = pandas.read_hdf('../data/split.h5', 'train')
 test_burgers = pandas.read_hdf('../data/split.h5', 'test')
 connection = sqlite3.connect('../data/server.db')
@@ -23,6 +23,8 @@ urls = [
     (r"/", IndexHandler),
     (r"/vote", vote.VoteHandler, dict(connection=connection)),
     (r"/burger", burger.BurgerHandler, dict(burgers=train_burgers)),
+    (r"/predict", predict.PredictHandler),
+    (r"/rank", rank.RankHandler, dict(burgers=train_burgers.append(test_burgers)))
 ]
 
 settings = dict({

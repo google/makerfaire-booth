@@ -16,6 +16,8 @@ from sklearn.metrics import classification_report
 from sklearn.exceptions import DataConversionWarning
 warnings.filterwarnings(action='ignore', category=DeprecationWarning)
 column_names = ['layer0', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5']
+import sys
+sys.path.insert(0, '../constants')
 from one_hot import get_one_hot
 enc = get_one_hot()
 
