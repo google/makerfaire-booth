@@ -18,6 +18,10 @@ body {
     position:fixed; top:10%; left:10%; height:40em; width:40em;
 }
 
+.dumpster {
+    position:fixed; bottom:8%; left:20%; height:25%; width:25%;
+}
+
 #layer1, #layer2, #layer3, #layer4, #layer5, #layer6, #layer7, #layer8 {
     height: 70px;
     width: auto;
@@ -36,8 +40,8 @@ body {
 .status {
     border-style:solid;
     position:absolute;
-    bottom:10%;
-    right:100px;
+    bottom:30%;
+    left:10%;
 }
 
 #confusion_matrix th,tr,td {
