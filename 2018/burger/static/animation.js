@@ -94,17 +94,13 @@ function layer_idx_to_layers(layers_idx) {
 
 }
 
+
+
 function updateStatus(request) {
     document.getElementById("fp").innerHTML = request.response["fp"];
     document.getElementById("tp").innerHTML = request.response["tp"];
     document.getElementById("tn").innerHTML = request.response["tn"];
     document.getElementById("fn").innerHTML = request.response["fn"];
-    document.getElementById("iterations").innerHTML = request.response["n_iter"];
-    document.getElementById("accuracy").innerHTML = (request.response["accuracy"] * 100.).toFixed(2);
-    document.getElementById("burger_precision").innerHTML = request.response["p"][1].toFixed();
-    document.getElementById("notburger_precision").innerHTML = request.response["p"][1].toFixed(2);
-    document.getElementById("burger_recall").innerHTML = request.response["p"][0].toFixed(2);
-    document.getElementById("notburger_recall").innerHTML = request.response["p"][0].toFixed(2);
 }
 
 function element_to_burger(wrapper) {
@@ -144,6 +140,7 @@ function request_burgerrank() {
 		console.log("celebration!", request.response);
 		var burgers = request.response["results"];
 		update_burgerrank(burgers);
+		updateStatus(request);
 	    } else {
 		console.log("sadness!", request.status, request.statusText, request.response);
 	    }

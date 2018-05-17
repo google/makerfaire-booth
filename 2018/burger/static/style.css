@@ -57,10 +57,6 @@ body {
    border: 1px solid black;
 }
 
-#precision_recall table th,tr,td {
-   border: 1px solid black;
-}
-
 .burger {
     position:relative; top:0; left:0; height:256px; width:128px;
 }
