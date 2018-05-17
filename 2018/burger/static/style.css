@@ -22,11 +22,28 @@ body {
     position:fixed; bottom:8%; left:20%; height:25%; width:25%;
 }
 
-.burgerstack {
+.burgerstack_description {
     position:fixed; top:0%; right:35%;
 }
 
+.burgerstack {
+    position:fixed; top:10%; right:35%;
+}
+
+.badburgerstack_description {
+    position:fixed; top:0%; right:55%;
+}
+
+.badburgerstack {
+    position:fixed; top:10%; right:55%;
+}
+
 .burgerstack_wrapper {
+    position:static;
+    height: 200px;
+}
+
+.badburgerstack_wrapper {
     position:static;
     height: 200px;
 }
