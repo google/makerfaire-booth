@@ -440,7 +440,7 @@ function start_burger_drop_animation() {
     request.send();
 }
 
-const resetCode = "R".charCodeAt(0);
+const resetCode = "T".charCodeAt(0);
 
 function invokeReset(e) {
 	var request = new XMLHttpRequest();
