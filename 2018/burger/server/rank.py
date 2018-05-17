@@ -21,11 +21,11 @@ class RankHandler(tornado.web.RequestHandler):
                 "error": "no ranks yet"
                 }
         else:
-            df, tp, fp, tn, fn = result
-            results = list(zip(df.index, df.p_burger))
+            goodburgers, badburgers, tp, fp, tn, fn = result
 
             response = {
-                "results": results,
+                "goodburgers": list(zip(goodburgers.index, goodburgers.p_burger)),
+                "badburgers": list(zip(badburgers.index, badburgers.p_burger)),
                 "tp": tp,
                 "fp": fp,
                 "tn": tn,

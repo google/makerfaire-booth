@@ -47,6 +47,7 @@ class Model:
                                  random_state=1)
         self.clf.fit(X_categoricals,y.astype(int))
         return True
+
     def rank(self):
         if self.update() is False:
             return None
@@ -57,8 +58,12 @@ class Model:
         cf = confusion_matrix(burgers.output.astype(int), prediction.astype(int))
         tp, fp, tn, fn = cf[1][1], cf[0][1], cf[0][0], cf[1][0]
 
-        df = pandas.DataFrame(data={'p_burger': all_p[:,1]}, index=burgers.index)
-        return df[df.p_burger > 0.5].sort_values(by='p_burger', ascending=False).head(10), tp, fp, tn, fn
+        predicted_burgers = pandas.DataFrame(data={'p_burger': all_p[:,1], 'output': burgers.output}, index=burgers.index)
+        goodburgers = predicted_burgers[predicted_burgers.output == True]
+        goodburgers = goodburgers[goodburgers.p_burger > 0.5].sort_values(by='p_burger', ascending=False).head(10)
+        badburgers = predicted_burgers[predicted_burgers.output == False]
+        badburgers= badburgers[badburgers.p_burger > 0.5].sort_values(by='p_burger', ascending=False).head(10)
+        return goodburgers, badburgers, tp, fp, tn, fn
         
 if __name__ == '__main__':
     m = Model()
