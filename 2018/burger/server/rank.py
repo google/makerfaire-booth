@@ -14,16 +14,21 @@ class RankHandler(tornado.web.RequestHandler):
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
                                             
     def get(self):
-        df = self.model.rank()
-        if df is None:
+        result = self.model.rank()
+        if result is None:
             self.set_status(404)
             response = {
                 "error": "no ranks yet"
                 }
         else:
+            df, tp, fp, tn, fn = result
             results = list(zip(df.index, df.p_burger))
 
             response = {
-                "results": results
+                "results": results,
+                "tp": tp,
+                "fp": fp,
+                "tn": tn,
+                "fn": fn
                 }
         self.write(json.dumps(response))
