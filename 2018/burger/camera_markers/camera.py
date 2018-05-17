@@ -3,27 +3,20 @@ import pickle
 import numpy as np
 import os
 import sys
-sys.path.insert(0, 'utils')
-sys.path.insert(0, '../../../machine')
+sys.path.insert(0, '../renderer')
 import signal
 from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg
 import cv2
 from object_detector import ObjectDetector
-from render_burger import BurgerRenderer
+from burger_renderer import BurgerRenderer
 from classify_burger import BurgerClassifier
 # from label_burger import label_burger
+sys.path.insert(0, "../constants")
+from burger_elements import BurgerElement
 
 filename="z:/cut.mkv"
 
-labels = {
-    0: 'empty',
-    1: 'topbun',
-    2: 'lettuce',
-    3: 'tomato',
-    4: 'cheese',
-    5: 'patty',
-    6: 'bottombun'
-    }
+labels = dict([(member.value, member.name) for member in BurgerElement.__members__.values()])
 
 WARPED_HEIGHT=720
 ratio = 0.4
@@ -210,8 +203,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 warped_image = QtGui.QImage(warped.data, WARPED_WIDTH, WARPED_HEIGHT, 3*WARPED_WIDTH, QtGui.QImage.Format_RGB888).rgbSwapped()
                 self.imageTo2(warped_image, boxes)
                 self.counter += 1
-        else:
-            self.cam = cv2.VideoCapture(filename)
+        # else:
+        #     self.cam = cv2.VideoCapture(filename)
                 
 
 class QApplication(QtWidgets.QApplication):
