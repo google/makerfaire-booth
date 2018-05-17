@@ -33,7 +33,7 @@ class Model:
     def update(self):
         all_ = pandas.read_sql_query('SELECT burger, vote FROM votes', self.connection, index_col='burger')
         if len(all_) == 0:
-            return False
+            return 0
             
         X = [[int(item) for item in list(value)] for value in all_.index.values]
         X_categoricals = enc.fit_transform(X)
@@ -46,10 +46,11 @@ class Model:
                                  tol=1e-8,
                                  random_state=1)
         self.clf.fit(X_categoricals,y.astype(int))
-        return True
+        return len(all_)
 
     def rank(self):
-        if self.update() is False:
+        n_votes = self.update()
+        if n_votes == 0:
             return None
         if self.clf is None:
             return None
@@ -63,7 +64,7 @@ class Model:
         goodburgers = goodburgers[goodburgers.p_burger > 0.5].sort_values(by='p_burger', ascending=False).head(10)
         badburgers = predicted_burgers[predicted_burgers.output == False]
         badburgers= badburgers[badburgers.p_burger > 0.5].sort_values(by='p_burger', ascending=False).head(10)
-        return goodburgers, badburgers, tp, fp, tn, fn
+        return goodburgers, badburgers, tp, fp, tn, fn, n_votes
         
 if __name__ == '__main__':
     m = Model()

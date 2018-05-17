@@ -21,7 +21,7 @@ class RankHandler(tornado.web.RequestHandler):
                 "error": "no ranks yet"
                 }
         else:
-            goodburgers, badburgers, tp, fp, tn, fn = result
+            goodburgers, badburgers, tp, fp, tn, fn, n_votes = result
 
             response = {
                 "goodburgers": list(zip(goodburgers.index, goodburgers.p_burger)),
@@ -29,6 +29,7 @@ class RankHandler(tornado.web.RequestHandler):
                 "tp": tp,
                 "fp": fp,
                 "tn": tn,
-                "fn": fn
+                "fn": fn,
+                "n_votes": n_votes,
                 }
         self.write(json.dumps(response))

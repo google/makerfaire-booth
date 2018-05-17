@@ -76,6 +76,11 @@ body {
     left:10%;
 }
 
+#n_votes {
+    border-style:solid;
+    font-size: 72px;
+}
+
 #confusion_matrix th,tr,td {
    border: 1px solid black;
 }

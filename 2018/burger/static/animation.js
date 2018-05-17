@@ -99,6 +99,7 @@ function updateStatus(request) {
     document.getElementById("tp").innerHTML = request.response["tp"];
     document.getElementById("tn").innerHTML = request.response["tn"];
     document.getElementById("fn").innerHTML = request.response["fn"];
+    document.getElementById("n_votes").innerHTML = "Number of votes: " + request.response["n_votes"];
 }
 
 function element_to_burger(wrapper) {
