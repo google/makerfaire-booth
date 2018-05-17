@@ -24,6 +24,7 @@ body {
 
 .burgerstack_description {
     position:fixed; top:0%; right:35%;
+    font-size: 72px;
 }
 
 .burgerstack {
@@ -31,11 +32,12 @@ body {
 }
 
 .badburgerstack_description {
-    position:fixed; top:0%; right:55%;
+    position:fixed; top:0%; right:15%;
+    font-size: 72px;
 }
 
 .badburgerstack {
-    position:fixed; top:10%; right:55%;
+    position:fixed; top:10%; right:15%;
 }
 
 .burgerstack_wrapper {
