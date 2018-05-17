@@ -107,21 +107,6 @@ function updateStatus(request) {
     document.getElementById("notburger_recall").innerHTML = request.response["p"][0].toFixed(2);
 }
 
-function requestStatus() {
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-	if(request.readyState === 4) {
-	    if(request.status === 200) {
-		updateStatus(request);
-	    }
-	}
-    }
-    
-    request.responseType = 'json';
-    request.open('GET', ':8888/validate');
-    request.send();
-}
-
 function element_to_burger(wrapper) {
     var burger = [];
     for (let node of wrapper.childNodes) {
@@ -159,7 +144,6 @@ function request_burgerrank() {
 		console.log("celebration!", request.response);
 		var burgers = request.response["results"];
 		update_burgerrank(burgers);
-		// requestStatus();
 	    } else {
 		console.log("sadness!", request.status, request.statusText, request.response);
 	    }
@@ -456,7 +440,6 @@ const body = document.getElementsByTagName('body')[0];
 body.onload = function() {
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
-    // requestStatus();
     request_burgerrank();
     start_burger_drop_animation();
 };
