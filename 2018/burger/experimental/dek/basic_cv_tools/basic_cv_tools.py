@@ -4,19 +4,13 @@ import sys
 from PyQt5 import QtGui, QtCore, QtSvg, QtWidgets
 from canny import canny
 from object_detector import ObjectDetector
+sys.path.insert(0, "../../../constants")
+from burger_elements import BurgerElement
 
 WIDTH=640
 HEIGHT=480
 
-labels = {
-    0: 'empty',
-    1: 'topbun',
-    2: 'lettuce',
-    3: 'tomato',
-    4: 'cheese',
-    5: 'patty',
-    6: 'bottombun'
-    }
+labels = dict([(member.value, member.name) for member in BurgerElement.__members__.values()])
 
 class QGraphicsSvgItem(QtSvg.QGraphicsSvgItem):
     def __init__(self, *args, **kwargs):
@@ -36,7 +30,7 @@ class QGraphicsSvgItem(QtSvg.QGraphicsSvgItem):
 
     def mousePressEvent(self, event):
         if (event.buttons() & QtCore.Qt.LeftButton) and event.modifiers() & QtCore.Qt.ControlModifier:
-            print "blah press", event.scenePos()
+            print("blah press", event.scenePos())
             self.press = event.scenePos()
             return
         
@@ -60,7 +54,7 @@ class QGraphicsPixmapItem(QtWidgets.QGraphicsPixmapItem):
 
     def mousePressEvent(self, event):
         if (event.buttons() & QtCore.Qt.LeftButton) and event.modifiers() & QtCore.Qt.ControlModifier:
-            print "blah press", event.scenePos()
+            print("blah press", event.scenePos())
             self.press = event.scenePos()
             return
         
@@ -90,7 +84,6 @@ class QGraphicsView(QtWidgets.QGraphicsView):
         item.setScale(1.5)
         rect = item.boundingRect()
         newPos = self.mapToScene(e.pos())# - QtCore.QPoint(rect.bottomRight()))
-        print newPos
         item.setPos(newPos)
         self.scene().addItem(item)
 
@@ -129,7 +122,7 @@ class Widget(QtWidgets.QWidget):
         self.view = QGraphicsView(self.scene)
         self.view.setFixedSize(WIDTH,HEIGHT)
         self.view.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-	self.view.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.view.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.view.setMouseTracking(True)
         pixmap = QtGui.QPixmap("my_photo-1-crop.jpg")
         # topbun_webcam = QGraphicsPixmapItem(pixmap)
@@ -150,12 +143,12 @@ class Widget(QtWidgets.QWidget):
         self.iconsLayout = QtWidgets.QVBoxLayout()
         self.icons.setLayout(self.iconsLayout)
         
-        self.topbun = QSvgWidget("../../../assets/topbun.svg")
-        self.lettuce = QSvgWidget("../../../assets/lettuce.svg")
-        self.tomato = QSvgWidget("../../../assets/tomato.svg")
-        self.cheese = QSvgWidget("../../../assets/cheese.svg")
-        self.patty = QSvgWidget("../../../assets/patty.svg")
-        self.bottombun = QSvgWidget("../../../assets/bottombun.svg")
+        self.topbun = QSvgWidget("../../../static/assets/topbun.svg")
+        self.lettuce = QSvgWidget("../../../static/assets/lettuce.svg")
+        self.tomato = QSvgWidget("../../../static/assets/tomato.svg")
+        self.cheese = QSvgWidget("../../../static/assets/cheese.svg")
+        self.patty = QSvgWidget("../../../static/assets/patty.svg")
+        self.bottombun = QSvgWidget("../../../static/assets/bottombun.svg")
         self.iconsLayout.addWidget(self.topbun)
         self.iconsLayout.addWidget(self.lettuce)
         self.iconsLayout.addWidget(self.tomato)
@@ -180,10 +173,10 @@ class Widget(QtWidgets.QWidget):
         self.objdet = ObjectDetector()
         
     def topbun_clicked(self, *args):
-        print args
+        print(args)
         
     def buttonAClicked(self, *args):
-        print args
+        print(args)
         self.classify()
         
     def changed(self):
