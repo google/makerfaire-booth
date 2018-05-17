@@ -2,6 +2,8 @@ import numpy as np
 import signal
 import sys
 from PyQt5 import QtGui, QtCore, QtSvg, QtWidgets
+sys.path.insert(0, "../constants")
+from burger_elements import BurgerElement
 
 WIDTH=128
 HEIGHT=128
@@ -9,15 +11,7 @@ SIZE=16
 SIZE_HEIGHT=20
 OFFSET=32
 
-labels = {
-    0: 'empty',
-    1: 'topbun',
-    2: 'lettuce',
-    3: 'tomato',
-    4: 'cheese',
-    5: 'patty',
-    6: 'bottombun'
-    }
+labels = dict([(member.value, member.name) for member in BurgerElement.__members__.values()])
 
 renderers = {}
 
@@ -25,7 +19,7 @@ for key, value in labels.items():
     if value == 'empty':
         renderers[value] = None
     else:
-        renderers[value] = QtSvg.QSvgRenderer("../assets/%s.svg" % value)
+        renderers[value] = QtSvg.QSvgRenderer("../static/assets/%s.svg" % value)
 
 class BurgerRenderer(object):
     def __init__(self, burger, width, height):
