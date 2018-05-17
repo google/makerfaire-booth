@@ -30,6 +30,9 @@ def intersection(a,b):
     if w<0 or h<0: return False
     return True
 
+def boxCenter(box):
+    return [box[0] + (box[2]-box[0])/2, box[1] + (box[3]-box[1])/2]
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -114,12 +117,38 @@ class MainWindow(QtWidgets.QMainWindow):
 
             boxes = nonoverlapping_boxes
 
-        ordered_boxes = sorted(nonoverlapping_boxes, key=lambda x: x[3])
-        classes_ = [box[0] for box in ordered_boxes]
+
+            
+        ordered_boxes = sorted(nonoverlapping_boxes, key=lambda x: boxCenter(x)[1])
+        ordered_boxes_with_gaps = []
+        for i in range(len(ordered_boxes)):
+            box = ordered_boxes[i]
+            bc = boxCenter(box[2:])
+            ordered_boxes_with_gaps.append(box)
+            if i < len(ordered_boxes) - 1:
+                nextBox = ordered_boxes[i+1]
+                nbc = boxCenter(nextBox[2:])
+                dy = nbc[1] - bc[1]
+                if dy > 130:
+                    newCenter = boxCenter([bc[0], bc[1], nbc[0], nbc[1]])
+                    ul = newCenter[:]
+                    width = box[2] - box[0]
+                    height = box[3] - box[1]
+                    ul[0] -= 50
+                    ul[1] -= 20
+                    lr = newCenter[:]
+                    lr[0] += 50
+                    lr[1] += 20
+                    newBox = (0, 1.0, ul[0], ul[1], lr[0], lr[1])
+                    ordered_boxes_with_gaps.append(newBox)
+                    if len(ordered_boxes_with_gaps) == 6:
+                        break
+
+        classes_ = [box[0] for box in ordered_boxes_with_gaps]
         while len(classes_) < 6:
             classes_.insert(0, 0)
             
-        burger_renderer = BurgerRenderer(classes_, 720, 720)
+        burger_renderer = BurgerRenderer(classes_, 720, 720, renderEmpty=True)
         image = burger_renderer.image
         image_128 = burger_renderer.image.scaled(128, 128).convertToFormat(QtGui.QImage.Format_RGB888)
         bits = image_128.constBits().asstring(128*128*3)
@@ -134,7 +163,7 @@ class MainWindow(QtWidgets.QMainWindow):
             label = 'notburger'
         self.image3_text.setText("P(burger) = %5.2f P(notburger) = %5.2f (%s" % (result[1], result[0], label))
         # label = label_burger(classes_)
-        return ordered_boxes
+        return ordered_boxes_with_gaps
         
     def camera(self):
         ret, img = self.cam.read()
