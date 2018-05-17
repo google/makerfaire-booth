@@ -16,13 +16,10 @@ labels = dict([(member.value, member.name) for member in BurgerElement.__members
 renderers = {}
 
 for key, value in labels.items():
-    if value == 'empty':
-        renderers[value] = None
-    else:
-        renderers[value] = QtSvg.QSvgRenderer("../static/assets/%s.svg" % value)
+    renderers[value] = QtSvg.QSvgRenderer("../static/assets/%s.svg" % value)
 
 class BurgerRenderer(object):
-    def __init__(self, burger, width, height):
+    def __init__(self, burger, width, height, renderEmpty=False):
         image = QtGui.QImage(QtCore.QSize(width, height), QtGui.QImage.Format_ARGB32)
         image.fill(QtGui.QColor(0, 0, 0, 0))
         painter = QtGui.QPainter(image)
@@ -32,8 +29,7 @@ class BurgerRenderer(object):
                 burger.insert(0, 0)
         for i in range(len(burger)):
             layer_idx = burger[i]
-            if layer_idx != 0:
-
+            if layer_idx != 0 or renderEmpty:
                 layer = labels[layer_idx]
                 ratio = (width/float(WIDTH))
                 bounds = QtCore.QRectF(OFFSET * ratio, (i-1)*SIZE_HEIGHT*ratio + 18*ratio, SIZE*4.4*ratio, SIZE*2.475*ratio)
