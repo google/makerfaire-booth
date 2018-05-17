@@ -127,22 +127,21 @@ class MainWindow(QtWidgets.QMainWindow):
             ordered_boxes_with_gaps.append(box)
             if i < len(ordered_boxes) - 1:
                 nextBox = ordered_boxes[i+1]
+                dy = nextBox[3] - box[5]
                 nbc = boxCenter(nextBox[2:])
-                dy = nbc[1] - bc[1]
-                if dy > 130:
-                    newCenter = boxCenter([bc[0], bc[1], nbc[0], nbc[1]])
-                    ul = newCenter[:]
-                    width = box[2] - box[0]
-                    height = box[3] - box[1]
-                    ul[0] -= 50
-                    ul[1] -= 20
-                    lr = newCenter[:]
-                    lr[0] += 50
-                    lr[1] += 20
-                    newBox = (0, 1.0, ul[0], ul[1], lr[0], lr[1])
-                    ordered_boxes_with_gaps.append(newBox)
-                    if len(ordered_boxes_with_gaps) == 6:
-                        break
+                height = 50
+                if dy > height:
+                    pos = int(dy / height)
+                    width = (((box[4] - box[2]) + (nextBox[4] - nextBox[2]))/2)/2
+                    centerX = (box[4] + nextBox[2]) / 2
+                    for j in range(1, pos):
+                        currPosY = box[5] + ((height+5)*j)
+                        newBox = (0, 1.0, centerX - width, currPosY - height/2, centerX + width, currPosY + height/2)
+                        ordered_boxes_with_gaps.append(newBox)
+                        if len(ordered_boxes_with_gaps) == 6:
+                            break
+            if len(ordered_boxes_with_gaps) == 6:
+                break
 
         classes_ = [box[0] for box in ordered_boxes_with_gaps]
         while len(classes_) < 6:
