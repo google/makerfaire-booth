@@ -74,12 +74,10 @@ function create_burger(layers, class_, id) {
     	svg.setAttributeNS(null, 'viewBox', '0 0 71.25 40');
     	svg.setAttributeNS(null, 'id', 'layer' + (i+1).toString());
     	svg.setAttributeNS(null, 'class', layers[i]);
-	if (layers[i] != 'empty') {
-    	    var use = document.createElementNS(svgNS, 'use');
-	    var href = '/assets/' + layers[i] + '.svg#g10';
-    	    use.setAttributeNS(null, 'href', href);
-    	    svg.appendChild(use);
-	}
+    	var use = document.createElementNS(svgNS, 'use');
+	var href = '/assets/' + layers[i] + '.svg#g10';
+    	use.setAttributeNS(null, 'href', href);
+    	svg.appendChild(use);
     	wrapper.appendChild(svg);
     }
     return wrapper;
