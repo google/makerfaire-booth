@@ -7,6 +7,7 @@ import numpy
 import pandas
 import os
 from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.exceptions import DataConversionWarning
@@ -52,8 +53,12 @@ class Model:
         if self.clf is None:
             return None
         all_p = self.clf.predict_proba(all_categoricals)
+        prediction = all_p[:,1] > 0.5
+        cf = confusion_matrix(burgers.output.astype(int), prediction.astype(int))
+        tp, fp, tn, fn = cf[1][1], cf[0][1], cf[0][0], cf[1][0]
+
         df = pandas.DataFrame(data={'p_burger': all_p[:,1]}, index=burgers.index)
-        return df[df.p_burger > 0.5].sort_values(by='p_burger', ascending=False).head(10)
+        return df[df.p_burger > 0.5].sort_values(by='p_burger', ascending=False).head(10), tp, fp, tn, fn
         
 if __name__ == '__main__':
     m = Model()
