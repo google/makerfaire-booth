@@ -69,6 +69,7 @@ class Model:
         self.X_test = test.drop(['output'], axis=1)
         self.y_test = test['output']
         self.all_train = self.X_train.join(self.y_train)
+        self.all_test = self.X_test.join(self.y_test)
         self.X_test_categoricals = self.X_test[column_names]
         self.tX_test_categoricals = enc.fit_transform(self.X_test_categoricals)
 
@@ -86,15 +87,11 @@ class Model:
         print(self.report())
     
 
-    def update(self, X, y):
-        X_categoricals = enc.fit_transform(
-            X)
+    def update(self, X_categoricals, y):
         self.clf.partial_fit(X_categoricals,
                              numpy.array(y).astype(int),
                              classes=classes)
-    def predict(self, X):
-        X_categoricals = enc.fit_transform(
-            X[column_names])
+    def predict(self, X_categoricals):
         return self.clf.predict_proba(X_categoricals)
         
     def dump(self):
@@ -131,14 +128,41 @@ if __name__ == '__main__':
         pickle.dump(clf, open(UNTRAINED_MODEL_FILENAME, "wb"))
         
     m = Model()
-    m.pretrain()
-    m.dump()    
+    # m.pretrain()
+    # m.dump()    
+
+    pos = burgers[burgers.output == True]
+    burgers_categoricals = enc.fit_transform(burgers[column_names])
+    pos_categoricals = enc.fit_transform(pos[column_names])
+    # pos = pos.sample(frac=1, replace=True)
+    # for i in range(2):
+    #     m.update(pos[column_names], pos['output'].astype('int'))
+    #     print(m.report())
+    for i in range(100):
+        X = [burgers.loc['123456'][column_names]]
+        X_categoricals = enc.fit_transform(X)
+        m.update(X_categoricals, [1])
+        p = m.predict(X_categoricals)
+        print("p(123456|M=",p)
+        # print(m.report())
+        # p = m.predict(pos_categoricals)
+        # df = pandas.DataFrame(data={'p_burger': p[:,1]}, index=pos.index)
+        # print(df.sort_values(by=['p_burger']))
+        p = m.predict(pos_categoricals)
+        pos['p_burger'] = p[:,1]
+        s = pos.sort_values(by=["p_burger"]).tail(10)
+        print(s['p_burger'])
     # while True:
-    #     burger = m.all_train.sample(1000)
+    #     burger = m.all_train[m.all_train.output == True].sample(1)
     #     m.update(burger[column_names], burger['output'].astype('int'))
     #     print(m.report())
 
     # print(m.report())
-    # m.update(numpy.array([[1,2,3,4,5,6]]), numpy.array([1]))
+    # pos = m.all_train[m.all_train.output == True]
+    # print(len(pos))
+    # m.update(pos[column_names], pos['output'].astype('int'))
+    # # m.update(numpy.array([[6,6,6,6,6,6]]), numpy.array([0]))
     # print(m.report())
-    # m.update(numpy.array([[6,6,6,6,6,6]]), numpy.array([0]))
+    # # m.update(numpy.array([[1,2,3,4,5,6]]), numpy.array([1]))
+    # print(m.report())
+    # # m.update(numpy.array([[6,6,6,6,6,6]]), numpy.array([0]))
