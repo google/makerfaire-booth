@@ -118,7 +118,7 @@ function element_to_burger(wrapper) {
 function update_burgerrank(burgers) {
     var burgerstack = document.getElementById("burgerstack");
     burgerstack.innerHTML='';
-    for(j = 0; j < 5; j++) {
+    for(j = 0; j < Math.min(5, burgers.length); j++) {
 	var key = burgers[j][0];
 	var s = key.split('');
 	var layers = [];
@@ -363,9 +363,10 @@ function after_keypress(wrapper, isBurger) {
     start_burger_drop_to_conveyor_animation(wrapper, isBurger);
 }
 
+const yesCode = "Z".charCodeAt(0);
+const noCode = "X".charCodeAt(0);
+
 function wait_for_keypress(wrapper) {
-    var yesCode = "Z".charCodeAt(0);
-    var noCode = "X".charCodeAt(0);
     function keydownHandler(e) {
 	if (e.keyCode == yesCode || e.keyCode == noCode) {
 	    document.removeEventListener('keydown', keydownHandler, false);
@@ -436,10 +437,32 @@ function start_burger_drop_animation() {
     request.send();
 }
 
+const resetCode = "R".charCodeAt(0);
+
+function invokeReset(e) {
+	var request = new XMLHttpRequest();
+	request.onreadystatechange = function() {
+	    if(request.readyState === 4) {
+		if(request.status === 200) {
+		    location.reload();
+		} else {
+		    console.log("sadness!", request.status, request.statusText);
+		}
+	    }
+	}
+	request.responseType = 'json';
+	request.open('GET', 'http://' + window.location.hostname + ':8888/reset');
+	request.send();
+}
+function resetKeydownHandler(e) {
+    if (e.keyCode == resetCode) {
+	invokeReset();
+    }
+}
+
 const body = document.getElementsByTagName('body')[0];
 body.onload = function() {
-    var width = body.getBoundingClientRect().width;
-    var height = body.getBoundingClientRect().height;
     request_burgerrank();
     start_burger_drop_animation();
+    document.addEventListener('keydown', resetKeydownHandler, false);
 };
