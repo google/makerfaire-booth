@@ -20,9 +20,12 @@ for key, value in labels.items():
     else:
         renderers[value] = QtSvg.QSvgRenderer("../static/assets/%s.svg" % value)
 
-def render_layer(layer, rot, tx, ty, scale):
+def render_layer(layer, rot, tx, ty, scale, transparent=True):
     image = QtGui.QImage(QtCore.QSize(WIDTH, HEIGHT), QtGui.QImage.Format_ARGB32)
-    image.fill(QtGui.QColor(0, 0, 0, 0))
+    if transparent:
+        image.fill(QtGui.QColor(255, 255, 255, 0))
+    else:
+        image.fill(QtGui.QColor(255, 255, 255, 255))
     painter = QtGui.QPainter(image)
     renderer = renderers[layer]
     vertical_offset = renderer.viewBox().height()/2

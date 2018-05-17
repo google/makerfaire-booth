@@ -44,15 +44,7 @@ def get_example(layer, rot, tx, ty, scale):
     width = int(256)
     height = int(256)
 
-    # angles = numpy.linspace(0, math.pi*2,10, endpoint=False)
-    # img = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    # ctx = cairo.Context(img)
-
-    # img = draw_example(layer, width, height, rot, tx, ty, scale, clear_background=False)
-    # a = numpy.ndarray(shape=(width, height, 4), dtype=numpy.uint8, buffer=img.get_data())
-    # a = a[...,[2,1,0,3]]
-    # bbox = get_bbox(a, width, height)
-    image = render_layer(layer, rot, tx, ty, scale)
+    image = render_layer(layer, rot, tx, ty, scale, transparent=True)
     bbox = get_opaque_bbox(image)
     x=numpy.array(bbox)
     if numpy.any(x==0):
@@ -60,6 +52,7 @@ def get_example(layer, rot, tx, ty, scale):
     if numpy.any(x==255):
       return None
 
+    image = render_layer(layer, rot, tx, ty, scale, transparent=False)
     img_bytes = image_as_png(image)
 
     example = {
