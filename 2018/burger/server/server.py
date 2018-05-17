@@ -6,10 +6,11 @@ import tornado.options
 import tornado.web
 import sqlite3                           
 import vote
+import rank
 import burger
 import sys
 sys.path.insert(0, '../model')
-from model import Model
+from model2 import Model
 
 model = Model()
 
@@ -26,6 +27,7 @@ class IndexHandler(tornado.web.RequestHandler):
 urls = [
     (r"/", IndexHandler),
     (r"/vote", vote.VoteHandler, dict(connection=connection, burgers=burgers, model=model)),
+    (r"/rank", rank.RankHandler, dict(connection=connection, burgers=burgers, model=model)),
     (r"/burger", burger.BurgerHandler, dict(burgers=train_burgers)),
 ]
 

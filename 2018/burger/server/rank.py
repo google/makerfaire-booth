@@ -2,7 +2,7 @@ import pandas
 import json
 import tornado.web
 
-class VoteHandler(tornado.web.RequestHandler):
+class RankHandler(tornado.web.RequestHandler):
     def initialize(self, connection, burgers, model):
         self.connection = connection
         self.burgers = burgers
@@ -14,15 +14,16 @@ class VoteHandler(tornado.web.RequestHandler):
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
                                             
     def get(self):
-        burger = self.get_argument('burger')
-        vote_arg = self.get_argument('vote')
-        vote = vote_arg == 'true' or vote_arg == 'True'
+        df = self.model.rank()
+        if df is None:
+            self.set_status(404)
+            response = {
+                "error": "no ranks yet"
+                }
+        else:
+            results = list(zip(df.index, df.p_burger))
 
-        self.connection.cursor().execute("INSERT INTO votes (burger, vote) VALUES (?, ?)", (burger, vote))
-        self.connection.commit()
-
-        response = {
-            "burger": burger,
-            "vote": vote,
-            }
+            response = {
+                "results": results
+                }
         self.write(json.dumps(response))

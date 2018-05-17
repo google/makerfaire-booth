@@ -64,11 +64,11 @@ function create_group(wrapper, f) {
     return group;
 }
 
-function create_burger(layers) {
+function create_burger(layers, class_, id) {
     var svgNS = 'http://www.w3.org/2000/svg';
     var wrapper = document.createElement("div");
-    wrapper.setAttribute('class', "wrapper");
-    wrapper.setAttribute('id', 'chute');
+    wrapper.setAttribute('class', class_);
+    wrapper.setAttribute('id', id);
     for (i = 0; i < layers.length; i++) {
     	var svg = document.createElementNS(svgNS, "svg");
     	svg.setAttributeNS(null, 'viewBox', '0 0 71.25 40');
@@ -130,6 +130,46 @@ function element_to_burger(wrapper) {
     return burger.join('');
 }
 
+function update_burgerrank(burgers) {
+    var burgerstack = document.getElementById("burgerstack");
+    burgerstack.innerHTML='';
+    for(j = 0; j < 5; j++) {
+	var key = burgers[j][0];
+	var s = key.split('');
+	var layers = [];
+	for (i = 0; i < s.length; i++) {
+	    layers.push(layers_enum[parseInt(s[i])]);
+	}
+	var wrapper = create_burger(layers, "burgerstack_wrapper", key);
+	for (i = 0; i <  wrapper.children.length; i++) {
+	    var node = wrapper.children[i];
+	    var ty = j*150 + (i*BURGER_LAYER_SPACING)/3;
+	    node.setAttribute('transform', 'translate(0 ' + ty + ')');
+	    node.style.opacity = 1;
+	}
+	burgerstack.appendChild(wrapper);
+    }
+}
+
+function request_burgerrank() {
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+	if(request.readyState === 4) {
+	    if(request.status === 200) {
+		console.log("celebration!", request.response);
+		var burgers = request.response["results"];
+		update_burgerrank(burgers);
+		// requestStatus();
+	    } else {
+		console.log("sadness!", request.status, request.statusText, request.response);
+	    }
+	}
+    }
+    request.responseType = 'json';
+    request.open('GET', 'http://' + window.location.hostname + ':8888/rank');
+    request.send();
+}
+
 function vote(wrapper, choice) {
     var request = new XMLHttpRequest();
 
@@ -138,8 +178,8 @@ function vote(wrapper, choice) {
     request.onreadystatechange = function() {
 	if(request.readyState === 4) {
 	    if(request.status === 200) {
-		console.log("celebration!");
-		// requestStatus();
+		console.log("celebration!", request.response);
+		request_burgerrank();
 	    } else {
 		console.log("sadness!", request.status, request.statusText, request.responseText);
 	    }
@@ -149,8 +189,6 @@ function vote(wrapper, choice) {
     request.open('GET', 'http://' + window.location.hostname + ':8888/vote?burger=' + burger + '&vote=' + choice);
     request.send();
 }
-
-
 
 function create_animation_elevator(element_name, data, wrapper) {
     var element = wrapper.children.namedItem(element_name);
@@ -377,7 +415,7 @@ function create_animation_burger_drop(element_name, data, wrapper) {
 
 function create_burger_drop_animation(layers) {
     console.log("Create burger", layers);
-    var wrapper = create_burger(layers);
+    var wrapper = create_burger(layers, "wrapper", "chute");
     document.body.insertBefore(wrapper, document.getElementById("burger_machine"));
 
     var burgerOffsets = create_layer_height_offsets();
@@ -419,6 +457,6 @@ body.onload = function() {
     var width = body.getBoundingClientRect().width;
     var height = body.getBoundingClientRect().height;
     // requestStatus();
-
+    request_burgerrank();
     start_burger_drop_animation();
 };

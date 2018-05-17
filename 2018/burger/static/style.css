@@ -22,6 +22,15 @@ body {
     position:fixed; bottom:8%; left:20%; height:25%; width:25%;
 }
 
+.burgerstack {
+    position:fixed; top:0%; right:35%;
+}
+
+.burgerstack_wrapper {
+    position:static;
+    height: 200px;
+}
+
 #layer1, #layer2, #layer3, #layer4, #layer5, #layer6, #layer7, #layer8 {
     height: 70px;
     width: auto;
