@@ -5,6 +5,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 import sqlite3                           
+import reset
 import vote
 import rank
 import burger
@@ -26,6 +27,7 @@ class IndexHandler(tornado.web.RequestHandler):
 
 urls = [
     (r"/", IndexHandler),
+    (r"/reset", reset.ResetHandler, dict(connection=connection, model=model)),
     (r"/vote", vote.VoteHandler, dict(connection=connection, burgers=burgers, model=model)),
     (r"/rank", rank.RankHandler, dict(connection=connection, burgers=burgers, model=model)),
     (r"/burger", burger.BurgerHandler, dict(burgers=train_burgers)),
