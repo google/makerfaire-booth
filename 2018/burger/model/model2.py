@@ -53,7 +53,7 @@ class Model:
             return None
         all_p = self.clf.predict_proba(all_categoricals)
         df = pandas.DataFrame(data={'p_burger': all_p[:,1]}, index=burgers.index)
-        return df.sort_values(by='p_burger', ascending=False).head(10)
+        return df[df.p_burger > 0.5].sort_values(by='p_burger', ascending=False).head(10)
         
 if __name__ == '__main__':
     m = Model()
