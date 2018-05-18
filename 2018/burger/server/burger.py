@@ -7,8 +7,9 @@ import tornado.web
 import random
 
 class BurgerHandler(tornado.web.RequestHandler):
-    def initialize(self, burgers):
+    def initialize(self, burgers, model):
         self.burgers = burgers
+        self.model = model
 
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
@@ -50,6 +51,9 @@ class BurgerHandler(tornado.web.RequestHandler):
             for i in range(len(burger),5):
                 burger.append(random.choice(items))
             burger.append(6)
+        elif difficulty == 3:
+            # TODO(dek): return highest ranking nonburger
+            burger = [1,2,3,4,5,6]
         else:
             burger = [1,2,3,4,5,6]
 

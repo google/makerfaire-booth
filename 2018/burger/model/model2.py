@@ -48,6 +48,16 @@ class Model:
         self.clf.fit(X_categoricals,y.astype(int))
         return len(all_)
 
+    def label(self, burger):
+        n_votes = self.update()
+        if n_votes == 0:
+            return None
+        if self.clf is None:
+            return None
+        categoricals = enc.fit_transform([burger])
+        prediction = self.clf.predict(categoricals)
+        return prediction
+
     def rank(self):
         n_votes = self.update()
         if n_votes == 0:
