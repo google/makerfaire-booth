@@ -77,4 +77,4 @@ if __name__ == '__main__':
     m = Model()
     while True:
         df = m.update()
-        print m.rank()
+        print(m.rank())

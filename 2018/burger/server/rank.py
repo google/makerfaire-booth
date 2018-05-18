@@ -19,17 +19,18 @@ class RankHandler(tornado.web.RequestHandler):
             self.set_status(404)
             response = {
                 "error": "no ranks yet"
-                }
+                } 
         else:
             burgerrank, tp, fp, tn, fn, n_votes = result
 
             burgerrank_top10 = burgerrank.head(10)
             response = {
                 "burgerrank": list(zip(burgerrank_top10.index, burgerrank_top10.p_burger)),
-                "tp": tp,
-                "fp": fp,
-                "tn": tn,
-                "fn": fn,
+                "tp": int(tp),
+                "fp": int(fp),
+                "tn": int(tn),
+                "fn": int(fn),
                 "n_votes": n_votes,
                 }
+        print(type(tp))
         self.write(json.dumps(response))
