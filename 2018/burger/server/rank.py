@@ -33,5 +33,4 @@ class RankHandler(tornado.web.RequestHandler):
                 "yes_votes": int(yes_votes),
                 "no_votes": int(no_votes),
                 }
-        print(type(tp))
         self.write(json.dumps(response))

@@ -95,10 +95,10 @@ function layer_idx_to_layers(layers_idx) {
 
 
 function updateStatus(request) {
-    document.getElementById("fp").innerHTML = request.response["fp"];
-    document.getElementById("tp").innerHTML = request.response["tp"];
-    document.getElementById("tn").innerHTML = request.response["tn"];
-    document.getElementById("fn").innerHTML = request.response["fn"];
+    // document.getElementById("fp").innerHTML = request.response["fp"];
+    // document.getElementById("tp").innerHTML = request.response["tp"];
+    // document.getElementById("tn").innerHTML = request.response["tn"];
+    // document.getElementById("fn").innerHTML = request.response["fn"];
     document.getElementById("yes_votes").innerHTML = request.response["yes_votes"];
     document.getElementById("no_votes").innerHTML = request.response["no_votes"];
 }

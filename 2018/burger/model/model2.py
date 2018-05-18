@@ -42,14 +42,14 @@ class Model:
     def update(self):
         all_ = pandas.read_sql_query('SELECT burger, vote FROM votes', self.connection, index_col='burger')
         if len(all_) == 0:
-            return 0
+            return None
             
         X = [[int(item) for item in list(value)] for value in all_.index.values]
         X_categoricals = enc.fit_transform(X)
         y = all_['vote']
         counts = y.value_counts()
-        yes_votes = counts[1]
-        no_votes = counts[0]
+        yes_votes = counts.get(1, 0)
+        no_votes = counts.get(0, 0)
         
         self.clf = MLPClassifier(solver='adam',
                                  activation='relu',
@@ -72,7 +72,12 @@ class Model:
         return prediction
 
     def rank(self):
-        yes_votes, no_votes = self.update()
+        result = self.update()
+        if result is None:
+            print("Not enough votes")
+            return None
+        print("result=",result)
+        yes_votes, no_votes = result
         if yes_votes + no_votes == 0:
             return None
         if self.clf is None:
