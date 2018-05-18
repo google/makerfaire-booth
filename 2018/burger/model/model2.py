@@ -60,14 +60,11 @@ class Model:
         tp, fp, tn, fn = cf[1][1], cf[0][1], cf[0][0], cf[1][0]
 
         predicted_burgers = pandas.DataFrame(data={'p_burger': all_p[:,1], 'output': burgers.output}, index=burgers.index)
-        goodburgers = predicted_burgers[predicted_burgers.output == True]
-        goodburgers = goodburgers[goodburgers.p_burger > 0.5].sort_values(by='p_burger', ascending=False).head(10)
-        badburgers = predicted_burgers[predicted_burgers.output == False]
-        badburgers= badburgers[badburgers.p_burger > 0.5].sort_values(by='p_burger', ascending=False).head(10)
-        return goodburgers, badburgers, tp, fp, tn, fn, n_votes
+        burgerrank = predicted_burgers[predicted_burgers.p_burger > 0.5].sort_values(by='p_burger', ascending=False).head(10)
+        return burgerrank, tp, fp, tn, fn, n_votes
         
 if __name__ == '__main__':
     m = Model()
     while True:
         df = m.update()
-        print(df.sort_values(by=['p_burger']).tail(10))
+        print m.rank()

@@ -33,23 +33,7 @@ body {
     position:fixed; top:10%; right:35%;
 }
 
-.badburgerstack_description {
-    border-style:solid;
-    width:5em;
-    position:fixed; top:0%; right:15%;
-    font-size: 72px;
-}
-
-.badburgerstack {
-    position:fixed; top:10%; right:15%;
-}
-
 .burgerstack_wrapper {
-    position:static;
-    height: 200px;
-}
-
-.badburgerstack_wrapper {
     position:static;
     height: 200px;
 }

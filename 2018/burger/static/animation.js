@@ -128,15 +128,6 @@ function update_burgerstack(burger, burgerstack) {
 	burgerstack.appendChild(wrapper);
     }
 }
-function update_burgerrank(goodburgers, badburgers) {
-    var burgerstack = document.getElementById("burgerstack");
-    burgerstack.innerHTML='';
-    update_burgerstack(goodburgers, burgerstack);
-
-    var badburgerstack = document.getElementById("badburgerstack");
-    badburgerstack.innerHTML='';
-    update_burgerstack(badburgers, badburgerstack);
-}
 
 function request_burgerrank() {
     var request = new XMLHttpRequest();
@@ -144,9 +135,10 @@ function request_burgerrank() {
 	if(request.readyState === 4) {
 	    if(request.status === 200) {
 		console.log("celebration!", request.response);
-		var goodburgers = request.response["goodburgers"];
-		var badburgers = request.response["badburgers"];
-		update_burgerrank(goodburgers, badburgers);
+		var burgerrank = request.response["burgerrank"];
+		var burgerstack = document.getElementById("burgerstack");
+		burgerstack.innerHTML='';
+		update_burgerstack(burgerrank, burgerstack);
 		updateStatus(request);
 	    } else {
 		console.log("sadness!", request.status, request.statusText, request.response);
