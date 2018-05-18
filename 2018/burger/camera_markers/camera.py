@@ -69,10 +69,9 @@ class MainWindow(QtWidgets.QGraphicsView):
         self.objdet = ObjectDetector()
         self.burger_pixmap = None
         self.rectified_pixmap = None
-        font = QtGui.QFont('Arial', 120)
-        self.label_text = self.scene.addText("NO", font)
+        font = QtGui.QFont('Arial', 75)
+        self.label_text = self.scene.addText("", font)
         self.label_text.setDefaultTextColor(QtCore.Qt.red)
-        self.label_text.setPos(1600,1150)
         
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.camera)
@@ -81,13 +80,20 @@ class MainWindow(QtWidgets.QGraphicsView):
         self.counter = 0
         self.burger_classifier = BurgerClassifier()
 
-        font = QtGui.QFont('Arial', 120)
+        font = QtGui.QFont('Arial', 100)
         self.explanation_text = self.scene.addText("test", font)
         self.explanation_text.setHtml("Design your own burger!")
-        self.explanation_text.setPos(100, 100)
+        self.explanation_text.setPos(0, 100)
+
+        font = QtGui.QFont('Arial', 60)
+        self.detail_text = self.scene.addText("test", font)
+        self.detail_text.setHtml("Place burger layers on the white board<br>Then show the board to the camera<br>Can the computer recognize burgers?<br>Can you fool the computer with a bad burger?")
+        self.detail_text.setPos(0, 250)
         
     def imageTo(self, image):
         pixmap = QtGui.QPixmap.fromImage(image)
+        pixmap = pixmap.transformed(QtGui.QTransform().scale(-1, 1))
+
         if self.cam_pixmap is None:
             self.cam_pixmap = self.scene.addPixmap(pixmap)
             self.cam_pixmap.setPos(QtCore.QPointF(50, 2160-720-50))
@@ -200,11 +206,13 @@ class MainWindow(QtWidgets.QGraphicsView):
         result = self.burger_classifier.classify(classes_)[0]
         if result[1] > 0.5:
             label = 'burger'
-            self.label_text.setPlainText("YES")
+            self.label_text.setPlainText("BURGER")
+            self.label_text.setPos(1500,1150)
             self.label_text.setDefaultTextColor(QtCore.Qt.green)
         else:
             label = 'notburger'
-            self.label_text.setPlainText("NO")
+            self.label_text.setHtml("NOT<br>BURGER")
+            self.label_text.setPos(1500,1150)
             self.label_text.setDefaultTextColor(QtCore.Qt.red)
         # self.image3_text.setText("P(burger) = %5.2f P(notburger) = %5.2f (%s" % (result[1], result[0], label))
         # label = label_burger(classes_)
