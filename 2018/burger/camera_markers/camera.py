@@ -83,7 +83,7 @@ class MainWindow(QtWidgets.QGraphicsView):
 
         font = QtGui.QFont('Arial', 120)
         self.explanation_text = self.scene.addText("test", font)
-        self.explanation_text.setHtml("This is <bold>html</bold> text.")
+        self.explanation_text.setHtml("Design your own burger!")
         self.explanation_text.setPos(100, 100)
         
     def imageTo(self, image):
@@ -98,9 +98,11 @@ class MainWindow(QtWidgets.QGraphicsView):
         if self.rectified_pixmap is not None:
             self.scene.removeItem(self.rectified_pixmap)
             self.rectified_pixmap = None
+            self.label_text.setPlainText("")
         if self.burger_pixmap is not None:
             self.scene.removeItem(self.burger_pixmap)
             self.burger_pixmap = None
+            self.label_text.setPlainText("")
             
     def imageTo2(self, image2, boxes):
         pixmap2 = QtGui.QPixmap.fromImage(image2)
@@ -115,6 +117,7 @@ class MainWindow(QtWidgets.QGraphicsView):
             p.drawRect(QtCore.QRect(QtCore.QPoint(x1, y1), QtCore.QSize(w, h)))
             p.drawText(x1, y1, "%s: %5.2f" % (labels[class_], score))
         p.end()
+        pixmap2 = pixmap2.scaled(pixmap2.width()*2, pixmap2.height()*2)
         if self.rectified_pixmap == None:
             self.rectified_pixmap = self.scene.addPixmap(pixmap2)
             self.rectified_pixmap.setPos(QtCore.QPointF(3840 - pixmap2.width(), 2160-pixmap2.height()))
@@ -191,6 +194,9 @@ class MainWindow(QtWidgets.QGraphicsView):
         else:
             self.burger_pixmap.setPixmap(pixmap3)
 
+        if len(classes_) != 6:
+            print("Wrong size:", len(classes_))
+            return None
         result = self.burger_classifier.classify(classes_)[0]
         if result[1] > 0.5:
             label = 'burger'
@@ -201,7 +207,6 @@ class MainWindow(QtWidgets.QGraphicsView):
             self.label_text.setPlainText("NO")
             self.label_text.setDefaultTextColor(QtCore.Qt.red)
         # self.image3_text.setText("P(burger) = %5.2f P(notburger) = %5.2f (%s" % (result[1], result[0], label))
-        self.label_text
         # label = label_burger(classes_)
         
         return ordered_boxes_with_gaps
