@@ -6,6 +6,7 @@ import tornado.options
 import tornado.web
 import sqlite3                           
 import reset
+import export
 import vote
 import rank
 import label
@@ -33,6 +34,7 @@ urls = [
     (r"/rank", rank.RankHandler, dict(connection=connection, burgers=burgers, model=model)),
     (r"/label", label.LabelHandler, dict(burgers=burgers, model=model)),
     (r"/burger", burger.BurgerHandler, dict(burgers=burgers, model=model)),
+    (r"/export", export.ExportHandler, dict(model=model)),
 ]
 
 settings = dict({

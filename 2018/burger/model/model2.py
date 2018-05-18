@@ -1,3 +1,5 @@
+import pickle
+import os
 import sqlite3                           
 import tempfile
 import warnings
@@ -29,6 +31,13 @@ class Model:
     def __init__(self):
         self.connection = sqlite3.connect('../data/server.db')
         self.clf = None
+
+    def export(self):
+        self.update()
+        f = open("../data/user.pkl", "wb")
+        pickle.dump(self.clf, f)
+        f.close()
+        os.system("scp ../data/user.pkl makerfaire@10.120.1.252:makerfaire-booth/2018/burger/data")
         
     def update(self):
         all_ = pandas.read_sql_query('SELECT burger, vote FROM votes', self.connection, index_col='burger')
