@@ -38,6 +38,10 @@ class Model:
         X = [[int(item) for item in list(value)] for value in all_.index.values]
         X_categoricals = enc.fit_transform(X)
         y = all_['vote']
+        counts = y.value_counts()
+        yes_votes = counts[1]
+        no_votes = counts[0]
+        
         self.clf = MLPClassifier(solver='adam',
                                  activation='relu',
                                  hidden_layer_sizes=(8,8),
@@ -46,7 +50,7 @@ class Model:
                                  tol=1e-8,
                                  random_state=1)
         self.clf.fit(X_categoricals,y.astype(int))
-        return len(all_)
+        return yes_votes, no_votes
 
     def label(self, burger):
         n_votes = self.update()
@@ -59,8 +63,8 @@ class Model:
         return prediction
 
     def rank(self):
-        n_votes = self.update()
-        if n_votes == 0:
+        yes_votes, no_votes = self.update()
+        if yes_votes + no_votes == 0:
             return None
         if self.clf is None:
             return None
@@ -71,7 +75,7 @@ class Model:
 
         predicted_burgers = pandas.DataFrame(data={'p_burger': all_p[:,1], 'output': burgers.output}, index=burgers.index)
         burgerrank = predicted_burgers[predicted_burgers.p_burger > 0.5].sort_values(by='p_burger', ascending=False)
-        return burgerrank, tp, fp, tn, fn, n_votes
+        return burgerrank, tp, fp, tn, fn, yes_votes, no_votes
         
 if __name__ == '__main__':
     m = Model()

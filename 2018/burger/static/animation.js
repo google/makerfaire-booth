@@ -99,7 +99,8 @@ function updateStatus(request) {
     document.getElementById("tp").innerHTML = request.response["tp"];
     document.getElementById("tn").innerHTML = request.response["tn"];
     document.getElementById("fn").innerHTML = request.response["fn"];
-    document.getElementById("n_votes").innerHTML = "Number of votes: " + request.response["n_votes"];
+    document.getElementById("yes_votes").innerHTML = request.response["yes_votes"];
+    document.getElementById("no_votes").innerHTML = request.response["no_votes"];
 }
 
 function element_to_burger(wrapper) {
@@ -111,7 +112,7 @@ function element_to_burger(wrapper) {
 }
 
 function update_burgerstack(burger, burgerstack) {
-    for(j = 0; j < Math.min(5, burger.length); j++) {
+    for(j = 0; j < Math.min(10, burger.length); j++) {
 	var key = burger[j][0];
 	var s = key.split('');
 	var layers = [];
@@ -121,7 +122,7 @@ function update_burgerstack(burger, burgerstack) {
 	var wrapper = create_burger(layers, "burgerstack_wrapper", key);
 	for (i = 0; i <  wrapper.children.length; i++) {
 	    var node = wrapper.children[i];
-	    var ty = j*300 + (i*BURGER_LAYER_SPACING);
+	    var ty = 50 + j*150 + (i*BURGER_LAYER_SPACING/3);
 	    node.setAttribute('transform', 'translate(0 ' + ty + ')');
 	    node.style.opacity = 1;
 	}

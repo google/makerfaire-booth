@@ -24,13 +24,13 @@ body {
 
 .burgerstack_description {
     border-style:solid;
-    width:5em;
-    position:fixed; top:0%; right:35%;
-    font-size: 72px;
+    width:auto;
+    position:fixed; top:0%; right:15%;
+    font-size: 48px;
 }
 
 .burgerstack {
-    position:fixed; top:10%; right:35%;
+    position:fixed; top:0%; right:25%;
 }
 
 .burgerstack_wrapper {
@@ -53,16 +53,26 @@ body {
     position:fixed;
 }
 
-.status {
+#confusion_matrix {
     border-style:solid;
     position:absolute;
-    bottom:30%;
-    left:10%;
+    bottom:0%;
+    right:0%;
 }
 
-#n_votes {
+#no_votes {
+    position:fixed;
     border-style:solid;
     font-size: 72px;
+    bottom:3%;
+    left:33%;
+}
+#yes_votes {
+    position:fixed;
+    border-style:solid;
+    font-size: 72px;
+    bottom:3%;
+    left:65%;
 }
 
 #confusion_matrix th,tr,td {
