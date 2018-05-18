@@ -70,7 +70,7 @@ class Model:
         tp, fp, tn, fn = cf[1][1], cf[0][1], cf[0][0], cf[1][0]
 
         predicted_burgers = pandas.DataFrame(data={'p_burger': all_p[:,1], 'output': burgers.output}, index=burgers.index)
-        burgerrank = predicted_burgers[predicted_burgers.p_burger > 0.5].sort_values(by='p_burger', ascending=False).head(10)
+        burgerrank = predicted_burgers[predicted_burgers.p_burger > 0.5].sort_values(by='p_burger', ascending=False)
         return burgerrank, tp, fp, tn, fn, n_votes
         
 if __name__ == '__main__':

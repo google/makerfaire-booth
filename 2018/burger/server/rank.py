@@ -23,8 +23,9 @@ class RankHandler(tornado.web.RequestHandler):
         else:
             burgerrank, tp, fp, tn, fn, n_votes = result
 
+            burgerrank_top10 = burgerrank.head(10)
             response = {
-                "burgerrank": list(zip(burgerrank.index, burgerrank.p_burger)),
+                "burgerrank": list(zip(burgerrank_top10.index, burgerrank_top10.p_burger)),
                 "tp": tp,
                 "fp": fp,
                 "tn": tn,

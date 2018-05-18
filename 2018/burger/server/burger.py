@@ -53,7 +53,14 @@ class BurgerHandler(tornado.web.RequestHandler):
             burger.append(6)
         elif difficulty == 3:
             # TODO(dek): return highest ranking nonburger
-            burger = [1,2,3,4,5,6]
+            result = self.model.rank()
+            if result is None:
+                burger = [1,2,3,4,5,6]
+            else:
+                print("returning most probable nonburger")
+                burgerrank, tp, fp, tn, fn, n_votes = result
+                burger = burgerrank[burgerrank.output == 0].head(1).index.values[0]
+                print("burger=",burger)
         else:
             burger = [1,2,3,4,5,6]
 
