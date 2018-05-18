@@ -7,7 +7,7 @@ html, body {
 }
 
 body {
-    background-color: silver;
+    background-color: white;
 }
 
 .burger_machine, .conveyor_belts, .lights {
@@ -15,7 +15,7 @@ body {
 }
 
 .sidebar {
-    position:fixed; top:10%; left:10%; height:40em; width:40em;
+    position:fixed; top:0%; left:0%; height:40em; width:40em;
 }
 
 .dumpster {
@@ -55,7 +55,7 @@ body {
 
 #confusion_matrix {
     border-style:solid;
-    position:absolute;
+    position:fixed;
     bottom:0%;
     right:0%;
 }
@@ -73,6 +73,17 @@ body {
     font-size: 72px;
     bottom:3%;
     left:65%;
+}
+
+.sidebar ul {
+    font-size: 24px;
+}
+.sidebar ul li {
+    font-weight: bolder;
+}
+
+.sidebar ul li span {
+    font-weight: normal;
 }
 
 #confusion_matrix th,tr,td {
