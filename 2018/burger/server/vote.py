@@ -24,5 +24,6 @@ class VoteHandler(tornado.web.RequestHandler):
         response = {
             "burger": burger,
             "vote": vote,
+            "label": bool(self.burgers.loc[burger].output)
             }
         self.write(json.dumps(response))
