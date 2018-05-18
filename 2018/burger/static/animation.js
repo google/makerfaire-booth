@@ -159,6 +159,9 @@ function vote(wrapper, choice) {
 	if(request.readyState === 4) {
 	    if(request.status === 200) {
 		console.log("celebration!", request.response);
+		var vote = request.response["vote"];
+		var label = request.response["label"];
+		console.log("vote: ", vote, " label: ", label, " correct:" , vote == label);
 		request_burgerrank();
 	    } else {
 		console.log("sadness!", request.status, request.statusText, request.responseText);
