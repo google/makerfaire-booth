@@ -7,6 +7,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_recall_fscore_support
 from sklearn.model_selection import train_test_split
 column_names = ['layer0', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5']
+import sys
+sys.path.insert(0, "../constants")
 from one_hot import get_one_hot
 enc = get_one_hot()
     
@@ -61,6 +63,7 @@ def main():
     tp, fp, tn, fn = cf[1][1], cf[0][1], cf[0][0], cf[1][0]
     p, r, f1, s = precision_recall_fscore_support(y_test, prediction)
     print(tp,fp,tn,fn)
+    pickle.dump(clf, open("../data/trained.pkl", "wb"))
 
 if __name__ == '__main__':
     main()
