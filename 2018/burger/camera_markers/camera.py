@@ -113,6 +113,8 @@ class MainWindow(QtWidgets.QGraphicsView):
     def imageTo2(self, image2, boxes):
         pixmap2 = QtGui.QPixmap.fromImage(image2)
         boxes = self.analyzeBoxes(boxes)
+        if boxes is None:
+            return
         p = QtGui.QPainter()
         p.begin(pixmap2)
         for box in boxes:
