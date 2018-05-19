@@ -1,0 +1,16 @@
+[Unit]
+Description=Direct X login for user %i
+After=x@vt7.service systemd-user-sessions.service
+Wants=x@vt7.service
+Conflicts=getty@tty7.service
+
+[Service]
+User=%i
+WorkingDirectory=/home/makerfaire/makerfaire-booth/2018/burger/camera_markers
+TTYPath=/dev/tty7
+PAMName=login
+Environment=XDG_SESSION_TYPE=x11 DISPLAY=:0
+ExecStart=/usr/bin/bash -l ~/.xinitrc
+
+[Install]
+WantedBy=graphical.target
