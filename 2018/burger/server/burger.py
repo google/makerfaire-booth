@@ -57,10 +57,13 @@ class BurgerHandler(tornado.web.RequestHandler):
             if result is None:
                 burger = [1,2,3,4,5,6]
             else:
-                print("returning most probable nonburger")
-                burgerrank, tp, fp, tn, fn, yes_votes, no_votes = result
-                burger = burgerrank[burgerrank.output == 0].head(1).index.values[0]
-                print("burger=",burger)
+                if random.random() > 0.5:
+                    burgerrank, tp, fp, tn, fn, yes_votes, no_votes = result
+                    burger = burgerrank[burgerrank.output == 0].head(1).index.values[0]
+                else:
+                    burgerrank, tp, fp, tn, fn, yes_votes, no_votes = result
+                    burger = burgerrank[burgerrank.output == 1].tail(1).index.values[0]
+                    
         else:
             burger = [1,2,3,4,5,6]
 

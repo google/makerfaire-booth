@@ -76,7 +76,6 @@ class Model:
         if result is None:
             print("Not enough votes")
             return None
-        print("result=",result)
         yes_votes, no_votes = result
         if yes_votes + no_votes == 0:
             return None
