@@ -11,7 +11,7 @@ from object_detection.utils import label_map_util
 
 PATH_TO_CKPT="../../../train_object_detector/output_inference_graph/frozen_inference_graph.pb"
 PATH_TO_LABELS="../../../train_object_detector/data/burgers_label_map.pb.txt"
-NUM_CLASSES=6
+NUM_CLASSES=9
 
 def load_image_into_numpy_array(image):
   (im_width, im_height) = image.size

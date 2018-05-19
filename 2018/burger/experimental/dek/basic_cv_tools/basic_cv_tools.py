@@ -7,8 +7,8 @@ from object_detector import ObjectDetector
 sys.path.insert(0, "../../../constants")
 from burger_elements import BurgerElement
 
-WIDTH=640
-HEIGHT=480
+WIDTH=1280
+HEIGHT=720
 
 labels = dict([(member.value, member.name) for member in BurgerElement.__members__.values()])
 
@@ -149,12 +149,18 @@ class Widget(QtWidgets.QWidget):
         self.cheese = QSvgWidget("../../../static/assets/cheese.svg")
         self.patty = QSvgWidget("../../../static/assets/patty.svg")
         self.bottombun = QSvgWidget("../../../static/assets/bottombun.svg")
+        self.banana = QSvgWidget("../../../static/assets/banana.svg")
+        self.book = QSvgWidget("../../../static/assets/book.svg")
+        self.shoe = QSvgWidget("../../../static/assets/shoe.svg")
         self.iconsLayout.addWidget(self.topbun)
         self.iconsLayout.addWidget(self.lettuce)
         self.iconsLayout.addWidget(self.tomato)
         self.iconsLayout.addWidget(self.cheese)
         self.iconsLayout.addWidget(self.patty)
         self.iconsLayout.addWidget(self.bottombun)
+        self.iconsLayout.addWidget(self.banana)
+        self.iconsLayout.addWidget(self.book)
+        self.iconsLayout.addWidget(self.shoe)
 
         self.buttons = QtWidgets.QWidget(self)
         self.buttonsLayout = QtWidgets.QHBoxLayout()
@@ -176,7 +182,6 @@ class Widget(QtWidgets.QWidget):
         print(args)
         
     def buttonAClicked(self, *args):
-        print(args)
         self.classify()
         
     def changed(self):
