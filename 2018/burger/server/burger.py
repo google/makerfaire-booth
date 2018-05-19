@@ -58,7 +58,7 @@ class BurgerHandler(tornado.web.RequestHandler):
                 burger = [1,2,3,4,5,6]
             else:
                 print("returning most probable nonburger")
-                burgerrank, tp, fp, tn, fn, n_votes = result
+                burgerrank, tp, fp, tn, fn, yes_votes, no_votes = result
                 burger = burgerrank[burgerrank.output == 0].head(1).index.values[0]
                 print("burger=",burger)
         else:

@@ -75,6 +75,14 @@ body {
     left:65%;
 }
 
+#challenge {
+    position:fixed;
+    border-style:solid;
+    font-size: 72px;
+    bottom:0%;
+    left:0;
+}
+
 .sidebar ul {
     font-size: 24px;
 }

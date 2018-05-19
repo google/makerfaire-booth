@@ -35,6 +35,8 @@ const layer_names_enum = Object.freeze({
     "shoe":9,
 });
 
+var difficulty = 0;
+
 function create_layer_height_offsets(spacing=BURGER_LAYER_SPACING) {
     var body = document.getElementsByTagName('body')[0];
     var width = body.getBoundingClientRect().width;
@@ -163,6 +165,16 @@ function vote(wrapper, choice) {
 		var vote = request.response["vote"];
 		var label = request.response["label"];
 		console.log("vote: ", vote, " label: ", label, " correct:" , vote == label);
+		if (vote == label) {
+		    console.log("Correct.  Increasing difficulty");
+		    if (difficulty < 3) difficulty++;
+		} else {
+		    console.log("incorrect.  Decreasing difficulty");
+		    if (difficulty > 0) difficulty--;
+		}
+		console.log("Difficulty: ", difficulty);
+		document.getElementById("challenge").innerHTML = difficulty;
+		
 		request_burgerrank();
 	    } else {
 		console.log("sadness!", request.status, request.statusText, request.responseText);
@@ -433,7 +445,7 @@ function start_burger_drop_animation() {
 	
     }
     request.responseType = 'json';
-    request.open('GET', 'http://' + window.location.hostname + ':8888/burger');
+    request.open('GET', 'http://' + window.location.hostname + ':8888/burger?difficulty=' + difficulty);
     request.send();
 }
 
