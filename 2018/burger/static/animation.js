@@ -450,6 +450,7 @@ function start_burger_drop_animation() {
 }
 
 const resetCode = "T".charCodeAt(0);
+const pushCode = "P".charCodeAt(0);
 
 function invokeReset(e) {
 	var request = new XMLHttpRequest();
@@ -466,9 +467,29 @@ function invokeReset(e) {
 	request.open('GET', 'http://' + window.location.hostname + ':8888/reset');
 	request.send();
 }
+
+function invokePush(e) {
+	var request = new XMLHttpRequest();
+	request.onreadystatechange = function() {
+	    if(request.readyState === 4) {
+		if(request.status === 200) {
+		    console.log("pushed"); 
+		} else {
+		    console.log("sadness!", request.status, request.statusText);
+		}
+	    }
+	}
+	request.responseType = 'json';
+	request.open('GET', 'http://' + window.location.hostname + ':8888/export');
+	request.send();
+}
+
 function resetKeydownHandler(e) {
     if (e.keyCode == resetCode) {
 	invokeReset();
+    }
+    if (e.keyCode == pushCode) {
+	invokePush();
     }
 }
 
