@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import io
 import tensorflow as tf
-fnt = ImageFont.truetype('/home/dek/arduino-1.8.5/java/lib/fonts/LucidaSansRegular.ttf', 12)
+fnt = ImageFont.truetype('LucidaSansRegular.ttf', 12)
 
 
 example = tf.train.Example()
@@ -24,7 +24,7 @@ for record in tf.python_io.tf_record_iterator("label.records"):
         xmax = f['image/object/bbox/xmax'].float_list.value[i]
         ymax = f['image/object/bbox/ymax'].float_list.value[i]
         draw.rectangle([xmin*width, ymin*height, xmax*width, ymax*height], outline="rgb(255,0,0)")
-        draw.text((xmin*width, ymin*height), class_text, font=fnt, fill=(255,0,0,255))
+        draw.text((xmin*width, ymin*height), class_text.decode('utf-8'), font=fnt, fill=(255,0,0,255))
 
     im.save("decoded/%05d.png" % counter)
     counter += 1
