@@ -8,7 +8,7 @@ from PIL import Image
 import tensorflow as tf
 import random
 from object_detection.utils import dataset_util
-sys.path.insert(0, "../../../machine")
+sys.path.insert(0, "../../../constants")
 from burger_elements import BurgerElement
 
 
@@ -40,7 +40,7 @@ def create_tf_example(filename, writer):
     xmaxs = []
     ymins = []
     ymaxs = []
-    image_filename = os.path.join("../camera_markers/rectified/", os.path.basename(filename)[:-7])
+    image_filename = os.path.join("../../../camera_markers/rectified/", os.path.basename(filename)[:-7])
     im = Image.open(image_filename)
     arr = io.BytesIO()
     im.save(arr, format='PNG')
@@ -50,7 +50,7 @@ def create_tf_example(filename, writer):
     image_format = 'png'
     for line in open(filename).readlines():
         data = line.split(",")
-        bbox = map(int, map(float, data[:4]))
+        bbox = list(map(int, map(float, data[:4])))
         class_text = data[4].strip()
         class_idx = BurgerElement[class_text].value
         classes_text.append(class_text)
@@ -64,15 +64,15 @@ def create_tf_example(filename, writer):
     tf_example = tf.train.Example(features=tf.train.Features(feature={
         'image/height': dataset_util.int64_feature(height),
         'image/width': dataset_util.int64_feature(width),
-        'image/filename': dataset_util.bytes_feature(filename),
-        'image/source_id': dataset_util.bytes_feature(filename),
+        'image/filename': dataset_util.bytes_feature(bytes(filename, "utf-8")),
+        'image/source_id': dataset_util.bytes_feature(bytes(filename, "utf-8")),
         'image/encoded': dataset_util.bytes_feature(encoded_image_data),
-        'image/format': dataset_util.bytes_feature(image_format),
+        'image/format': dataset_util.bytes_feature(bytes(image_format, "utf-8")),
         'image/object/bbox/xmin': dataset_util.float_list_feature(xmins),
         'image/object/bbox/xmax': dataset_util.float_list_feature(xmaxs),
         'image/object/bbox/ymin': dataset_util.float_list_feature(ymins),
         'image/object/bbox/ymax': dataset_util.float_list_feature(ymaxs),
-        'image/object/class/text': dataset_util.bytes_list_feature(classes_text),
+        'image/object/class/text': dataset_util.bytes_list_feature([bytes(t, "utf-8") for t in classes_text]),
         'image/object/class/label': dataset_util.int64_list_feature(classes),
     }))
     writer.write(tf_example.SerializeToString())
