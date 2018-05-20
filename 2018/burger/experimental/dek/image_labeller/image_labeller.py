@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, "../../../machine")
+sys.path.insert(0, "../../../constants")
 from burger_elements import BurgerElement
 import glob
 import cv2
@@ -7,7 +7,6 @@ import os
 import signal
 from PyQt5 import QtGui, QtCore, QtWidgets, QtMultimedia, QtMultimediaWidgets
 
-from burger_elements import BurgerElement
 items = [name for name in BurgerElement.__members__]
 
 NO_STATE = 0
@@ -144,7 +143,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.index = None
         self.video = None
 
-        g = glob.glob("../camera_markers/rectified/*.png")
+        g = glob.glob("../../../camera_markers/rectified/*.png")
+        print(g)
         g.sort()
         self.loadImageFrames(g)
         # r = QtCore.QRectF(QtCore.QPointF(50, 50), QtCore.QPointF(100, 100))
