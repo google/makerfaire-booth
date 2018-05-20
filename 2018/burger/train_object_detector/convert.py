@@ -24,10 +24,10 @@ FLAGS = flags.FLAGS
 layers = BurgerElement.__members__.keys()
 
 def get_orientations():
-    rot = numpy.linspace(-90, 90, 16, endpoint=False)
-    tx = numpy.linspace(-25, 25, 5)
-    ty = numpy.linspace(-25, 25, 5)
-    scale = numpy.linspace(1, 4, 8)
+    rot = numpy.linspace(-180, 180, 32, endpoint=False)
+    tx = numpy.linspace(-50, 50, 10)
+    ty = numpy.linspace(-50, 50, 10)
+    scale = numpy.linspace(0.25, 2, 32)
     return rot, tx, ty, scale
   
 def get_random_orientation():
