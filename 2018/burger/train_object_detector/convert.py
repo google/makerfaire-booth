@@ -24,10 +24,10 @@ FLAGS = flags.FLAGS
 layers = BurgerElement.__members__.keys()
 
 def get_orientations():
-    rot = numpy.linspace(-36, 36, 8, endpoint=False)
-    tx = numpy.linspace(-50, 50, 10)
-    ty = numpy.linspace(-50, 50, 10)
-    scale = numpy.linspace(0.25, 2, 8)
+    rot = numpy.linspace(-180, 180, 19)
+    tx = numpy.linspace(-10, 10, 3)
+    ty = numpy.linspace(-10, 10, 3)
+    scale = numpy.linspace(0.25, 2, 5)
     return rot, tx, ty, scale
   
 def get_random_orientation():
@@ -109,6 +109,8 @@ def main(_):
   rots, txs, tys, scales = get_orientations()
   all = list(itertools.product(list(layers)[1:], rots, txs, tys, scales))
   random.shuffle(all)
+  eval_counter = 0
+  train_counter = 0
   for i, ev in enumerate(all):
     if (i % 1000) == 0:
       print(i, i/float(len(all))*100.)
@@ -117,9 +119,15 @@ def main(_):
     example = get_example(layer, rot, tx, ty, scale)
     if example is None:
         continue
-    writer = train_writer if random.random() < .7 else eval_writer
+    if random.random() < .7:
+        writer = train_writer
+        train_counter += 1
+    else:
+        writer = eval_writer
+        eval_counter += 1
     tf_example = create_tf_example(example, writer)
-    
+
+
   # while True:
   #   layer = random.choice(layers)
   #   while layer == 'empty':
@@ -135,7 +143,7 @@ def main(_):
 
   train_writer.close()
   eval_writer.close()
-
+  print(train_counter,eval_counter)
 
 if __name__ == '__main__':
   tf.app.run()
