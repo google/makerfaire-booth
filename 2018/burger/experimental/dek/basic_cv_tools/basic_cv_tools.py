@@ -17,18 +17,24 @@ class QGraphicsSvgItem(QtSvg.QGraphicsSvgItem):
         super(QGraphicsSvgItem, self).__init__(*args, **kwargs)
 
     def mouseMoveEvent(self, event):
-        if (event.buttons() & QtCore.Qt.LeftButton) and event.modifiers() & QtCore.Qt.ControlModifier:
-            delta = event.scenePos() - event.buttonDownScenePos(QtCore.Qt.LeftButton)
-            
-            scale = self.scale() + delta.x()/50
-            if scale > 0:
-                self.setScale(scale)
-            return
+        if (event.buttons() & QtCore.Qt.LeftButton):
+            if event.modifiers() & QtCore.Qt.ControlModifier:
+                delta = event.scenePos() - event.buttonDownScenePos(QtCore.Qt.LeftButton)
+                scale = self.scale() + delta.x()/50
+                if scale > 0:
+                    self.setScale(scale)
+                return
+            elif event.modifiers() & QtCore.Qt.ShiftModifier:
+                delta = event.scenePos() - event.buttonDownScenePos(QtCore.Qt.LeftButton)
+                self.setRotation(delta.x())
+                return
         return super(QGraphicsSvgItem, self).mouseMoveEvent(event)
 
     def mousePressEvent(self, event):
-        if (event.buttons() & QtCore.Qt.LeftButton) and event.modifiers() & QtCore.Qt.ControlModifier:
-            return
+        if (event.buttons() & QtCore.Qt.LeftButton):
+            if event.modifiers() & QtCore.Qt.ControlModifier or \
+               event.modifiers() & QtCore.Qt.ShiftModifier:
+                return
         
         return super(QGraphicsSvgItem, self).mousePressEvent(event)
 
