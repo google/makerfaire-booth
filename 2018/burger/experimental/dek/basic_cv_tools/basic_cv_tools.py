@@ -81,7 +81,7 @@ class QGraphicsView(QtWidgets.QGraphicsView):
         path = e.mimeData().text()
         item = QGraphicsSvgItem(path)
         item.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable)
-        item.setScale(1.5)
+        item.setScale(1)
         rect = item.boundingRect()
         newPos = self.mapToScene(e.pos())# - QtCore.QPoint(rect.bottomRight()))
         item.setPos(newPos)
@@ -119,6 +119,11 @@ class Widget(QtWidgets.QWidget):
         self.scene = QtWidgets.QGraphicsScene()
         self.scene.setSceneRect(0, 0, WIDTH, HEIGHT)
         self.scene.changed.connect(self.changed)
+
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.classify)
+        self.timer.start(250) 
+
         self.view = QGraphicsView(self.scene)
         self.view.setFixedSize(WIDTH,HEIGHT)
         self.view.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
