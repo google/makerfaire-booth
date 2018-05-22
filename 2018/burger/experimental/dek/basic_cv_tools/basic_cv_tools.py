@@ -16,11 +16,9 @@ class QGraphicsSvgItem(QtSvg.QGraphicsSvgItem):
     def __init__(self, *args, **kwargs):
         super(QGraphicsSvgItem, self).__init__(*args, **kwargs)
 
-        self.press = None
-        
     def mouseMoveEvent(self, event):
         if (event.buttons() & QtCore.Qt.LeftButton) and event.modifiers() & QtCore.Qt.ControlModifier:
-            delta = event.scenePos() - self.press
+            delta = event.scenePos() - event.buttonDownScenePos(QtCore.Qt.LeftButton)
             
             scale = self.scale() + delta.x()/50
             if scale > 0:
@@ -30,8 +28,6 @@ class QGraphicsSvgItem(QtSvg.QGraphicsSvgItem):
 
     def mousePressEvent(self, event):
         if (event.buttons() & QtCore.Qt.LeftButton) and event.modifiers() & QtCore.Qt.ControlModifier:
-            print("blah press", event.scenePos())
-            self.press = event.scenePos()
             return
         
         return super(QGraphicsSvgItem, self).mousePressEvent(event)
@@ -40,11 +36,10 @@ class QGraphicsPixmapItem(QtWidgets.QGraphicsPixmapItem):
     def __init__(self, *args, **kwargs):
         super(QGraphicsPixmapItem, self).__init__(*args, **kwargs)
 
-        self.press = None
         
     def mouseMoveEvent(self, event):
         if (event.buttons() & QtCore.Qt.LeftButton) and event.modifiers() & QtCore.Qt.ControlModifier:
-            delta = event.scenePos() - self.press
+            delta = event.scenePos() - event.buttonDownScenePos(QtCore.Qt.LeftButton)
             
             scale = self.scale() + delta.x()/50
             if scale > 0:
@@ -54,8 +49,6 @@ class QGraphicsPixmapItem(QtWidgets.QGraphicsPixmapItem):
 
     def mousePressEvent(self, event):
         if (event.buttons() & QtCore.Qt.LeftButton) and event.modifiers() & QtCore.Qt.ControlModifier:
-            print("blah press", event.scenePos())
-            self.press = event.scenePos()
             return
         
         return super(QGraphicsPixmapItem, self).mousePressEvent(event)
@@ -129,7 +122,7 @@ class Widget(QtWidgets.QWidget):
         self.view.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.view.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.view.setMouseTracking(True)
-        pixmap = QtGui.QPixmap("my_photo-1-crop.jpg")
+        # pixmap = QtGui.QPixmap("my_photo-1-crop.jpg")
         # topbun_webcam = QGraphicsPixmapItem(pixmap)
         # topbun_webcam.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable)
         # topbun_webcam.setScale(2)
