@@ -21,7 +21,7 @@ flags.DEFINE_string('train_output_path', '', 'Path to output TFRecord')
 flags.DEFINE_string('eval_output_path', '', 'Path to output TFRecord')
 FLAGS = flags.FLAGS
 
-layers = BurgerElement.__members__.keys()
+layers = list(BurgerElement.__members__.keys())
 
 def get_orientations():
     rot = numpy.linspace(-180, 180, 19)
@@ -106,44 +106,39 @@ def main(_):
   eval_writer = tf.python_io.TFRecordWriter(FLAGS.eval_output_path)
 
 
-  rots, txs, tys, scales = get_orientations()
-  all = list(itertools.product(list(layers)[1:], rots, txs, tys, scales))
-  random.shuffle(all)
-  eval_counter = 0
-  train_counter = 0
-  for i, ev in enumerate(all):
-    if (i % 1000) == 0:
-      print(i, i/float(len(all))*100.)
-    layer, rot, tx, ty, scale = ev
-    
-    example = get_example(layer, rot, tx, ty, scale)
-    if example is None:
-        continue
-    if random.random() < .7:
-        writer = train_writer
-        train_counter += 1
-    else:
-        writer = eval_writer
-        eval_counter += 1
-    tf_example = create_tf_example(example, writer)
+  # rots, txs, tys, scales = get_orientations()
+  # all = list(itertools.product(list(layers)[1:], rots, txs, tys, scales))
+  # random.shuffle(all)
+  # for i, ev in enumerate(all):
+  #   if (i % 1000) == 0:
+  #     print(i, i/float(len(all))*100.)
+  #   layer, rot, tx, ty, scale = ev
 
-
-  # while True:
-  #   layer = random.choice(layers)
-  #   while layer == 'empty':
-  #     layer = random.choice(layers)
-
-  #   rot, tx, ty, scale = get_random_orientation()
   #   example = get_example(layer, rot, tx, ty, scale)
   #   if example is None:
-  #     continue
-  #   writer = train_writer if random.random() < .7 else eval_writer
+  #       continue
+  #   if random.random() < .7:
+  #       writer = train_writer
+  #   else:
+  #       writer = eval_writer
   #   tf_example = create_tf_example(example, writer)
+
+
+  for i in range(10000):
+    layer = random.choice(layers)
+    while layer == 'empty':
+      layer = random.choice(layers)
+
+    rot, tx, ty, scale = get_random_orientation()
+    example = get_example(layer, rot, tx, ty, scale)
+    if example is None:
+      continue
+    writer = train_writer if random.random() < .7 else eval_writer
+    tf_example = create_tf_example(example, writer)
 
 
   train_writer.close()
   eval_writer.close()
-  print(train_counter,eval_counter)
 
 if __name__ == '__main__':
   tf.app.run()
