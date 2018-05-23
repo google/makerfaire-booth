@@ -1,23 +1,31 @@
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 import io
 import tensorflow as tf
 
 
+counter = 0
 example = tf.train.Example()
+fnt = ImageFont.truetype('../experimental/dek/image_labeller/LucidaSansRegular.ttf', 8)
 for record in tf.python_io.tf_record_iterator("../data/burgers_eval.record"):
     example.ParseFromString(record)
     f = example.features.feature
     height = f['image/height'].int64_list.value[0]
     width = f['image/width'].int64_list.value[0]
-    class_text = f['image/object/class/text'].bytes_list.value[0]
-    xmin = f['image/object/bbox/xmin'].float_list.value[0]
-    ymin = f['image/object/bbox/ymin'].float_list.value[0]
-    xmax = f['image/object/bbox/xmax'].float_list.value[0]
-    ymax = f['image/object/bbox/ymax'].float_list.value[0]
     e = f['image/encoded'].bytes_list.value[0]
-    i = Image.open(io.BytesIO(e))
-    i.save("decoded/%s_%03d_%03d_%03d_%03d.nobox.png" % (class_text, int(round(xmin*width)), int(round(ymin*height)), int(round(xmax*width)), int(round(ymax*height))))
+    im = Image.open(io.BytesIO(e))
+    # im.save("decoded/%05d.nobox.png" % counter)
+
+    l = len(f['image/object/class/text'].bytes_list.value)
+
+    draw = ImageDraw.Draw(im)
+    for i in range(l):
+        class_text = f['image/object/class/text'].bytes_list.value[i]
+        xmin = f['image/object/bbox/xmin'].float_list.value[i]
+        ymin = f['image/object/bbox/ymin'].float_list.value[i]
+        xmax = f['image/object/bbox/xmax'].float_list.value[i]
+        ymax = f['image/object/bbox/ymax'].float_list.value[i]
     
-    draw = ImageDraw.Draw(i)
-    draw.rectangle([xmin*width, ymin*height, xmax*width, ymax*height], outline="rgb(255,0,0)")
-    i.save("decoded/%s_%03d_%03d_%03d_%03d.png" % (class_text, int(round(xmin*width)), int(round(ymin*height)), int(round(xmax*width)), int(round(ymax*height))))
+        draw.rectangle([xmin*width, ymin*height, xmax*width, ymax*height], outline="rgb(255,0,0)")
+        draw.text((xmin*width, ymin*height), class_text, font=fnt, fill=(255,0,0,255))
+    im.save("decoded/%05d.png" % counter)
+    counter += 1
