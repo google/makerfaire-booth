@@ -1,0 +1,41 @@
+apiVersion: kubeflow.org/v1alpha1
+kind: TFJob
+metadata:
+  name: myjob
+  namespace: kubeflow
+spec:
+  replicaSpecs:
+  - replicas: 1
+    template:
+      spec:
+        containers:
+        - image: gcr.io/seventh-oven-198801/trainer-gpu
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          name: tensorflow
+        restartPolicy: OnFailure
+    tfReplicaType: MASTER
+  - replicas: 3
+    template:
+      spec:
+        containers:
+        - image: gcr.io/seventh-oven-198801/trainer-gpu
+          name: tensorflow
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+        restartPolicy: OnFailure
+    tfReplicaType: WORKER
+  - replicas: 
+    template:
+      spec:
+        containers:
+        - image: gcr.io/seventh-oven-198801/trainer
+          name: tensorflow
+        restartPolicy: OnFailure
+    tfReplicaType: PS
+  terminationPolicy:
+    chief:
+      replicaIndex: 0
+      replicaName: MASTER
