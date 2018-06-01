@@ -13,6 +13,9 @@ export PROJECT=ftc-research
 # The name must be unique for each deployment within your project.
 export DEPLOYMENT_NAME=ftc-cluster
 
+# Set this to the zone in your ${CONFIG_FILE}
+export ZONE=us-west1-a
+
 # Set config file to the YAML file defining your deployment manager configs.
 export CONFIG_FILE=cluster-${PROJECT}.yaml
 
