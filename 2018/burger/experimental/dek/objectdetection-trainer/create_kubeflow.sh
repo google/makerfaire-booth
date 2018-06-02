@@ -8,9 +8,9 @@ export PATH=~/ks_0.10.2_linux_amd64:$PATH
 
 set -e
 
-# gcloud beta container --project "ftc-research" clusters create "cluster-1" --zone "us-west1-a" --username "admin" --cluster-version "1.10.2-gke.3" --machine-type "custom-10-38400" --accelerator "type=nvidia-tesla-v100,count=1" --image-type "COS" --disk-type "pd-standard" --disk-size "100" --scopes "https://www.googleapis.com/auth/cloud-platform" --num-nodes "3" --enable-cloud-logging --enable-cloud-monitoring --network "default" --subnetwork "default" --enable-autoscaling --min-nodes "3" --max-nodes "9" --addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard --enable-autoupgrade --enable-autorepair
+gcloud beta container --project "ftc-research" clusters create "cluster-1" --zone "us-west1-a" --username "admin" --cluster-version "1.10.2-gke.3" --machine-type "custom-10-38400" --accelerator "type=nvidia-tesla-v100,count=1" --image-type "COS" --disk-type "pd-standard" --disk-size "100" --scopes "https://www.googleapis.com/auth/cloud-platform" --num-nodes "3" --enable-cloud-logging --enable-cloud-monitoring --network "default" --subnetwork "default" --enable-autoscaling --min-nodes "3" --max-nodes "9" --addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard --enable-autoupgrade --enable-autorepair
 
-# kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/stable/nvidia-driver-installer/cos/daemonset-preloaded.yaml
+kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/stable/nvidia-driver-installer/cos/daemonset-preloaded.yaml
 
 KUBEFLOW_VERSION=v0.1.2
 KF_GKE_ENV=gke
