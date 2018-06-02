@@ -27,14 +27,14 @@ spec:
   #             nvidia.com/gpu: 1
   #       restartPolicy: OnFailure
   #   tfReplicaType: WORKER
-  - replicas: 
-    template:
-      spec:
-        containers:
-        - image: gcr.io/ftc-research/trainer
-          name: tensorflow
-        restartPolicy: OnFailure
-    tfReplicaType: PS
+  #  - replicas: 
+  #  template:
+  #    spec:
+  #      containers:
+  #      - image: gcr.io/ftc-research/trainer
+  #        name: tensorflow
+  #      restartPolicy: OnFailure
+  #  tfReplicaType: PS
   terminationPolicy:
     chief:
       replicaIndex: 0
