@@ -8,14 +8,12 @@ from PIL import Image
 import tensorflow as tf
 import random
 from object_detection.utils import dataset_util
-sys.path.insert(0, "../../../constants")
-from burger_elements import BurgerElement
-
 
 flags = tf.app.flags
 flags.DEFINE_string('output_path', 'label.records', 'Path to output TFRecord')
+flags.DEFINE_string('image_dir', 'images', 'Path to images')
 FLAGS = flags.FLAGS
-layers = BurgerElement.__members__.keys()
+from layers import layers
 
 def get_example(fname):
 
@@ -27,7 +25,7 @@ def get_example(fname):
       'image_format': 'png',
       'bbox': bbox,
       'class_text': layer,
-      'class_idx': BurgerElement[layer].value,
+        'class_idx': layers.index(layer),
       }
 
     return example
@@ -40,7 +38,7 @@ def create_tf_example(filename, writer):
     xmaxs = []
     ymins = []
     ymaxs = []
-    image_filename = os.path.join("../../../camera_markers/rectified/", os.path.basename(filename)[:-7])
+    image_filename = os.path.join(FLAGS.image_dir, os.path.basename(filename)[:-7])
     im = Image.open(image_filename)
     arr = io.BytesIO()
     im.save(arr, format='PNG')
@@ -52,7 +50,7 @@ def create_tf_example(filename, writer):
         data = line.split(",")
         bbox = list(map(int, map(float, data[:4])))
         class_text = data[4].strip()
-        class_idx = BurgerElement[class_text].value
+        class_idx = layers.index(class_text)
         classes_text.append(class_text)
         classes.append(class_idx)
         xmins.append(bbox[0]/float(width))
