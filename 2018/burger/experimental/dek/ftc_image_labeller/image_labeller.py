@@ -4,8 +4,7 @@ import cv2
 import os
 import signal
 from PyQt5 import QtGui, QtCore, QtWidgets, QtMultimedia, QtMultimediaWidgets
-
-items = ['white_whiffle', 'green_whiffle', 'yellow_cube']
+from layers import layers
 
 NO_STATE = 0
 RESIZE = 1
@@ -83,7 +82,7 @@ class QGraphicsScene(QtWidgets.QGraphicsScene):
                     for item in tlw:
                         if isinstance(item, MainWindow):
                             label, okPressed = QtWidgets.QInputDialog.getItem(tlw[0], "Set label", 
-                                                             "Label:", items, 0, False)
+                                                             "Label:", labels, 0, False)
                             if okPressed and label != '':
                                 self.addLabelRect(start, end, label)
         super(QGraphicsScene, self).mouseReleaseEvent(event)
