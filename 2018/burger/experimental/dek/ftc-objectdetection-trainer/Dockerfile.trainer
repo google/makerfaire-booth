@@ -1,0 +1,5 @@
+ARG GPU_TAG
+
+FROM object-detection-base${GPU_TAG}
+COPY scripts/train.sh /opt
+ENTRYPOINT ["/opt/train.sh"]
