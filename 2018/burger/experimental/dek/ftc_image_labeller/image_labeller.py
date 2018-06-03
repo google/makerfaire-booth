@@ -10,7 +10,8 @@ NO_STATE = 0
 RESIZE = 1
 
 class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, scene, *args, **kwargs):
+        self.scene = scene
         super(QGraphicsRectItem, self).__init__(*args, **kwargs)
         self.setFlags(QtWidgets.QGraphicsItem.ItemIsMovable | QtWidgets.QGraphicsItem.ItemSendsGeometryChanges)
         self.state = NO_STATE
@@ -20,7 +21,7 @@ class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
                 tlw = QtWidgets.qApp.topLevelWidgets()
                 for item in tlw:
                     if isinstance(item, MainWindow):
-                        item.scene.removeItem(self)
+                        self.scene.removeItem(self)
                         event.accept()
                         return
             else:
@@ -100,12 +101,17 @@ class QGraphicsScene(QtWidgets.QGraphicsScene):
     def addLabelRect(self, start, end, label):
         print("add label rect")
         rect = QtCore.QRectF(QtCore.QPointF(0.,0.), end-start)
-        box = QGraphicsRectItem(rect)
+        box = QGraphicsRectItem(self, rect)
         self.addItem(box)
         box.setPos(start)
         text = self.addSimpleText(label)
         text.setParentItem(box)
         text.setPos(rect.topLeft())
+
+    def clearAll(self):
+        pi = [item for item in self.items() if not isinstance(item, QtWidgets.QGraphicsPixmapItem)]
+        for item in pi:
+            self.removeItem(item)
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -154,7 +160,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.slider.setValue(0)
         self.slider.setMaximum(len(filenames)-1)
         self.slider.setTickInterval(100)
-
+        
     def readImageFrame(self):
         filename = self.filenames[self.slider.value()]
         image = QtGui.QImage(filename, 'ARGB32')
@@ -168,12 +174,13 @@ class MainWindow(QtWidgets.QMainWindow):
             pi[0].setPixmap(pixmap)
         labels_filename = os.path.join("labels", os.path.basename(filename) + ".labels")
         if os.path.exists(labels_filename):
+            scene.clearAll()
             f = open(labels_filename)
             lines = f.readlines()
             filename = lines[0]
             for line in lines[1:]:
                 x, y, width, height, label = line.split(",")
-       
+                scene.addLabelRect(QtCore.QPointF(float(x), float(y)), QtCore.QPointF(float(width), float(height)), label)
 
     def sliderChanged(self):
         self.readImageFrame()
