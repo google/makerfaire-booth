@@ -4,7 +4,7 @@ import cv2
 import os
 import signal
 from PyQt5 import QtGui, QtCore, QtWidgets, QtMultimedia, QtMultimediaWidgets
-from layers import layers
+from labels import labels
 
 NO_STATE = 0
 RESIZE = 1
@@ -56,16 +56,26 @@ class QGraphicsRectItem(QtWidgets.QGraphicsRectItem):
                 self.state = NO_STATE
         super(QGraphicsRectItem, self).mouseReleaseEvent(event)
         
-class QGraphicsView(QtWidgets.QGraphicsView):
-    def __init__(self, *args, **kwargs):
-        super(QGraphicsView, self).__init__(*args, **kwargs)
-        self.start = None
 
 class QGraphicsScene(QtWidgets.QGraphicsScene):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, main_window, *args, **kwargs):
+        self.main_window = main_window
         super(QGraphicsScene, self).__init__(*args, **kwargs)
-        pass
-        
+
+    def keyPressEvent(self, event):
+        if type(event) == QtGui.QKeyEvent:
+            if event.key() == QtCore.Qt.Key_Right:
+                if self.main_window.slider.value() < self.main_window.slider.maximum():
+                    self.main_window.slider.setValue(self.main_window.slider.value()+1)
+                else:
+                    print("can't go after last")
+            if event.key() == QtCore.Qt.Key_Left:
+                if self.main_window.slider.value() > 0:
+                    self.main_window.slider.setValue(self.main_window.slider.value()-1)
+            event.accept()
+        else:
+            event.ignore()
+
     def mousePressEvent(self, event):
         super(QGraphicsScene, self).mousePressEvent(event)
 
@@ -88,6 +98,7 @@ class QGraphicsScene(QtWidgets.QGraphicsScene):
         super(QGraphicsScene, self).mouseReleaseEvent(event)
 
     def addLabelRect(self, start, end, label):
+        print("add label rect")
         rect = QtCore.QRectF(QtCore.QPointF(0.,0.), end-start)
         box = QGraphicsRectItem(rect)
         self.addItem(box)
@@ -95,7 +106,7 @@ class QGraphicsScene(QtWidgets.QGraphicsScene):
         text = self.addSimpleText(label)
         text.setParentItem(box)
         text.setPos(rect.topLeft())
-        
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -104,26 +115,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_widget.setLayout(central_layout)
         self.setCentralWidget(self.central_widget)
 
-        self.view = QGraphicsView()
+        self.view = QtWidgets.QGraphicsView()
         self.view.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
-        self.scene = QGraphicsScene()
-        self.view.setScene(self.scene)
-
-        self.control_widget = QtWidgets.QWidget(self)
-        self.forward_button = QtWidgets.QPushButton('forward')
-        self.forward_button.clicked.connect(self.forward)
-        self.backward_button = QtWidgets.QPushButton('backward')
-        self.backward_button.clicked.connect(self.backward)
-        self.control_layout = QtWidgets.QHBoxLayout()
-        self.control_layout.addWidget(self.forward_button)
-        self.control_layout.addWidget(self.backward_button)
-        self.control_widget.setLayout(self.control_layout)
+        scene = QGraphicsScene(self)
+        self.view.setScene(scene)
 
         self.slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.slider.valueChanged.connect(self.sliderChanged)
         
         central_layout.addWidget(self.view)
-        central_layout.addWidget(self.control_widget)
         central_layout.addWidget(self.slider)
 
 
@@ -140,71 +140,56 @@ class MainWindow(QtWidgets.QMainWindow):
         fileMenu.addAction(saveLabelsAction)
         fileMenu.addAction(exitAction)
 
-        self.currentItem = None
-        self.index = None
-
         g = glob.glob('/home/dek/VID_20180601_095421738/*png')
         print(g)
         g.sort()
         self.loadImageFrames(g)
-        # r = QtCore.QRectF(QtCore.QPointF(50, 50), QtCore.QPointF(100, 100))
-        # self.scene.addLabelRect(r, "test")
-        # self.saveLabels()
-
-    def sliderChanged(self):
-        self.index = self.slider.value()
-        print("slider:", self.index)
-        self.readImageFrame()
-
-    def forward(self, event):
-        if self.index is not None:
-            if self.index <= len(self.filenames):
-                self.index = self.index + 1
-                self.readImageFrame()
-        self.slider.setValue(self.index)
-        
-    def backward(self, event):
-        if self.index is not None:
-            if self.index > 0:
-                self.index = self.index - 1
-                self.readImageFrame()
-        self.slider.setValue(self.index)
 
     def loadImageFrames(self, filenames=None):
         if not filenames:
             filenames = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Files')[0]
         self.filenames = filenames
-        self.index = 0
         self.readImageFrame()
         self.slider.setMinimum(0)
-        self.slider.setMaximum(len(filenames))
+        self.slider.setValue(0)
+        self.slider.setMaximum(len(filenames)-1)
         self.slider.setTickInterval(100)
 
     def readImageFrame(self):
-        filename = self.filenames[self.index]
+        filename = self.filenames[self.slider.value()]
         image = QtGui.QImage(filename, 'ARGB32')
         pixmap = QtGui.QPixmap(image)
-        if self.currentItem != None:
-            self.currentItem.setPixmap(pixmap)
+        scene = self.view.scene()
+        items = scene.items()
+        pi = [item for item in items if isinstance(item, QtWidgets.QGraphicsPixmapItem)]
+        if pi == []:
+            scene.addPixmap(pixmap)
         else:
-            self.currentItem = self.scene.addPixmap(pixmap)
-        self.currentItem.filename = filename 
+            pi[0].setPixmap(pixmap)
         labels_filename = os.path.join("labels", os.path.basename(filename) + ".labels")
-        print("labels_filename:", labels_filename)
         if os.path.exists(labels_filename):
-            print("labels_filename:", labels_filename, "exists")
-            f = open(labels_filenames)
+            f = open(labels_filename)
+            lines = f.readlines()
+            filename = lines[0]
+            for line in lines[1:]:
+                x, y, width, height, label = line.split(",")
        
+
+    def sliderChanged(self):
+        self.readImageFrame()
+
     def saveLabels(self):
-        if self.currentItem:
-            filename = self.currentItem.filename
-            labels_filename = os.path.join("labels", os.path.basename(filename) + ".labels")
-            with open(labels_filename, "w") as f:
-                for item in self.scene.items():
-                    if isinstance(item, QGraphicsRectItem):
-                        p = item.pos()
-                        label = item.childItems()[0].text()
-                        f.write("%f,%f,%f,%f,%s\n" % (p.x(), p.y(), p.x()+item.rect().width(), p.y()+item.rect().height(), label))
+        index = self.slider.value()
+        filename = self.filenames[self.slider.value()]
+        labels_filename = os.path.join("labels", os.path.basename(filename) + ".labels")
+        with open(labels_filename, "w") as f:
+            f.write("#%s\n" % filename)
+            for item in self.view.scene().items():
+                if isinstance(item, QGraphicsRectItem):
+                    p = item.pos()
+                    label = item.childItems()[0].text()
+                    f.write("%f,%f,%f,%f,%s\n" % (p.x(), p.y(), p.x()+item.rect().width(), p.y()+item.rect().height(), label))
+
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)
