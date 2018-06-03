@@ -142,9 +142,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.currentItem = None
         self.index = None
-        self.video = None
 
-        g = glob.glob('z:\\VID_20180601_095421738\\*png')
+        g = glob.glob('/home/dek/VID_20180601_095421738/*png')
         print(g)
         g.sort()
         self.loadImageFrames(g)
@@ -162,11 +161,6 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.index <= len(self.filenames):
                 self.index = self.index + 1
                 self.readImageFrame()
-        elif self.video:
-            max_ = self.video.get(cv2.CAP_PROP_FRAME_COUNT)
-            pos = self.video.get(cv2.CAP_PROP_POS_FRAMES)
-            if pos < max_:
-                self.readMovieFrame()
         self.slider.setValue(self.index)
         
     def backward(self, event):
@@ -174,11 +168,6 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.index > 0:
                 self.index = self.index - 1
                 self.readImageFrame()
-        elif self.video:
-            pos = self.video.get(cv2.CAP_PROP_POS_FRAMES)
-            if pos > 0:
-                self.video.set(cv2.CAP_PROP_POS_FRAMES, pos-2)
-                self.readFrame()
         self.slider.setValue(self.index)
 
     def loadImageFrames(self, filenames=None):
@@ -199,15 +188,17 @@ class MainWindow(QtWidgets.QMainWindow):
             self.currentItem.setPixmap(pixmap)
         else:
             self.currentItem = self.scene.addPixmap(pixmap)
-        self.currentItem.filename = filename
-        
+        self.currentItem.filename = filename 
+        labels_filename = os.path.join("labels", os.path.basename(filename) + ".labels")
+        print("labels_filename:", labels_filename)
+        if os.path.exists(labels_filename):
+            print("labels_filename:", labels_filename, "exists")
+            f = open(labels_filenames)
+       
     def saveLabels(self):
         if self.currentItem:
             filename = self.currentItem.filename
-            if self.video:
-                labels_filename = os.path.join("labels", os.path.basename(filename) + ".labels." + str(int(self.video.get(cv2.CAP_PROP_POS_FRAMES)-1)))
-            else:
-                labels_filename = os.path.join("labels", os.path.basename(filename) + ".labels")
+            labels_filename = os.path.join("labels", os.path.basename(filename) + ".labels")
             with open(labels_filename, "w") as f:
                 for item in self.scene.items():
                     if isinstance(item, QGraphicsRectItem):

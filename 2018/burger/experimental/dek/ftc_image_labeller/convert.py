@@ -10,7 +10,7 @@ import random
 from object_detection.utils import dataset_util
 
 flags = tf.app.flags
-flags.DEFINE_string('output_path', 'label.records', 'Path to output TFRecord')
+flags.DEFINE_string('output_path', 'records/label.records', 'Path to output TFRecord')
 flags.DEFINE_string('image_dir', 'images', 'Path to images')
 FLAGS = flags.FLAGS
 from layers import layers

@@ -1,9 +1,9 @@
 import tensorflow as tf
 import random
 flags = tf.app.flags
-flags.DEFINE_string('train_output_path', 'train.records', 'Path to output training TFRecord')
-flags.DEFINE_string('eval_output_path', 'eval.records', 'Path to output eval TFRecord')
-flags.DEFINE_string('input_path', 'label.records', 'Path to input TFRecord')
+flags.DEFINE_string('train_output_path', 'records/train.records', 'Path to output training TFRecord')
+flags.DEFINE_string('eval_output_path', 'records/eval.records', 'Path to output eval TFRecord')
+flags.DEFINE_string('input_path', 'records/label.records', 'Path to input TFRecord')
 FLAGS = flags.FLAGS
 
 def main(_):

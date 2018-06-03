@@ -6,7 +6,7 @@ fnt = ImageFont.truetype('LucidaSansRegular.ttf', 12)
 
 example = tf.train.Example()
 counter = 0
-for record in tf.python_io.tf_record_iterator("label.records"):
+for record in tf.python_io.tf_record_iterator("eval.records"):
     example.ParseFromString(record)
     f = example.features.feature
     height = f['image/height'].int64_list.value[0]
