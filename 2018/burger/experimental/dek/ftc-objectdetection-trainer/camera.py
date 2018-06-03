@@ -72,7 +72,7 @@ class MainWindow(QtWidgets.QGraphicsView):
             result = self.objdet.detect(expand)
             boxes = []
             for i in range(result['num_detections']):
-                if result['detection_scores'][i] > 0.5:
+                if result['detection_scores'][i] > 0.75:
                     class_ = result['detection_classes'][i]
                     box = result['detection_boxes'][i]
                     score = result['detection_scores'][i]
@@ -83,7 +83,7 @@ class MainWindow(QtWidgets.QGraphicsView):
             p = QtGui.QPainter()
             p.begin(pixmap)
             font = p.font() 
-            font.setPointSize (18)
+            font.setPointSize(36)
             p.setFont(font)
             for box in boxes:
                 p.setPen(QtCore.Qt.red)
