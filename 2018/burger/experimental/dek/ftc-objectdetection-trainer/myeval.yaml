@@ -1,0 +1,22 @@
+apiVersion: kubeflow.org/v1alpha1
+kind: TFJob
+metadata:
+  name: myeval
+  namespace: myjob
+spec:
+  replicaSpecs:
+  - replicas: 1
+    template:
+      spec:
+        containers:
+        - image: gcr.io/ftc-research/eval-gpu
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          name: tensorflow
+        restartPolicy: OnFailure
+    tfReplicaType: MASTER
+  terminationPolicy:
+    chief:
+      replicaIndex: 0
+      replicaName: MASTER
