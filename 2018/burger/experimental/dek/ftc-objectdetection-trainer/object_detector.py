@@ -4,9 +4,6 @@ import os
 import urllib
 import tarfile
 import sys
-# sys.path.insert(0, '/home/dek/workspace/models/research')
-# sys.path.insert(0, '/home/dek/workspace/models/research/object_detection')
-# sys.path.insert(0, '/home/dek/workspace/models/research/object_detection/utils')
 from object_detection.utils import label_map_util
 
 PATH_TO_CKPT="output_inference_graph/frozen_inference_graph.pb"
