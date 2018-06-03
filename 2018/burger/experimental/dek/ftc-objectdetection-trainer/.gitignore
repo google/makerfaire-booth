@@ -1,2 +1,7 @@
-my-kubeflow
+my-kubeflow/
 config/
+labelled/
+models/train/
+models/eval/
+ved/
+output_inference_graph/
