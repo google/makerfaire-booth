@@ -9,7 +9,8 @@ spec:
     template:
       spec:
         containers:
-        - image: gcr.io/ftc-research/trainer-gpu
+        - image: gcr.io/ftc-research/object-detection-gpu
+          command: ["/opt/train.sh"]
           resources:
             limits:
               nvidia.com/gpu: 1
