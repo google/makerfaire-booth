@@ -4,4 +4,5 @@ labelled/
 models/train/
 models/eval/
 ved/
+movie/
 output_inference_graph/
