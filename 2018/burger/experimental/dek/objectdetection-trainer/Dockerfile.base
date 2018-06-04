@@ -2,8 +2,4 @@ ARG TF_TAG
 FROM tensorflow/tensorflow${TF_TAG}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git
-
-
-RUN mkdir -p /opt
-RUN git clone https://github.com/dakoner/models-1.git --single-branch /opt/tensorflow_models && cd /opt/tensorflow_models
+    git && mkdir -p /opt && git clone https://github.com/dakoner/models-1.git --depth 0 /opt/tensorflow_models && cd /opt/tensorflow_models && apt-get clean && rm -rf /tmp/* /var/tmp/*
