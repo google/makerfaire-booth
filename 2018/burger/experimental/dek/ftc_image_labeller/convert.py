@@ -11,34 +11,18 @@ from object_detection.utils import dataset_util
 
 flags = tf.app.flags
 flags.DEFINE_string('output_path', 'records/label.records', 'Path to output TFRecord')
-flags.DEFINE_string('image_dir', 'images', 'Path to images')
 FLAGS = flags.FLAGS
-from layers import layers
-
-def get_example(fname):
-
-    example = {
-      'width': im.width,
-      'height': im.height,
-      'filename': 'arbitrary',
-      'encoded_image_data': arr.getvalue(),
-      'image_format': 'png',
-      'bbox': bbox,
-      'class_text': layer,
-        'class_idx': layers.index(layer),
-      }
-
-    return example
-
+from labels import labels
 
 def create_tf_example(filename, writer):
+    lines = open(filename).readlines()
+    image_filename = lines[0].strip()[1:]
     classes_text = []
     classes = []
     xmins = []
     xmaxs = []
     ymins = []
     ymaxs = []
-    image_filename = os.path.join(FLAGS.image_dir, os.path.basename(filename)[:-7])
     im = Image.open(image_filename)
     arr = io.BytesIO()
     im.save(arr, format='PNG')
@@ -46,11 +30,14 @@ def create_tf_example(filename, writer):
     width = im.width
     encoded_image_data = arr.getvalue()
     image_format = 'png'
-    for line in open(filename).readlines():
+    for line in lines[1:]:
+        line = line.strip()
+        if line == '':
+            continue
         data = line.split(",")
         bbox = list(map(int, map(float, data[:4])))
         class_text = data[4].strip()
-        class_idx = layers.index(class_text)
+        class_idx = labels.index(class_text)
         classes_text.append(class_text)
         classes.append(class_idx)
         xmins.append(bbox[0]/float(width))
@@ -79,6 +66,7 @@ def main(_):
   
     writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
     g = glob.glob("labels/*labels")
+    g.sort()
     for filename in g:
         tf_example = create_tf_example(filename, writer)
 
