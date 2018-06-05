@@ -11,8 +11,8 @@ spec:
         containers:
         - image: gcr.io/ftc-research/object-detection-gpu
           command: ["python", "/opt/tensorflow_models/research/object_detection/train.py",
-          "--pipeline_config_path=gs://ftc-research-object-detector-train/models/model/faster_rcnn_resnet101.config",
-          "--train_dir=gs://ftc-research-object-detector-train/models/train"
+          "--pipeline_config_path=gs://ftc-research-object-detector-train/models/model/ssdlite_mobilenet_v2_coco.config",
+          "--train_dir=gs://ftc-research-object-detector-train/models/train_ssdlite_mobilenet_v2_coco.config"
           ]
           env:
             - name: PYTHONPATH
