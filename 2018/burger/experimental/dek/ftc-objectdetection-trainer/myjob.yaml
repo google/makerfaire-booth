@@ -10,32 +10,38 @@ spec:
       spec:
         containers:
         - image: gcr.io/ftc-research/object-detection-gpu
-          command: ["/opt/train.sh"]
+          command: ["python", "/opt/tensorflow_models/research/object_detection/train.py",
+          "--pipeline_config_path=gs://ftc-research-object-detector-train/models/model/faster_rcnn_resnet101.config",
+          "--train_dir=gs://ftc-research-object-detector-train/models/train"
+          ]
+          env:
+            - name: PYTHONPATH
+              value: "/opt/tensorflow_models/research:/opt/tensorflow_models/research/slim"
           resources:
             limits:
               nvidia.com/gpu: 1
           name: tensorflow
         restartPolicy: OnFailure
     tfReplicaType: MASTER
-  # - replicas: 1
-  #   template:
-  #     spec:
-  #       containers:
-  #       - image: gcr.io/ftc-research/trainer-gpu
-  #         name: tensorflow
-  #         resources:
-  #           limits:
-  #             nvidia.com/gpu: 1
-  #       restartPolicy: OnFailure
-  #   tfReplicaType: WORKER
-  #  - replicas: 
-  #  template:
-  #    spec:
-  #      containers:
-  #      - image: gcr.io/ftc-research/trainer
-  #        name: tensorflow
-  #      restartPolicy: OnFailure
-  #  tfReplicaType: PS
+  - replicas: 0
+    template:
+      spec:
+        containers:
+        - image: gcr.io/ftc-research/object-detection-gpu
+          name: tensorflow
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+        restartPolicy: OnFailure
+    tfReplicaType: WORKER
+  - replicas: 0
+    template:
+      spec:
+        containers:
+        - image: gcr.io/ftc-research/object-detection-gpu
+          name: tensorflow
+        restartPolicy: OnFailure
+    tfReplicaType: PS
   terminationPolicy:
     chief:
       replicaIndex: 0
