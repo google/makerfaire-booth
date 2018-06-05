@@ -157,7 +157,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.filenames = filenames
         self.readImageFrame()
         self.slider.setMinimum(0)
-        self.slider.setValue(0)
+        self.slider.setValue(1617)
         self.slider.setMaximum(len(filenames)-1)
         self.slider.setTickInterval(100)
         
@@ -174,15 +174,19 @@ class MainWindow(QtWidgets.QMainWindow):
             pi[0].setPixmap(pixmap)
         labels_filename = os.path.join("labels", os.path.basename(filename) + ".labels")
         if os.path.exists(labels_filename):
-            scene.clearAll()
             f = open(labels_filename)
             lines = f.readlines()
             filename = lines[0]
             for line in lines[1:]:
+                line = line.strip()
+                if line == '':
+                    continue
                 x, y, width, height, label = line.split(",")
                 scene.addLabelRect(QtCore.QPointF(float(x), float(y)), QtCore.QPointF(float(width), float(height)), label)
 
     def sliderChanged(self):
+        print(self.slider.value())
+        self.view.scene().clearAll()
         self.readImageFrame()
 
     def saveLabels(self):
@@ -196,7 +200,6 @@ class MainWindow(QtWidgets.QMainWindow):
                     p = item.pos()
                     label = item.childItems()[0].text()
                     f.write("%f,%f,%f,%f,%s\n" % (p.x(), p.y(), p.x()+item.rect().width(), p.y()+item.rect().height(), label))
-
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal.SIG_DFL)
