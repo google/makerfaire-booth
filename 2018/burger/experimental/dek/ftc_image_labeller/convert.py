@@ -11,6 +11,7 @@ from object_detection.utils import dataset_util
 
 flags = tf.app.flags
 flags.DEFINE_string('output_path', 'records/label.records', 'Path to output TFRecord')
+flags.DEFINE_string('labels_dir', 'labels', 'Directory containing labels')
 FLAGS = flags.FLAGS
 from labels import labels
 
@@ -63,16 +64,12 @@ def create_tf_example(filename, writer):
     writer.write(tf_example.SerializeToString())
 
 def main(_):
-  
     writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
-    g = glob.glob("labels/*labels")
+    g = glob.glob(os.path.join(FLAGS.label_dir, "*"))
     g.sort()
     for filename in g:
         tf_example = create_tf_example(filename, writer)
-
-
     writer.close()
-
 
 if __name__ == '__main__':
   tf.app.run()
