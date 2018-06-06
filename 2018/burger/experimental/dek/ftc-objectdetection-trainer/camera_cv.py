@@ -5,17 +5,20 @@ import sys
 from object_detector import ObjectDetector
 import cv2
 
-filename="/home/dek/VID_20180601_095421738.mp4"
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--movie", type=str, default="movie.mp4", help="Movie file to run prediction on")
+parser.add_argument("--write_output", type=bool, default=False, help="Whether to write output")
+parser.add_argument("--output_dir", type=str, default="movie", help="Directory to write output to")
+args = parser.parse_args()
 
 from layers import layers
 
-WIDTH=1080
-HEIGHT=1920
+if not os.path.exists(args.movie):
+  print("Movie file %s missing" % args.movie)
+  sys.exit(1)
 
-# cam = cv2.VideoCapture(0)
-# cam.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
-# cam.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
-cam = cv2.VideoCapture(filename)
+cam = cv2.VideoCapture(args.movie)
 width = int(cam.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
 objdet = ObjectDetector()
@@ -25,15 +28,11 @@ counter = 0
 
 ret, img = cam.read()
 while ret == True:
-    t0 = time.time()
     img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    # img = cv2.resize(img, None, fx=0.25, fy=0.25)
     h, w, _ = img.shape
     expand = np.expand_dims(img, axis=0)
-    t1 = time.time()
     result = objdet.detect(expand)
-    t2 = time.time()
     boxes = []
     for i in range(result['num_detections']):
         if result['detection_scores'][i] > 0.75:
@@ -53,11 +52,9 @@ while ret == True:
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     cv2.imshow('image', img)
-    cv2.waitKey(1)
-    t3 = time.time()
-    cv2.imwrite("movie/%05d.png" % counter, img)
+    if cv2.waitKey(1) and ord('q'):
+      break
+    if args.write_output:
+      cv2.imwrite(os.path.join(args.output_dir, "%05d.png" % counter), img)
     counter += 1
     ret, img = cam.read()
-    t4 = time.time()
-    print("%5.2f,%5.2f,%5.2f,%5.2f" % (t1-t0, t2-t1, t3-t2, t4-t3))
-
