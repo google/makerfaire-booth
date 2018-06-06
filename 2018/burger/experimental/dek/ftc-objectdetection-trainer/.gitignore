@@ -6,3 +6,7 @@ models/eval/
 ved/
 movie/
 output_inference_graph/
+labels/
+decoded/
+records/
+images/
