@@ -8,7 +8,7 @@ export PATH=~/ks_0.10.2_linux_amd64:$PATH
 
 set -e
 
-gcloud beta container --project "ftc-research" clusters create "cluster-1" --zone "us-west1-a" --username "admin" --cluster-version "1.10.2-gke.3" --machine-type "custom-10-38400" --accelerator "type=nvidia-tesla-v100,count=1" --image-type "COS" --disk-type "pd-standard" --disk-size "100" --scopes "https://www.googleapis.com/auth/cloud-platform" --num-nodes "3" --enable-cloud-logging --enable-cloud-monitoring --network "default" --subnetwork "default" --enable-autoscaling --min-nodes "3" --max-nodes "9" --addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard --enable-autoupgrade --enable-autorepair
+gcloud beta container --project "ftc-research" clusters create "cluster-1" --zone "us-west1-a" --username "admin" --cluster-version "1.10.2-gke.3" --machine-type "custom-12-41984" --accelerator "type=nvidia-tesla-v100,count=1" --image-type "COS" --disk-type "pd-standard" --disk-size "100" --scopes "https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --num-nodes "2" --enable-stackdriver-kubernetes --network "default" --subnetwork "default" --addons HorizontalPodAutoscaling,HttpLoadBalancing --enable-autoupgrade --enable-autorepair
 
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/stable/nvidia-driver-installer/cos/daemonset-preloaded.yaml
 
